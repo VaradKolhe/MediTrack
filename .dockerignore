@@ -1,0 +1,72 @@
+# Docker ignore file for Bed Tracker project
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+README.md
+DOCKER-README.md
+ARCHITECTURE.md
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Build scripts
+build-docker.sh
+docker-manage.sh
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Maven
+target/
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# Gradle
+.gradle/
+build/
+
+# Node modules (if any)
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Test files
+src/test/
+
+# Backup files
+*.bak
+*.backup
+
+# Coverage reports
+coverage/
+
+# Docker volumes
+mysql_data/

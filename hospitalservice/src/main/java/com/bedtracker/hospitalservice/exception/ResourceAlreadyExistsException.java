@@ -1,0 +1,8 @@
+package com.bedtracker.hospitalservice.exception;
+
+public class ResourceAlreadyExistsException extends RuntimeException {
+    public ResourceAlreadyExistsException(String message) {
+        super(message);
+    }
+}
+
