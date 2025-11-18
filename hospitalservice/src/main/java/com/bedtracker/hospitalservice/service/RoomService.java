@@ -28,11 +28,11 @@ public class RoomService {
     
     public List<RoomResponse> getAllRooms(Long hospitalId) {
         log.info("Fetching all rooms for hospital: {}", hospitalId);
-        List<Room> rooms = roomRepository.findByHospitalIdOrderByRoomNumber(hospitalId);
+        List<Room> rooms = roomRepository.findByHospital_IdOrderByRoomNumber(hospitalId);
         
         return rooms.stream()
                 .map(room -> {
-                    Long occupiedBeds = patientRepository.countAdmittedPatientsByRoomId(room.getRoomId());
+                    Long occupiedBeds = patientRepository.countAdmittedPatientsByRoomId(room.getId());
                     return RoomResponse.fromEntity(room, occupiedBeds.intValue());
                 })
                 .collect(Collectors.toList());
@@ -40,7 +40,7 @@ public class RoomService {
     
     public RoomResponse getRoomById(Long roomId, Long hospitalId) {
         log.info("Fetching room {} for hospital {}", roomId, hospitalId);
-        Room room = roomRepository.findByRoomIdAndHospitalId(roomId, hospitalId)
+        Room room = roomRepository.findByIdAndHospital_Id(roomId, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Room not found with ID: " + roomId + " for hospital: " + hospitalId
                 ));
@@ -52,7 +52,7 @@ public class RoomService {
     public OccupancyResponse getRoomOccupancy(Long roomId, Long hospitalId) {
         log.info("Fetching occupancy for room {} in hospital {}", roomId, hospitalId);
         
-        Room room = roomRepository.findByRoomIdAndHospitalId(roomId, hospitalId)
+        Room room = roomRepository.findByIdAndHospital_Id(roomId, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Room not found with ID: " + roomId + " for hospital: " + hospitalId
                 ));
@@ -60,7 +60,7 @@ public class RoomService {
         Long occupiedBeds = patientRepository.countAdmittedPatientsByRoomId(roomId);
         
         return new OccupancyResponse(
-                room.getRoomId(),
+                room.getId(),
                 room.getRoomNumber(),
                 room.getTotalBeds(),
                 occupiedBeds.intValue()
@@ -72,7 +72,7 @@ public class RoomService {
         log.info("Assigning patient {} to room {} in hospital {}", request.getPatientId(), request.getRoomId(), hospitalId);
         
         // Verify room belongs to hospital
-        Room room = roomRepository.findByRoomIdAndHospitalId(request.getRoomId(), hospitalId)
+        Room room = roomRepository.findByIdAndHospital_Id(request.getRoomId(), hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Room not found with ID: " + request.getRoomId() + " for hospital: " + hospitalId
                 ));
@@ -116,7 +116,7 @@ public class RoomService {
                 request.getPatientId(), request.getNewRoomId(), hospitalId);
         
         // Verify new room belongs to hospital
-        Room newRoom = roomRepository.findByRoomIdAndHospitalId(request.getNewRoomId(), hospitalId)
+        Room newRoom = roomRepository.findByIdAndHospital_Id(request.getNewRoomId(), hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Room not found with ID: " + request.getNewRoomId() + " for hospital: " + hospitalId
                 ));

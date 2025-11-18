@@ -130,7 +130,7 @@ docker-compose up -d --build
 - **Host**: mysql (internal) / localhost:3306 (external)
 - **Root Password**: root
 - **Application User**: bedtracker / bedtracker123
-- **Databases**: user_db, hospital_db, admin_db
+- **Database**: MediTrackDB
 
 ### Connecting to Database
 ```bash
@@ -340,7 +340,7 @@ docker-compose up -d
 docker system prune -f
 
 # Backup database
-docker exec bed-tracker-mysql mysqldump -u root -p user_db > backup.sql
+docker exec bed-tracker-mysql mysqldump -u root -p MediTrackDB > backup.sql
 ```
 
 ### Monitoring Setup

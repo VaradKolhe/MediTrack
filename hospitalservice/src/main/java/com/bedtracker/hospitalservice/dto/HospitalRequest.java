@@ -9,30 +9,36 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HospitalRequest {
-    
+
+    // Aligned with Hospital.name (length=120, nullable=false)
     @NotBlank(message = "Name is required")
-    @Size(max = 200, message = "Name must not exceed 200 characters")
+    @Size(max = 120, message = "Name must not exceed 120 characters")
     private String name;
-    
-    @NotBlank(message = "Address is required")
-    @Size(max = 500, message = "Address must not exceed 500 characters")
-    private String address;
-    
+
+    // Aligned with Hospital.contactNumber (length=15, nullable=false)
     @NotBlank(message = "Contact number is required")
+    @Size(max = 15, message = "Contact number must not exceed 15 characters")
     @Pattern(regexp = "^[0-9]{10,15}$", message = "Contact number must be 10-15 digits")
     private String contactNumber;
-    
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email must be valid")
-    @Size(max = 100, message = "Email must not exceed 100 characters")
-    private String email;
-    
-    @NotNull(message = "Total rooms is required")
-    @Min(value = 1, message = "Total rooms must be at least 1")
-    private Integer totalRooms;
-    
-    @NotNull(message = "Total beds is required")
+
+    // Aligned with Hospital.address (length=255, nullable=false)
+    @NotBlank(message = "Address is required")
+    @Size(max = 255, message = "Address must not exceed 255 characters")
+    private String address;
+
+    // Added to align with Hospital.city (length=120, nullable=false)
+    @NotBlank(message = "City is required")
+    @Size(max = 120, message = "City must not exceed 120 characters")
+    private String city;
+
+    // Added to align with Hospital.state (length=120, nullable=false)
+    @NotBlank(message = "State is required")
+    @Size(max = 120, message = "State must not exceed 120 characters")
+    private String state;
+
+    // Aligned with Hospital.totalBeds (nullable in entity, but requesting it as required)
+    @NotNull(message = "Total beds count is required")
     @Min(value = 1, message = "Total beds must be at least 1")
     private Integer totalBeds;
-}
 
+}

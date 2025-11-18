@@ -20,11 +20,18 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
     private final JwtUtil jwtUtil;
+    private static final String LOGIN_ENDPOINT = "/public/auth/staff/login";
     
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        
+
+        if (request.getServletPath().equals(LOGIN_ENDPOINT)) {
+            log.debug("Bypassing JWT filter for staff login endpoint: {}", LOGIN_ENDPOINT);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authorizationHeader = request.getHeader("Authorization");
         
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {

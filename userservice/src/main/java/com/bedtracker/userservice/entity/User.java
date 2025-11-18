@@ -1,17 +1,21 @@
 package com.bedtracker.userservice.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(exclude = "password")
+@Builder
 public class User {
     
     @Id
@@ -31,34 +35,24 @@ public class User {
     @Column(nullable = false)
     private Role role;
     
-    @Column(name = "first_name")
+    @Column
     private String firstName;
     
-    @Column(name = "last_name")
+    @Column
     private String lastName;
     
-    @Column(name = "is_enabled", nullable = false)
-    private Boolean isEnabled = true;
+    @Column
+    private Long hospitalId;
+
+    @Column
+    private Boolean isEnabled;
     
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column
     private LocalDateTime createdAt;
     
-    @Column(name = "updated_at")
+    @Column
     private LocalDateTime updatedAt;
-    
-    // Custom constructor for creating new users
-    public User(String username, String email, String password, Role role, String firstName, String lastName) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.isEnabled = true;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-    
+
     // JPA Lifecycle callbacks
     @PrePersist
     protected void onCreate() {
@@ -68,6 +62,8 @@ public class User {
     
     @PreUpdate
     protected void onUpdate() {
+
         updatedAt = LocalDateTime.now();
     }
+
 }

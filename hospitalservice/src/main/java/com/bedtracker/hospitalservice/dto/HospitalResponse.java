@@ -15,24 +15,20 @@ public class HospitalResponse {
     private Long id;
     private String name;
     private String address;
+    private String state;
+    private String city;
     private String contactNumber;
-    private String email;
-    private Integer totalRooms;
     private Integer totalBeds;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
     
     public static HospitalResponse fromEntity(Hospital hospital) {
         return new HospitalResponse(
             hospital.getId(),
             hospital.getName(),
             hospital.getAddress(),
+            hospital.getState(),
+            hospital.getCity(),
             hospital.getContactNumber(),
-            hospital.getEmail(),
-            hospital.getTotalRooms(),
-            hospital.getTotalBeds(),
-            hospital.getCreatedAt(),
-            hospital.getUpdatedAt()
+            hospital.getTotalBeds()
         );
     }
 }

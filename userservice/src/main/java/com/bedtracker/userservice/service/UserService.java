@@ -25,13 +25,12 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("Loading user by username: {}", username);
-        
-        User user = userRepository.findByUsernameAndIsEnabled(username, true)
-                .orElseThrow(() -> {
-                    log.warn("User not found with username: {}", username);
-                    return new UsernameNotFoundException("User not found with username: " + username);
-                });
-        
+        User user = userRepository.findByUsername(username)
+                        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        if(!user.getIsEnabled()) {
+            log.warn("User account is disabled: {}", user.getUsername());
+            throw new UsernameNotFoundException("User account is disabled");
+        }
         log.info("User loaded successfully: {}", user.getUsername());
         return new CustomUserDetails(user);
     }

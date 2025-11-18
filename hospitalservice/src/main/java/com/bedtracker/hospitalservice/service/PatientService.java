@@ -57,7 +57,7 @@ public class PatientService {
     
     public List<PatientResponse> getAllPatients(Long hospitalId) {
         log.info("Fetching all patients for hospital: {}", hospitalId);
-        List<Patient> patients = patientRepository.findByHospitalIdOrderByCreatedAtDesc(hospitalId);
+        List<Patient> patients = patientRepository.findByHospitalId(hospitalId);
         return patients.stream()
                 .map(PatientResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -68,7 +68,7 @@ public class PatientService {
         
         // Verify room belongs to hospital (should be checked via RoomService or repository)
         List<Patient> patients = patientRepository.findAdmittedPatientsByRoomId(roomId);
-        
+
         // Filter by hospitalId for security
         return patients.stream()
                 .filter(p -> p.getHospitalId().equals(hospitalId))

@@ -7,7 +7,7 @@ services:
     container_name: bed-tracker-mysql-prod
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: user_db
+      MYSQL_DATABASE: MediTrackDB
       MYSQL_USER: ${MYSQL_USER:-bedtracker}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-bedtracker123}
     ports:
@@ -70,7 +70,7 @@ services:
       - "${USER_SERVICE_PORT:-8082}:8082"
     environment:
       SPRING_PROFILES_ACTIVE: docker,prod
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/user_db
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/MediTrackDB
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-bedtracker}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-bedtracker123}
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka

@@ -15,6 +15,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +29,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+    private final RestTemplate restTemplate;
     
     public AuthResponse register(AuthRequest authRequest) {
         log.info("Attempting to register new user: {}", authRequest.getUsername());
@@ -43,17 +45,17 @@ public class AuthService {
             log.warn("Registration failed: Email already exists - {}", authRequest.getEmail());
             throw new RuntimeException("Email is already taken!");
         }
-        
-        // Create new user with default USER role
-        User user = new User(
-                authRequest.getUsername(),
-                authRequest.getEmail(),
-                passwordEncoder.encode(authRequest.getPassword()),
-                Role.USER, // Default role
-                authRequest.getFirstName(),
-                authRequest.getLastName()
-        );
-        
+
+        User user = User.builder()
+                .username(authRequest.getUsername())
+                .email(authRequest.getEmail())
+                .password(passwordEncoder.encode(authRequest.getPassword()))
+                .role(Role.USER)
+                .firstName(authRequest.getFirstName())
+                .lastName(authRequest.getLastName())
+                .isEnabled(true)
+                .build();
+
         // Save user
         User savedUser = userService.save(user);
         log.info("User registered successfully: {}", savedUser.getUsername());
@@ -77,7 +79,6 @@ public class AuthService {
         log.info("Attempting to login user: {}", loginRequest.getUsername());
         
         try {
-            // Authenticate user
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),
@@ -85,24 +86,61 @@ public class AuthService {
                     )
             );
             
-            // Get user details
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             User user = userDetails.getUser();
             
-            // Generate JWT token
-            String token = jwtUtil.generateToken(userDetails, createTokenClaims(user));
-            
-            log.info("User logged in successfully: {}", user.getUsername());
-            
-            return new AuthResponse(
-                    token,
-                    user.getId(),
-                    user.getUsername(),
-                    user.getEmail(),
-                    user.getFirstName(),
-                    user.getLastName(),
-                    user.getRole()
-            );
+            if (user.getRole() == Role.RECEPTIONIST) {
+                Long hospitalId = user.getHospitalId();
+                if (hospitalId == null) {
+                    log.warn("No hospitalId associated with staff user: {}", user.getUsername());
+                    throw new BadCredentialsException("Staff account is not associated with a hospital");
+                }
+
+                Map<String, Object> payload = new HashMap<>();
+                payload.put("username", user.getUsername());
+                payload.put("hospitalId", hospitalId);
+                payload.put("receptionistId", user.getId());
+                payload.put("role", "RECEPTIONIST");
+                Map<?, ?> response = restTemplate.postForObject("http://localhost:8081/public/auth/staff/login", payload, Map.class);
+                if (response == null || !Boolean.TRUE.equals(response.get("success"))) {
+                    log.warn("Staff login forwarding failed for user: {}", user.getUsername());
+                    throw new BadCredentialsException("Staff authentication failed");
+                }
+                Object dataObj = response.get("data");
+                if (!(dataObj instanceof Map)) {
+                    log.warn("Invalid response structure from hospital-service for staff login");
+                    throw new BadCredentialsException("Staff authentication failed");
+                }
+                Map<?, ?> data = (Map<?, ?>) dataObj;
+                Object tokenObj = data.get("token");
+                if (!(tokenObj instanceof String)) {
+                    log.warn("Token missing in hospital-service response for staff login");
+                    throw new BadCredentialsException("Staff authentication failed");
+                }
+                String token = (String) tokenObj;
+                log.info("Staff logged in successfully: {}", user.getUsername());
+                return new AuthResponse(
+                        token,
+                        user.getId(),
+                        user.getUsername(),
+                        user.getEmail(),
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getRole()
+                );
+            } else {
+                String token = jwtUtil.generateToken(userDetails, createTokenClaims(user));
+                log.info("User logged in successfully: {}", user.getUsername());
+                return new AuthResponse(
+                        token,
+                        user.getId(),
+                        user.getUsername(),
+                        user.getEmail(),
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getRole()
+                );
+            }
             
         } catch (AuthenticationException e) {
             log.warn("Login failed for user: {} - {}", loginRequest.getUsername(), e.getMessage());

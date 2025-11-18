@@ -13,14 +13,14 @@ import java.util.Optional;
 public interface PatientRepository extends JpaRepository<Patient, Long> {
     
     // Find all patients for a specific hospital
-    List<Patient> findByHospitalIdOrderByCreatedAtDesc(Long hospitalId);
+    List<Patient> findByHospitalId(Long hospitalId);
     
     // Find patients in a specific room
     @Query("SELECT p FROM Patient p WHERE p.roomId = :roomId AND p.status = 'ADMITTED'")
     List<Patient> findAdmittedPatientsByRoomId(@Param("roomId") Long roomId);
     
     // Find all patients (including discharged) in a room
-    List<Patient> findByRoomIdOrderByCreatedAtDesc(Long roomId);
+    List<Patient> findByRoomId(Long roomId);
     
     // Find patient by contact number and hospital (for duplicate check)
     Optional<Patient> findByContactNumberAndHospitalId(String contactNumber, Long hospitalId);
@@ -33,6 +33,6 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     Optional<Patient> findByPatientIdAndHospitalId(Long patientId, Long hospitalId);
     
     // Find all admitted patients for a hospital
-    List<Patient> findByHospitalIdAndStatusOrderByCreatedAtDesc(Long hospitalId, Patient.PatientStatus status);
+    List<Patient> findByHospitalIdAndStatus(Long hospitalId, Patient.PatientStatus status);
 }
 

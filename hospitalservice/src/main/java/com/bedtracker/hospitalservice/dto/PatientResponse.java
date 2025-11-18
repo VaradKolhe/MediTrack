@@ -25,8 +25,6 @@ public class PatientResponse {
     private LocalDate entryDate;
     private LocalDate exitDate;
     private String status;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
     
     public static PatientResponse fromEntity(Patient patient) {
         return new PatientResponse(
@@ -41,9 +39,7 @@ public class PatientResponse {
             patient.getSymptoms(),
             patient.getEntryDate(),
             patient.getExitDate(),
-            patient.getStatus() != null ? patient.getStatus().name() : null,
-            patient.getCreatedAt(),
-            patient.getUpdatedAt()
+            patient.getStatus() != null ? patient.getStatus().name() : null
         );
     }
 }

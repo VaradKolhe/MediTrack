@@ -10,12 +10,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "patients", indexes = {
-    @Index(name = "idx_hospital_id", columnList = "hospitalId"),
-    @Index(name = "idx_room_id", columnList = "roomId"),
-    @Index(name = "idx_contact_number", columnList = "contactNumber"),
-    @Index(name = "idx_status", columnList = "status")
-})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -60,27 +54,14 @@ public class Patient {
     @Column(nullable = false, length = 20)
     private PatientStatus status;
     
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-    
-    @Column
-    private LocalDateTime updatedAt;
-    
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
         if (entryDate == null) {
             entryDate = LocalDate.now();
         }
         if (status == null) {
             status = PatientStatus.ADMITTED;
         }
-    }
-    
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
     }
     
     public enum PatientStatus {

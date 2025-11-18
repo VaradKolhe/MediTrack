@@ -16,7 +16,7 @@ A Spring Boot microservice that handles user authentication and authorization us
 
 ### Application Properties
 - **Port**: 8082
-- **Database**: MySQL (localhost:3306/user_db)
+- **Database**: MySQL (localhost:3306/MediTrackDB)
 - **Eureka Server**: http://localhost:8761/eureka
 - **JWT Secret**: Configured in application.properties
 - **JWT Expiration**: 24 hours (86400000 ms)
@@ -87,19 +87,19 @@ Authorization: Bearer <jwt_token>
 1. Java 17+
 2. MySQL Server running on localhost:3306
 3. Eureka Server running on localhost:8761
-4. Create database: `user_db`
+4. Create database: `MediTrackDB`
 
 ## Database Setup
 
 ```sql
-CREATE DATABASE user_db;
+CREATE DATABASE MediTrackDB;
 ```
 
 The service will automatically create the required tables using JPA auto-ddl.
 
 ## Running the Service
 
-1. Ensure MySQL is running and create the `user_db` database
+1. Ensure MySQL is running and create the `MediTrackDB` database
 2. Ensure Eureka Server is running on port 8761
 3. Run the application:
    ```bash

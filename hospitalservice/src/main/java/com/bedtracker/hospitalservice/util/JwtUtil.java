@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.Map;
 import java.util.function.Function;
 
 @Component
@@ -52,6 +53,16 @@ public class JwtUtil {
     
     private Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
+    }
+    
+    public String generateToken(Map<String, Object> claims, String subject) {
+        return Jwts.builder()
+                .claims(claims)
+                .subject(subject)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSigningKey(), Jwts.SIG.HS256)
+                .compact();
     }
     
     public Boolean validateToken(String token) {

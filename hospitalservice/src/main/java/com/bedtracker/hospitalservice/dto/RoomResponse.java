@@ -19,8 +19,8 @@ public class RoomResponse {
     
     public static RoomResponse fromEntity(Room room, Integer occupiedBeds) {
         RoomResponse response = new RoomResponse();
-        response.setRoomId(room.getRoomId());
-        response.setHospitalId(room.getHospitalId());
+        response.setRoomId(room.getId());
+        response.setHospitalId(room.getHospital().getId());
         response.setRoomNumber(room.getRoomNumber());
         response.setTotalBeds(room.getTotalBeds());
         response.setOccupiedBeds(occupiedBeds != null ? occupiedBeds : 0);

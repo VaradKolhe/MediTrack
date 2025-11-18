@@ -7,7 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class HospitalserviceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(HospitalserviceApplication.class, args);
+
+        SpringApplication.run(HospitalserviceApplication.class, args);
+        System.out.println("Hospitalservice runs fine!!");
 	}
 
 }
