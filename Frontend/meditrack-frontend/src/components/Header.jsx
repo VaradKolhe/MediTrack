@@ -50,40 +50,45 @@ export default function Header({ isTransparent = false }) {
     return user.username || user.firstName || "User";
   };
 
+  // Respect the `isTransparent` prop: on the opening page we use subtle transparency
+  // with dark text; on other pages use clean white header with professional styling
   const headerClasses = isTransparent
-    ? "absolute top-0 left-0 w-full text-white"
-    : "bg-slate-950/90 backdrop-blur border-b border-white/10 text-white sticky top-0";
+    ? "absolute top-0 left-0 w-full z-50 text-gray-900"
+    : "sticky top-0 left-0 w-full z-50 bg-white shadow-sm border-b border-slate-200 text-slate-900";
 
   const desktopLinkClass = (path) =>
-    `text-sm font-medium transition ${
-      location.pathname === path
-        ? "text-white"
-        : "text-white/70 hover:text-white"
-    }`;
+    isTransparent
+      ? `text-sm font-medium transition ${
+          location.pathname === path ? "text-gray-900 font-semibold" : "text-gray-600 hover:text-gray-900"
+        }`
+      : `text-sm font-semibold transition ${
+          location.pathname === path ? "text-[#1D4ED8]" : "text-slate-600 hover:text-slate-900"
+        }`;
 
-  const actionButtonClass =
-    "bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950";
+  const primaryButtonClass = isTransparent
+    ? "bg-blue-600 text-white hover:bg-blue-700 border border-blue-600"
+    : "bg-[#1D4ED8] text-white hover:bg-[#1E40AF] shadow-sm";
+
+  const loginButtonClass = "bg-[#F97316] text-white hover:bg-[#EA580C] shadow-sm";
 
   return (
-    <header className={`${headerClasses} z-40`}>
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="flex items-center justify-between py-4">
+    <header className={`${headerClasses}`} role="banner" aria-label="Main header">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex items-center justify-between py-4 md:py-5">
           <Link
             to="/"
-            className="flex items-center gap-2 font-semibold tracking-tight"
+            className="flex items-center gap-2 font-bold tracking-tight hover:opacity-80 transition"
           >
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-slate-950">
-              MT
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white shadow-md">
+              <span className="font-bold text-lg">MT</span>
             </div>
-            <div className="text-base leading-tight">
-              MediTrack
-              <p className="text-xs uppercase tracking-[0.3em] text-white/60">
-                Real-time care
-              </p>
+            <div className="ml-1">
+              <div className={isTransparent ? "text-gray-900 font-bold text-lg" : "text-slate-900 font-bold text-lg"}>MediTrack</div>
+              <p className={isTransparent ? "text-xs uppercase tracking-widest text-gray-600 font-semibold" : "text-xs uppercase tracking-widest text-slate-500 font-semibold"}>Real-Time Care</p>
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-10">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
@@ -95,7 +100,7 @@ export default function Header({ isTransparent = false }) {
             ))}
           </nav>
 
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-4">
             {user ? (
               <div className="relative" ref={dropdownRef}>
                 <div className="flex items-center gap-3">
@@ -142,7 +147,7 @@ export default function Header({ isTransparent = false }) {
               <button
                 type="button"
                 onClick={() => navigate("/login")}
-                className={`px-4 py-2 rounded-full ${actionButtonClass} text-sm font-semibold shadow-sm hover:opacity-90 cursor-pointer`}
+                className={`px-5 py-2.5 rounded-lg ${loginButtonClass} text-sm font-semibold cursor-pointer transition`}
               >
                 Login
               </button>
@@ -151,15 +156,16 @@ export default function Header({ isTransparent = false }) {
 
           <button
             type="button"
-            className="md:hidden p-2 rounded-lg border border-white/30 text-white cursor-pointer"
+            className={isTransparent ? "md:hidden p-2 rounded-lg border border-white/30 text-white cursor-pointer hover:bg-white/10 transition" : "md:hidden p-2 rounded-lg border border-slate-300 text-slate-700 cursor-pointer hover:bg-slate-50 transition"}
             onClick={() => setMobileOpen((prev) => !prev)}
+            aria-label="Toggle menu"
           >
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
 
         {mobileOpen && (
-          <div className="md:hidden border-t border-white/10 pb-4">
+          <div className="md:hidden border-t border-slate-200 bg-white pb-4">
             <nav className="flex flex-col gap-3 pt-4">
               {navLinks.map((link) => (
                 <Link
@@ -231,7 +237,7 @@ export default function Header({ isTransparent = false }) {
                     setMobileOpen(false);
                     navigate("/login");
                   }}
-                  className={`px-4 py-2 rounded-full ${actionButtonClass} cursor-pointer`}
+                  className={`px-4 py-2 rounded-full ${loginButtonClass} cursor-pointer`}
                 >
                   Login
                 </button>

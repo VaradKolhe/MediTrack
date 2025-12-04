@@ -141,14 +141,29 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-5xl bg-white/5 border border-white/10 rounded-[32px] backdrop-blur-xl shadow-[0_30px_120px_rgba(2,6,23,0.7)] overflow-hidden">
-        <div className="grid md:grid-cols-2">
+    <div className="min-h-screen text-slate-900 flex items-center justify-center px-4 py-10 relative" style={{
+      backgroundImage: `linear-gradient(135deg, rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.80)), url('/images/meditrack-login-hero.jpg')`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      backgroundAttachment: "fixed",
+      filter: "blur(0px)",
+    }}>
+      {/* Blur overlay for subtle effect (approx. 5-10%) */}
+      <div className="absolute inset-0" style={{
+        backgroundColor: "rgba(15, 23, 42, 0.06)",
+        backdropFilter: "blur(4px)",
+        WebkitBackdropFilter: "blur(4px)",
+        pointerEvents: "none",
+      }}></div>
+      
+      <div className="w-full max-w-5xl bg-transparent rounded-[32px] shadow-2xl overflow-hidden relative z-10">
+        <div className="grid md:grid-cols-2 divide-x divide-slate-900/10 bg-white/5 backdrop-blur-sm rounded-[32px] overflow-hidden">
           {/* Left Side - Branding */}
-          <div className="bg-gradient-to-br from-cyan-500 via-blue-600 to-slate-900 p-10 text-white flex flex-col justify-between">
+          <div className="bg-gradient-to-br from-[#2563EB] to-[#0f172a] p-12 text-white flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center">
                   <Shield className="w-6 h-6" />
                 </div>
                 <div>
@@ -158,7 +173,7 @@ const LoginPage = () => {
                   <p className="text-xl font-semibold">MediTrack Control</p>
                 </div>
               </div>
-              <h2 className="text-3xl font-semibold leading-tight">
+              <h2 className="text-4xl font-extrabold leading-tight">
                 Synchronize every bed update with military-grade security.
               </h2>
               <p className="text-white/80 mt-4">
@@ -175,7 +190,7 @@ const LoginPage = () => {
               </div>
             </div>
             <p className="text-xs uppercase tracking-[0.4em] text-white/70">
-              ISO 27001 | SOC2 | HIPAA
+              ISO 27001 &nbsp;|&nbsp; SOC2 &nbsp;|&nbsp; HIPAA
             </p>
           </div>
 
@@ -193,12 +208,12 @@ const LoginPage = () => {
 
             {/* Hide Tabs when in Verify Mode */}
             {mode !== "verify" && (
-              <div className="flex bg-slate-100 p-1 rounded-2xl mb-8">
+              <div className="flex bg-slate-100 p-1 rounded-2xl mb-8 w-full max-w-md">
                 <button
                   type="button"
-                  className={`flex-1 py-2.5 text-sm font-medium rounded-2xl transition-all cursor-pointer ${
+                  className={`flex-1 py-3 text-sm font-medium rounded-2xl transition-all cursor-pointer ${
                     mode === "login"
-                      ? "bg-white text-slate-900 shadow"
+                      ? "bg-white text-slate-900 shadow-inner"
                       : "text-slate-500 hover:text-slate-700"
                   }`}
                   onClick={() => setMode("login")}
@@ -207,9 +222,9 @@ const LoginPage = () => {
                 </button>
                 <button
                   type="button"
-                  className={`flex-1 py-2.5 text-sm font-medium rounded-2xl transition-all cursor-pointer ${
+                  className={`flex-1 py-3 text-sm font-medium rounded-2xl transition-all cursor-pointer ${
                     mode === "register"
-                      ? "bg-white text-slate-900 shadow"
+                      ? "bg-white text-slate-900 shadow-inner"
                       : "text-slate-500 hover:text-slate-700"
                   }`}
                   onClick={() => setMode("register")}
@@ -258,7 +273,7 @@ const LoginPage = () => {
                       value={form.username}
                       onChange={handleChange}
                       required
-                      className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-transparent transition placeholder:text-slate-400 text-slate-700"
+                      className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/25 focus:border-transparent transition placeholder:text-slate-400 text-slate-700"
                     />
                   </div>
 
@@ -290,7 +305,7 @@ const LoginPage = () => {
                       value={form.password}
                       onChange={handleChange}
                       required
-                      className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-transparent transition placeholder:text-slate-400 text-slate-700"
+                      className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/25 focus:border-transparent transition placeholder:text-slate-400 text-slate-700"
                     />
                   </div>
 
@@ -321,7 +336,7 @@ const LoginPage = () => {
 
               <button
                 type="submit"
-                className="w-full bg-slate-900 text-white font-semibold py-3.5 rounded-2xl hover:bg-slate-800 focus:ring-4 focus:ring-slate-900/20 transition flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full bg-[#F97316] text-white font-semibold py-4 rounded-2xl hover:bg-[#EA580C] focus:ring-4 focus:ring-[#FDBA74]/40 transition flex items-center justify-center gap-2 cursor-pointer text-lg"
               >
                 {mode === "login"
                   ? "Secure Login"

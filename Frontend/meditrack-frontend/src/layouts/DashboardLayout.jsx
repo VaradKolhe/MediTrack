@@ -26,13 +26,13 @@ export default function DashboardLayout({
   }, [user]);
 
   return (
-    <div className="min-h-screen flex bg-slate-100 text-slate-900">
+    <div className="min-h-screen flex bg-[#F3F6FC] text-slate-900">
       <aside
-        className={`hidden lg:flex flex-col bg-slate-900 text-white transition-all duration-300 ${
+        className={`hidden lg:flex flex-col bg-white text-slate-900 border-r border-slate-200 transition-all duration-300 ${
           isCollapsed ? baseSidebarWidth.collapsed : baseSidebarWidth.expanded
         }`}
       >
-        <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200">
           <div
             className={`text-lg font-semibold tracking-tight ${
               isCollapsed ? "opacity-0 pointer-events-none" : "opacity-100"
@@ -42,7 +42,7 @@ export default function DashboardLayout({
           </div>
           <button
             type="button"
-            className="p-2 rounded-lg hover:bg-white/10 transition"
+            className="p-2 rounded-lg hover:bg-slate-100 transition text-slate-600"
             onClick={() => setIsCollapsed((prev) => !prev)}
           >
             <Menu size={20} />
@@ -60,8 +60,8 @@ export default function DashboardLayout({
                 onClick={() => onSelect?.(item.key)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition ${
                   isActive
-                    ? "bg-white/15 text-white shadow shadow-black/20"
-                    : "text-slate-200 hover:bg-white/10"
+                    ? "bg-[#1D4ED8]/10 text-[#1D4ED8]"
+                    : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
                 {Icon && <Icon size={18} />}
@@ -76,15 +76,15 @@ export default function DashboardLayout({
             );
           })}
         </nav>
-        <div className="px-5 py-6 border-t border-white/10">
-          <p className="text-xs text-white/60">
+        <div className="px-5 py-6 border-t border-slate-200">
+          <p className="text-xs text-slate-500">
             {new Date().toLocaleDateString(undefined, {
               weekday: "short",
               month: "short",
               day: "numeric",
             })}
           </p>
-          <p className="text-sm font-semibold mt-1">
+          <p className="text-sm font-semibold mt-1 text-slate-900">
             {user?.hospital?.name ?? "National Network"}
           </p>
         </div>
@@ -119,7 +119,7 @@ export default function DashboardLayout({
                 {user?.role ?? "UNAUTHENTICATED"}
               </p>
             </div>
-            <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-semibold">
+            <div className="w-10 h-10 rounded-full bg-[#1D4ED8] text-white flex items-center justify-center font-semibold">
               {initials}
             </div>
             {onLogout && (

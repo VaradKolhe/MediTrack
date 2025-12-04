@@ -1,62 +1,127 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Activity, ArrowRight, MapPin, ShieldCheck } from "lucide-react";
+import { Activity, ArrowRight, ShieldCheck, BedDouble } from "lucide-react";
+import { useCounter } from "../hooks/useCounter";
 
-const heroStats = [
-  { label: "Hospitals Connected", value: "120+", icon: ShieldCheck },
-  { label: "Beds Monitored", value: "18,400", icon: Activity },
-  { label: "Cities Covered", value: "42", icon: MapPin },
+const overviewStats = [
+  { label: "Hospitals Connected", value: 120, format: (v) => `${v}+`, icon: ShieldCheck },
+  { label: "Beds Tracked", value: 18400, format: (v) => (v / 1000).toFixed(1) + "k", icon: Activity },
+  { label: "Regions Covered", value: 42, format: (v) => `${v}`, icon: BedDouble },
+];
+
+const capabilityCards = [
+  {
+    title: "Real-time Bed Visibility",
+    description:
+      "Second-by-second visibility into which beds are available, occupied, or reserved.",
+    points: [
+      "One unified map across all facilities",
+      "Filters by unit, bed type, and acuity",
+      "Integrates with your HIS/EMR",
+    ],
+  },
+  {
+    title: "Faster, Safer Transfers",
+    description:
+      "Match patients to the right bed quickly — reduce delays and avoid unsafe moves.",
+    points: [
+      "Priority routing for critical transfers",
+      "Audit trails and transfer checklists",
+      "Live availability updates to receiving teams",
+    ],
+  },
+  {
+    title: "Capacity Intelligence",
+    description:
+      "Actionable trends and alerts so operations staff can anticipate demand.",
+    points: [
+      "Daily and hourly occupancy trends",
+      "Custom alerts for threshold breaches",
+      "Exportable reports for operations and quality",
+    ],
+  },
 ];
 
 export default function OpeningPage() {
   const navigate = useNavigate();
+  const bgUrl = "/images/meditrack-beds-hero.jpg"; // served from public/
+  
+  // Animated counters for stats
+  const hospitalsCount = useCounter(120, 2000);
+  const bedsCount = useCounter(18400, 2000);
+  const regionsCount = useCounter(42, 2000);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900/80 to-slate-900/40" />
-      <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.35),_transparent_55%)]" />
-      <div className="relative max-w-6xl mx-auto px-6 pt-10 pb-16 flex flex-col gap-12 top-[60px]">
+    <main
+      role="main"
+      className="min-h-screen opening-page-container flex flex-col"
+      style={{
+        backgroundImage: `linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.50)), url('${bgUrl}')`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundAttachment: "fixed",
+      }}
+    >
+      <div className="relative opening-page-content flex-1 flex flex-col justify-between">
+        {/* Hero Section: Headline, Subheading, CTA - Centered */}
+        <section className="flex-1 flex flex-col justify-center items-center text-center px-6 py-16 sm:py-24">
+          <div className="max-w-4xl mx-auto">
+            <span className="inline-flex items-center gap-2 rounded-full px-4 py-2 bg-blue-100 text-sm font-medium text-blue-800 border border-blue-300 backdrop-blur-sm">
+              <span className="inline-block h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
+              Real-time care coordination
+            </span>
 
-        <section className="grid lg:grid-cols-2 gap-10 items-center">
-          <div className="space-y-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-sm text-cyan-200 border border-white/10">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Live nationwide availability
-            </div>
-            <div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold leading-tight tracking-tight">
-                Shape faster care decisions with live bed intelligence.
-              </h1>
-              <p className="text-lg text-slate-300 mt-4 leading-relaxed">
-                BedTracker unifies every facility, room, and bed into a single,
-                dynamic view so your teams can coordinate transfers in seconds.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-4">
+            <h1 className="mt-8 text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight text-gray-900 opening-heading max-w-4xl mx-auto">
+              Instant Capacity.<br className="hidden sm:block" /> Confident Transfers.<br className="hidden sm:block" /> Real-Time Care.
+            </h1>
+
+            <p className="mt-8 text-lg sm:text-xl text-gray-800 leading-relaxed opening-subheading max-w-3xl mx-auto">
+              MediTrack centralizes live bed availability and capacity intelligence, empowering clinical teams to coordinate patient movements with confidence—to the right bed, at the right time.
+            </p>
+
+            <div className="mt-12 flex flex-wrap gap-4 justify-center">
               <button
+                type="button"
                 onClick={() => navigate("/home")}
-                className="px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-400 to-blue-500 font-semibold text-slate-950 shadow-lg shadow-cyan-500/30 hover:shadow-cyan-400/60 transition cursor-pointer"
+                aria-label="Launch live dashboard"
+                className="inline-flex items-center gap-3 rounded-full bg-blue-600 px-8 py-4 text-base font-semibold text-white shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-black transition transform hover:scale-105"
               >
-                Explore Availability
+                Launch Live Dashboard
+                <ArrowRight size={18} />
               </button>
+
               <button
+                type="button"
                 onClick={() => navigate("/login")}
-                className="px-6 py-3 rounded-2xl border border-white/30 text-white flex items-center gap-2 hover:bg-white/10 transition cursor-pointer"
+                aria-label="Sign in"
+                className="inline-flex items-center gap-2 rounded-full bg-white backdrop-blur px-8 py-4 text-base font-semibold text-blue-600 shadow hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition border border-blue-200"
               >
-                Login Portal <ArrowRight size={16} />
+                Sign in
               </button>
             </div>
-            <div className="grid grid-cols-3 gap-4">
-              {heroStats.map((stat) => {
+          </div>
+        </section>
+
+        {/* Statistics Section: Centered and Prominent */}
+        <section className="py-16 sm:py-20 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8">
+              {overviewStats.map((stat, idx) => {
                 const Icon = stat.icon;
+                const countValue = [hospitalsCount, bedsCount, regionsCount][idx];
                 return (
                   <div
                     key={stat.label}
-                    className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-4"
+                    className="opening-stat-card-large text-center group hover:scale-105 transition transform duration-300"
                   >
-                    <Icon className="text-cyan-300 mb-3 w-5 h-5" />
-                    <p className="text-2xl font-semibold">{stat.value}</p>
-                    <p className="text-xs uppercase tracking-wide text-slate-300">
+                    <div className="flex justify-center mb-4">
+                      <div className="p-4 rounded-full bg-blue-100 group-hover:bg-blue-200 transition">
+                        <Icon className="h-8 w-8 text-blue-600" />
+                      </div>
+                    </div>
+                    <p className="text-4xl sm:text-5xl font-bold text-gray-900 tracking-tight">{stat.format(countValue)}</p>
+                    <p className="mt-3 text-sm uppercase tracking-widest text-gray-600 font-medium">
                       {stat.label}
                     </p>
                   </div>
@@ -64,54 +129,57 @@ export default function OpeningPage() {
               })}
             </div>
           </div>
+        </section>
 
-          <div className="relative">
-            <div className="absolute inset-0 bg-cyan-500/30 blur-3xl" />
-            <div className="relative rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-900 to-slate-900/60 backdrop-blur-xl p-6 shadow-[0_20px_60px_rgba(15,23,42,0.6)]">
-              <div className="flex items-center justify-between mb-6">
-                <p className="text-sm uppercase tracking-[0.3em] text-slate-400">
-                  Live feed
-                </p>
-                <span className="text-xs px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200">
-                  Synced 2s ago
-                </span>
-              </div>
-              <div className="space-y-4">
-                {[
-                  { name: "City Heart Center", beds: "12 / 80", city: "Delhi" },
-                  { name: "Unity Health Central", beds: "03 / 40", city: "Mumbai" },
-                  { name: "Pacific Care Hub", beds: "27 / 120", city: "Bengaluru" },
-                ].map((hospital) => (
-                  <div
-                    key={hospital.name}
-                    className="rounded-2xl border border-white/5 bg-white/5 p-4 flex items-center justify-between"
-                  >
-                    <div>
-                      <p className="font-semibold">{hospital.name}</p>
-                      <p className="text-sm text-slate-300">{hospital.city}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-semibold">{hospital.beds}</p>
-                      <p className="text-xs text-slate-400">Beds free</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-8 rounded-2xl border border-white/5 bg-white/10 p-5">
-                <p className="text-sm uppercase tracking-[0.3em] text-slate-300">
-                  Smart alerts
-                </p>
-                <p className="text-2xl font-semibold mt-2">
-                  4 facilities nearing capacity
-                </p>
-                <p className="text-sm text-slate-300 mt-2">
-                  Login to dispatch available beds or reroute patients in one tap.
-                </p>
-              </div>
+        {/* Features Section */}
+        <section className="py-16 sm:py-20 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+              {capabilityCards.map((card) => (
+                <article key={card.title} className="opening-feature-card group hover:scale-105 transition transform duration-300">
+                  <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition">{card.title}</h3>
+                  <p className="mt-4 text-sm text-gray-700 leading-relaxed">{card.description}</p>
+                  <ul className="mt-6 space-y-3">
+                    {card.points.map((p) => (
+                      <li key={p} className="flex gap-3 items-start text-sm text-gray-600">
+                        <span className="mt-1 h-2 w-2 rounded-full bg-blue-500 flex-shrink-0" />
+                        <span>{p}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Trust Section */}
+        <section className="py-16 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="opening-feature-card max-w-2xl mx-auto text-center">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Trusted by Operations Teams</h2>
+              <p className="mt-4 text-gray-700 leading-relaxed">A single source of truth for bed availability, transfers, and capacity planning used by hospitals and health systems worldwide.</p>
+              <ul className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <li className="space-y-2">
+                  <div className="text-3xl font-bold text-blue-600">✓</div>
+                  <div className="font-semibold text-gray-900">Real-time</div>
+                  <p className="text-sm text-gray-600">Live updates across facilities</p>
+                </li>
+                <li className="space-y-2">
+                  <div className="text-3xl font-bold text-blue-600">✓</div>
+                  <div className="font-semibold text-gray-900">Fast Transfers</div>
+                  <p className="text-sm text-gray-600">Reduce time-to-placement</p>
+                </li>
+                <li className="space-y-2">
+                  <div className="text-3xl font-bold text-blue-600">✓</div>
+                  <div className="font-semibold text-gray-900">Intelligence</div>
+                  <p className="text-sm text-gray-600">Trends and alerts for planning</p>
+                </li>
+              </ul>
             </div>
           </div>
         </section>
       </div>
-    </div>
+    </main>
   );
 }
