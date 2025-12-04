@@ -2,7 +2,6 @@ package com.bedtracker.userservice.controller;
 
 import com.bedtracker.userservice.dto.*;
 import com.bedtracker.userservice.service.AuthService;
-import com.bedtracker.userservice.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,10 +20,8 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    private final UserService userService; // Injected UserService
 
     @PostMapping("/register")
-    // Changed parameter to UserRequest to match Service
     public ResponseEntity<?> register(@Valid @RequestBody UserRequest userRequest) {
         try {
             log.info("Registration request received for user: {}", userRequest.getUsername());

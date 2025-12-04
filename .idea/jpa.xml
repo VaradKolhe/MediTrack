@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="PersistenceUnitSettings">
-    <persistence-units>
-      <persistence-unit moduleName="adminservice" name="adminservice" framework="JPA" ormUnit="adminservice:adminservice" defaultDataSourceId="6e91cccb-146a-4a42-90e9-adfafda9dd10" />
-    </persistence-units>
-  </component>
-</project>
