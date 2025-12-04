@@ -1,9 +1,6 @@
 package com.bedtracker.userservice.service;
 
-import com.bedtracker.userservice.dto.ReceptionistRequest;
-import com.bedtracker.userservice.dto.ReceptionistResponse;
-import com.bedtracker.userservice.dto.UserRequest;
-import com.bedtracker.userservice.dto.UserResponse;
+import com.bedtracker.userservice.dto.*;
 import com.bedtracker.userservice.entity.Role;
 import com.bedtracker.userservice.entity.User;
 import com.bedtracker.userservice.repository.UserRepository;
@@ -19,7 +16,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +28,7 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
 
     // --- Generic User Logic ---
 
@@ -48,12 +48,11 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
 
-        // Update fields
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
-        user.setHospitalId(request.getHospitalId()); // Added hospitalId mapping
+        user.setHospitalId(request.getHospitalId());
 
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -70,13 +69,13 @@ public class UserService implements UserDetailsService {
         userRepository.deleteById(id);
     }
 
-    // --- Receptionist Logic (Required by AdminService) ---
+    // --- Receptionist Logic ---
 
     public ReceptionistResponse createReceptionist(ReceptionistRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already in use");
         }
-        if (userRepository.existsByUsername(request.getUsername())) { // Check username too
+        if (userRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException("Username already in use");
         }
 
@@ -86,10 +85,11 @@ public class UserService implements UserDetailsService {
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setHospitalId(request.getHospitalId()); // Map hospital ID
+        user.setHospitalId(request.getHospitalId());
         user.setRole(Role.RECEPTIONIST);
+
+        // Admin-created receptionists are usually auto-enabled
         user.setIsEnabled(true);
-        // CreatedAt/UpdatedAt handled by @PrePersist in Entity
 
         User savedUser = userRepository.save(user);
         return mapToReceptionistResponse(savedUser);
@@ -157,7 +157,7 @@ public class UserService implements UserDetailsService {
                 user.getLastName(),
                 user.getRole(),
                 user.getIsEnabled(),
-                user.getHospitalId(), // Added hospitalId
+                user.getHospitalId(),
                 user.getCreatedAt()
         );
     }
@@ -186,11 +186,10 @@ public class UserService implements UserDetailsService {
 
         if (!user.getIsEnabled()) {
             log.warn("User account is disabled: {}", user.getUsername());
-            throw new UsernameNotFoundException("User account is disabled" + username);
+            throw new UsernameNotFoundException("User account is disabled. Please verify your email.");
         }
 
         log.info("User loaded successfully: {}", user.getUsername());
         return new CustomUserDetails(user);
     }
-
 }

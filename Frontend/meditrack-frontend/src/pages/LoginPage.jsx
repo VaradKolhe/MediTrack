@@ -6,6 +6,8 @@ import {
   Mail,
   Shield,
   User,
+  KeyRound, // Added for OTP input
+  ArrowLeft, // Added for back button
 } from "lucide-react";
 import instance, { USER_SERVICE } from "../api/axiosConfig";
 import { useAuth } from "../hooks/useAuth";
@@ -20,6 +22,7 @@ const highlights = [
 
 const LoginPage = () => {
   const { login, user } = useAuth();
+  // modes: 'login', 'register', 'verify'
   const [mode, setMode] = useState("login");
   const navigate = useNavigate();
 
@@ -29,6 +32,7 @@ const LoginPage = () => {
     email: "",
     firstName: "",
     lastName: "",
+    otp: "", // Added OTP field
   });
 
   useEffect(() => {
@@ -55,22 +59,43 @@ const LoginPage = () => {
             username: form.username,
             password: form.password,
           });
-          if (!res?.data) {
-            throw new Error("Invalid response from server.");
-          }
+
           login(res.data.token, res.data.user);
           return res.data.user?.role;
         }
 
-        await instance.post(`${USER_SERVICE}/api/auth/register`, {
-          username: form.username,
-          email: form.email,
-          password: form.password,
-          firstName: form.firstName,
-          lastName: form.lastName,
-        });
-        setMode("login");
-        return "REGISTER_SUCCESS";
+        if (mode === "register") {
+          await instance.post(`${USER_SERVICE}/api/auth/register`, {
+            username: form.username,
+            email: form.email,
+            password: form.password,
+            firstName: form.firstName,
+            lastName: form.lastName,
+          });
+
+          setMode("verify");
+          return "REGISTER_SUCCESS";
+        }
+
+        if (mode === "verify") {
+          await instance.post(`${USER_SERVICE}/api/auth/verify`, {
+            email: form.email,
+            verificationCode: form.otp,
+          });
+
+          // ⭐ AUTO-LOGIN HERE ⭐
+          const loginRes = await instance.post(
+            `${USER_SERVICE}/api/auth/login`,
+            {
+              username: form.username,
+              password: form.password,
+            }
+          );
+
+          login(loginRes.data.token, loginRes.data.user);
+
+          return loginRes.data.user?.role;
+        }
       } catch (err) {
         const message =
           err.response?.data?.message ||
@@ -83,33 +108,42 @@ const LoginPage = () => {
       loading:
         mode === "login"
           ? "Logging you in securely..."
-          : "Creating new account...",
+          : mode === "register"
+          ? "Creating new account..."
+          : "Verifying OTP...",
 
-      success: (role) => {
-        if (role === "REGISTER_SUCCESS") {
-          setForm((prev) => ({ ...prev, password: "" }));
-          return "Registration successful! Please log in now.";
+      success: (result) => {
+        if (result === "REGISTER_SUCCESS") {
+          return "Account created! Please check your email for the OTP.";
         }
 
-        if (role === "ADMIN") {
+        if (result === "ADMIN") {
           navigate("/admin");
-        } else if (role === "RECEPTIONIST") {
+        } else if (result === "RECEPTIONIST") {
           navigate("/receptionist");
         } else {
           navigate("/home");
         }
 
-        return "Login successful! Redirecting to dashboard.";
+        return "Login successful! Redirecting...";
       },
 
       error: (error) => error.message,
     });
   };
 
+  // Helper title based on mode
+  const getTitle = () => {
+    if (mode === "login") return "Welcome back";
+    if (mode === "register") return "Create an account";
+    return "Verify Account";
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-5xl bg-white/5 border border-white/10 rounded-[32px] backdrop-blur-xl shadow-[0_30px_120px_rgba(2,6,23,0.7)] overflow-hidden">
         <div className="grid md:grid-cols-2">
+          {/* Left Side - Branding */}
           <div className="bg-gradient-to-br from-cyan-500 via-blue-600 to-slate-900 p-10 text-white flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-3 mb-6">
@@ -144,121 +178,167 @@ const LoginPage = () => {
             </p>
           </div>
 
+          {/* Right Side - Form */}
           <div className="bg-white text-slate-900 p-10">
             <div className="flex items-center justify-between mb-8">
               <div>
                 <p className="text-sm uppercase tracking-[0.3em] text-slate-400">
                   Access center
                 </p>
-                <h1 className="text-2xl font-semibold mt-1">
-                  {mode === "login" ? "Welcome back" : "Create an account"}
-                </h1>
+                <h1 className="text-2xl font-semibold mt-1">{getTitle()}</h1>
               </div>
               <Activity className="w-7 h-7 text-cyan-500" />
             </div>
 
-            <div className="flex bg-slate-100 p-1 rounded-2xl mb-8">
-              <button
-                type="button"
-                className={`flex-1 py-2.5 text-sm font-medium rounded-2xl transition-all cursor-pointer ${
-                  mode === "login"
-                    ? "bg-white text-slate-900 shadow"
-                    : "text-slate-500 hover:text-slate-700"
-                }`}
-                onClick={() => setMode("login")}
-              >
-                Login
-              </button>
-              <button
-                type="button"
-                className={`flex-1 py-2.5 text-sm font-medium rounded-2xl transition-all cursor-pointer ${
-                  mode === "register"
-                    ? "bg-white text-slate-900 shadow"
-                    : "text-slate-500 hover:text-slate-700"
-                }`}
-                onClick={() => setMode("register")}
-              >
-                Register
-              </button>
-            </div>
+            {/* Hide Tabs when in Verify Mode */}
+            {mode !== "verify" && (
+              <div className="flex bg-slate-100 p-1 rounded-2xl mb-8">
+                <button
+                  type="button"
+                  className={`flex-1 py-2.5 text-sm font-medium rounded-2xl transition-all cursor-pointer ${
+                    mode === "login"
+                      ? "bg-white text-slate-900 shadow"
+                      : "text-slate-500 hover:text-slate-700"
+                  }`}
+                  onClick={() => setMode("login")}
+                >
+                  Login
+                </button>
+                <button
+                  type="button"
+                  className={`flex-1 py-2.5 text-sm font-medium rounded-2xl transition-all cursor-pointer ${
+                    mode === "register"
+                      ? "bg-white text-slate-900 shadow"
+                      : "text-slate-500 hover:text-slate-700"
+                  }`}
+                  onClick={() => setMode("register")}
+                >
+                  Register
+                </button>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-slate-400" />
-                </div>
-                <input
-                  type="text"
-                  name="username"
-                  placeholder="Username / Medical ID"
-                  value={form.username}
-                  onChange={handleChange}
-                  required
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-transparent transition placeholder:text-slate-400 text-slate-700"
-                />
-              </div>
-
-              {mode === "register" && (
-                <div className="relative animate-fade-in">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-slate-400" />
+              {/* --- VERIFY MODE UI --- */}
+              {mode === "verify" && (
+                <div className="animate-fade-in space-y-4">
+                  <div className="p-4 bg-cyan-50 text-cyan-900 rounded-xl text-sm mb-4">
+                    Please enter the OTP sent to <strong>{form.email}</strong>.
+                    It expires in 15 minutes.
                   </div>
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Email Address"
-                    value={form.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-transparent transition placeholder:text-slate-400 text-slate-700"
-                  />
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <KeyRound className="h-5 w-5 text-slate-400" />
+                    </div>
+                    <input
+                      type="text"
+                      name="otp"
+                      placeholder="Enter OTP Code"
+                      value={form.otp}
+                      onChange={handleChange}
+                      required
+                      className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-transparent transition placeholder:text-slate-400 text-slate-700 font-mono tracking-widest text-center text-lg"
+                    />
+                  </div>
                 </div>
               )}
 
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-slate-400" />
-                </div>
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="Password"
-                  value={form.password}
-                  onChange={handleChange}
-                  required
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-transparent transition placeholder:text-slate-400 text-slate-700"
-                />
-              </div>
+              {/* --- LOGIN/REGISTER UI --- */}
+              {mode !== "verify" && (
+                <>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <User className="h-5 w-5 text-slate-400" />
+                    </div>
+                    <input
+                      type="text"
+                      name="username"
+                      placeholder="Username / Medical ID"
+                      value={form.username}
+                      onChange={handleChange}
+                      required
+                      className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-transparent transition placeholder:text-slate-400 text-slate-700"
+                    />
+                  </div>
 
-              {mode === "register" && (
-                <div className="grid grid-cols-2 gap-4 animate-fade-in">
-                  <input
-                    type="text"
-                    name="firstName"
-                    placeholder="First Name"
-                    value={form.firstName}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-transparent transition text-slate-700"
-                  />
-                  <input
-                    type="text"
-                    name="lastName"
-                    placeholder="Last Name"
-                    value={form.lastName}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-transparent transition text-slate-700"
-                  />
-                </div>
+                  {mode === "register" && (
+                    <div className="relative animate-fade-in">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Mail className="h-5 w-5 text-slate-400" />
+                      </div>
+                      <input
+                        type="email"
+                        name="email"
+                        placeholder="Email Address"
+                        value={form.email}
+                        onChange={handleChange}
+                        required
+                        className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-transparent transition placeholder:text-slate-400 text-slate-700"
+                      />
+                    </div>
+                  )}
+
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Lock className="h-5 w-5 text-slate-400" />
+                    </div>
+                    <input
+                      type="password"
+                      name="password"
+                      placeholder="Password"
+                      value={form.password}
+                      onChange={handleChange}
+                      required
+                      className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-transparent transition placeholder:text-slate-400 text-slate-700"
+                    />
+                  </div>
+
+                  {mode === "register" && (
+                    <div className="grid grid-cols-2 gap-4 animate-fade-in">
+                      <input
+                        type="text"
+                        name="firstName"
+                        placeholder="First Name"
+                        value={form.firstName}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-transparent transition text-slate-700"
+                      />
+                      <input
+                        type="text"
+                        name="lastName"
+                        placeholder="Last Name"
+                        value={form.lastName}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-transparent transition text-slate-700"
+                      />
+                    </div>
+                  )}
+                </>
               )}
 
               <button
                 type="submit"
                 className="w-full bg-slate-900 text-white font-semibold py-3.5 rounded-2xl hover:bg-slate-800 focus:ring-4 focus:ring-slate-900/20 transition flex items-center justify-center gap-2 cursor-pointer"
               >
-                {mode === "login" ? "Secure Login" : "Create Account"}
+                {mode === "login"
+                  ? "Secure Login"
+                  : mode === "register"
+                  ? "Create Account"
+                  : "Verify Code"}
               </button>
+
+              {/* Back button only visible in Verify Mode */}
+              {mode === "verify" && (
+                <button
+                  type="button"
+                  onClick={() => setMode("login")}
+                  className="w-full mt-2 text-slate-500 hover:text-slate-700 text-sm font-medium flex items-center justify-center gap-2 transition cursor-pointer"
+                >
+                  <ArrowLeft className="w-4 h-4" /> Back to Login
+                </button>
+              )}
             </form>
 
             <p className="text-center text-slate-400 text-xs mt-8">

@@ -5,7 +5,6 @@ import com.bedtracker.hospitalservice.dto.HospitalRequest;
 import com.bedtracker.hospitalservice.dto.HospitalResponse;
 import com.bedtracker.hospitalservice.service.HospitalService;
 import com.bedtracker.hospitalservice.util.SecurityUtil;
-import com.bedtracker.hospitalservice.util.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/hospitals")
