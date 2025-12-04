@@ -21,6 +21,19 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @GetMapping("/me")
+    public ResponseEntity<?> getme(@RequestHeader("Authorization") String authorizationHeader) {
+        try {
+          return ResponseEntity.ok(authService.getMe(authorizationHeader));
+
+        } catch (Exception e) {
+          log.error("Error fetching user details: {}", e.getMessage());
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                  .body(new ErrorResponse("Failed to fetch user details"));
+
+        }
+    }
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserRequest userRequest) {
         try {

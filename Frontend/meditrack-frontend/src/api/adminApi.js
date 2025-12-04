@@ -50,20 +50,15 @@ export const adminApi = {
     const res = await adminClient.get("/admin/receptionists");
     return unwrap(res);
   },
-  async createReceptionist(payload) {
+  async createReceptionist(payload) {  
     const res = await adminClient.post("/admin/receptionists", payload);
     return res?.data?.data;
   },
   async updateReceptionist(id, payload) {
-    const res = await adminClient.put(
-      `/admin/receptionists/${id}`,
-      payload
-    );
+    const res = await adminClient.put(`/admin/receptionists/${id}`, payload);
     return res?.data?.data;
   },
   async deleteReceptionist(id) {
     await adminClient.delete(`/admin/receptionists/${id}`);
   },
 };
-
-

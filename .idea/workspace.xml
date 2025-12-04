@@ -5,33 +5,40 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="324c7950-3293-46c2-8c6b-8f7fc8936f47" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/CoolRequestCookiePersistent.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/CoolRequestSetting.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/project.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/easycode.ignore" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/easycode.ignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/easycode/codebase-v2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/easycode/codebase-v2.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jpa.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/meditrack-frontend/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/meditrack-frontend/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/meditrack-frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/meditrack-frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/meditrack-frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/meditrack-frontend/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/config/AsyncConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/App.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/userservice/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/userservice/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/api/adminApi.js" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/api/adminApi.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/components/ChatbotWidget.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/components/ChatbotWidget.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/components/Header.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/components/Header.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/context/AuthContext.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/context/AuthContext.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/context/AuthContextValue.js" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/context/AuthContextValue.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/pages/LoginPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/pages/LoginPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/services/geminiService.js" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/services/geminiService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/filter/JwtAuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/filter/JwtAuthenticationFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/service/AdminService.java" beforeDir="false" afterPath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/service/AdminService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/controller/HospitalController.java" beforeDir="false" afterPath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/controller/HospitalController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/controller/PatientController.java" beforeDir="false" afterPath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/controller/PatientController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/controller/PublicHospitalController.java" beforeDir="false" afterPath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/controller/PublicHospitalController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/controller/RoomController.java" beforeDir="false" afterPath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/controller/RoomController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/filter/JwtAuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/filter/JwtAuthenticationFilter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/controller/AuthController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/service/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/service/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/service/EmailService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/util/JwtUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/util/JwtUtil.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -80,7 +87,7 @@
     "Spring Boot.UserserviceApplication.executor": "Run",
     "Spring Boot.user.executor": "Run",
     "deletionFromPopupRequiresConfirmation": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "Varad",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
@@ -108,8 +115,9 @@
         <entry key="SpringBootApplicationConfigurationType">
           <value>
             <map>
+              <entry key="AdminServiceApplication" value="STOPPED" />
               <entry key="HospitalserviceApplication" value="STOPPED" />
-              <entry key="UserserviceApplication" value="FAILED" />
+              <entry key="UserserviceApplication" value="STOPPED" />
               <entry key="user" value="FAILED" />
             </map>
           </value>
@@ -117,7 +125,7 @@
       </map>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.AdminServiceApplication">
+  <component name="RunManager" selected="Spring Boot.UserserviceApplication">
     <configuration name="AdminServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
       <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../../../../../Program Files/Java/jdk-24" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
@@ -172,7 +180,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1764856652017</updated>
-      <workItem from="1764856653666" duration="3836000" />
+      <workItem from="1764856653666" duration="11509000" />
     </task>
     <servers />
   </component>

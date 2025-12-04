@@ -22,6 +22,8 @@ const highlights = [
 
 const LoginPage = () => {
   const { login, user } = useAuth();
+  console.log(login + " " + user);
+  
   // modes: 'login', 'register', 'verify'
   const [mode, setMode] = useState("login");
   const navigate = useNavigate();
@@ -93,7 +95,6 @@ const LoginPage = () => {
           );
 
           login(loginRes.data.token, loginRes.data.user);
-
           return loginRes.data.user?.role;
         }
       } catch (err) {

@@ -1,12 +1,11 @@
-import { useMemo, useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown, User, LogOut } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 
 const navLinks = [
   { label: "Overview", to: "/" },
   { label: "Hospitals", to: "/home" },
-  { label: "Login", to: "/login" },
 ];
 
 export default function Header({ isTransparent = false }) {
@@ -14,16 +13,41 @@ export default function Header({ isTransparent = false }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  const dashboardPath = useMemo(() => {
-    if (user?.role === "ADMIN") return "/admin";
-    if (user?.role === "RECEPTIONIST") return "/receptionist";
-    return "/home";
-  }, [user]);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
+    setProfileDropdownOpen(false);
+  };
+
+  const handleProfileClick = () => {
+    navigate("/profile");
+    setProfileDropdownOpen(false);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setProfileDropdownOpen(false);
+      }
+    };
+
+    if (profileDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [profileDropdownOpen]);
+
+  // Get username for display
+  const getUsername = () => {
+    if (!user) return "";
+    return user.username || user.firstName || "User";
   };
 
   const headerClasses = isTransparent
@@ -73,22 +97,47 @@ export default function Header({ isTransparent = false }) {
 
           <div className="hidden md:flex items-center gap-3">
             {user ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => navigate(dashboardPath)}
-                  className="px-4 py-2 rounded-full border border-white/20 text-white hover:bg-white/10 transition text-sm font-medium cursor-pointer"
-                >
-                  My Dashboard
-                </button>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className={`px-4 py-2 rounded-full ${actionButtonClass} text-sm font-semibold shadow-sm hover:opacity-90 cursor-pointer`}
-                >
-                  Logout
-                </button>
-              </>
+              <div className="relative" ref={dropdownRef}>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-white/90">
+                    Welcome {getUsername()}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                    className="px-4 py-2 rounded-full border border-white/20 text-white hover:bg-white/10 transition text-sm font-medium cursor-pointer flex items-center gap-2"
+                  >
+                    Profile
+                    <ChevronDown
+                      size={16}
+                      className={`transition-transform ${
+                        profileDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {profileDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-slate-900/95 backdrop-blur border border-white/10 rounded-xl shadow-lg overflow-hidden z-50">
+                    <button
+                      type="button"
+                      onClick={handleProfileClick}
+                      className="w-full px-4 py-3 text-left text-sm text-white hover:bg-white/10 transition flex items-center gap-3 cursor-pointer"
+                    >
+                      <User size={16} />
+                      Profile
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="w-full px-4 py-3 text-left text-sm text-white hover:bg-white/10 transition flex items-center gap-3 cursor-pointer border-t border-white/10"
+                    >
+                      <LogOut size={16} />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <button
                 type="button"
@@ -123,29 +172,57 @@ export default function Header({ isTransparent = false }) {
                 </Link>
               ))}
             </nav>
+
             <div className="mt-4 flex flex-col gap-3">
               {user ? (
                 <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobileOpen(false);
-                      navigate(dashboardPath);
-                    }}
-                    className="px-4 py-2 rounded-full border border-white/20 text-white cursor-pointer"
-                  >
-                    My Dashboard
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobileOpen(false);
-                      handleLogout();
-                    }}
-                    className={`px-4 py-2 rounded-full ${actionButtonClass} cursor-pointer`}
-                  >
-                    Logout
-                  </button>
+                  <div className="px-4 py-2 text-sm font-medium text-white/90">
+                    Welcome {getUsername()}
+                  </div>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                      className="w-full px-4 py-2 rounded-full border border-white/20 text-white hover:bg-white/10 transition text-sm font-medium cursor-pointer flex items-center justify-between"
+                    >
+                      Profile
+                      <ChevronDown
+                        size={16}
+                        className={`transition-transform ${
+                          profileDropdownOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    {profileDropdownOpen && (
+                      <div className="mt-2 w-full bg-slate-900/95 backdrop-blur border border-white/10 rounded-xl shadow-lg overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMobileOpen(false);
+                            setProfileDropdownOpen(false);
+                            navigate("/profile");
+                          }}
+                          className="w-full px-4 py-3 text-left text-sm text-white hover:bg-white/10 transition flex items-center gap-3 cursor-pointer"
+                        >
+                          <User size={16} />
+                          Profile
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMobileOpen(false);
+                            setProfileDropdownOpen(false);
+                            handleLogout();
+                          }}
+                          className="w-full px-4 py-3 text-left text-sm text-white hover:bg-white/10 transition flex items-center gap-3 cursor-pointer border-t border-white/10"
+                        >
+                          <LogOut size={16} />
+                          Logout
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </>
               ) : (
                 <button
@@ -166,4 +243,3 @@ export default function Header({ isTransparent = false }) {
     </header>
   );
 }
-

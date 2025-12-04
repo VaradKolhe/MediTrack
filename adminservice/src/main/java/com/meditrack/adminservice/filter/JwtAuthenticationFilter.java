@@ -46,6 +46,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String role = jwtUtil.extractRole(token);
+        System.out.println("Role: " + role);
         if (role == null || !"ADMIN".equalsIgnoreCase(role)) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setContentType("application/json");

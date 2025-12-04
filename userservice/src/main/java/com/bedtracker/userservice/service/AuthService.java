@@ -37,6 +37,19 @@ public class AuthService {
     private final EmailService emailService; // Injected EmailService
     private final UserRepository userRepository;
 
+    public UserResponse getMe(String authorizationHeader) {
+        if(authorizationHeader == null  || !authorizationHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid authorization header");
+        }
+        String token = authorizationHeader.substring(7);
+        Long id = jwtUtil.extractUserId(token);
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return mapToUserResponse(user);
+    }
+
     // --- Authentication & Registration Logic ---
 
     public UserResponse registerUser(UserRequest request) {

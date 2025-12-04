@@ -9,3 +9,6 @@
   animation: fade-in 0.15s ease-out;
 }
 
+button {
+  cursor: pointer;
+}
