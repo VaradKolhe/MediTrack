@@ -1,0 +1,152 @@
+/* Professional light theme for MediTrack opening page - matching HomePage aesthetics */
+
+.opening-page-container {
+  position: relative;
+  color: #0F172A;
+  overflow: hidden;
+}
+
+.opening-page-container::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.50)), url("/images/meditrack-beds-hero.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  filter: blur(7px); /* 10-15% blur */
+  pointer-events: none;
+}
+
+/* Ensure all content sits above the overlay */
+.opening-page-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Large stat cards: professional white cards with subtle borders - like HomePage */
+.opening-stat-card-large {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 1.5rem;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.opening-stat-card-large:hover {
+  background: #FFFFFF;
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Feature cards with professional white styling */
+.opening-feature-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.opening-feature-card:hover {
+  border-color: #CBD5E1;
+  background: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Section containers with colored backgrounds for visibility */
+.opening-page-content section {
+  background: rgba(240, 248, 255, 0.92);
+  backdrop-filter: blur(12px);
+  margin: 1.5rem;
+  padding: 2.5rem 1.5rem;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* First hero section - more opaque white background */
+.opening-page-content section:first-of-type {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  padding: 3rem 2rem;
+  margin: 1rem;
+}
+
+/* Statistics section styling */
+.opening-page-content section:nth-of-type(2) {
+  background: rgba(219, 234, 254, 0.90);
+  padding: 3rem 2rem;
+}
+
+/* Features section styling */
+.opening-page-content section:nth-of-type(3) {
+  background: rgba(240, 253, 250, 0.90);
+  padding: 3rem 2rem;
+}
+
+/* Trust section styling */
+.opening-page-content section:last-of-type {
+  background: rgba(248, 240, 255, 0.90);
+  padding: 3rem 2rem;
+}
+
+
+/* Heading and text styling */
+.opening-heading {
+  color: #0F172A;
+  letter-spacing: -0.02em;
+}
+
+.opening-subheading {
+  color: #475569;
+}
+
+/* Smooth animations */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .opening-stat-card-large {
+    padding: 2rem 1.5rem;
+  }
+
+  .opening-feature-card {
+    padding: 1.5rem;
+  }
+
+  .opening-heading {
+    font-size: 1.75rem;
+  }
+
+  .opening-subheading {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .opening-stat-card-large {
+    padding: 1.5rem 1rem;
+  }
+
+  .opening-heading {
+    font-size: 1.5rem;
+  }
+}
+
+
