@@ -1,6 +1,7 @@
 package com.bedtracker.hospitalservice.dto;
 
 import com.bedtracker.hospitalservice.entity.Patient;
+import com.bedtracker.hospitalservice.entity.Room;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ public class PatientResponse {
     
     private Long patientId;
     private Long hospitalId;
-    private Long roomId;
+    private Room room;
     private String name;
     private Integer age;
     private String gender;
@@ -30,7 +31,7 @@ public class PatientResponse {
         return new PatientResponse(
             patient.getPatientId(),
             patient.getHospitalId(),
-            patient.getRoomId(),
+            patient.getRoom(),
             patient.getName(),
             patient.getAge(),
             patient.getGender(),

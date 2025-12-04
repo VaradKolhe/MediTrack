@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponse {
+public class ReceptionistResponse {
     private Long id;
     private String username;
     private String email;
@@ -19,5 +19,4 @@ public class UserResponse {
     private Boolean isEnabled;
     private Long hospitalId; // Added
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }

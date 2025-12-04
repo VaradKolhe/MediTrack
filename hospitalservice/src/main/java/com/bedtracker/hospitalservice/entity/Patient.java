@@ -22,9 +22,10 @@ public class Patient {
     
     @Column(nullable = false)
     private Long hospitalId;
-    
-    @Column(nullable = true)
-    private Long roomId;
+
+    @ManyToOne
+    @JoinColumn(name = "room_id")
+    private Room room;
     
     @Column(nullable = false, length = 100)
     private String name;

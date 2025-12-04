@@ -22,6 +22,12 @@ public class AdminRoomController {
         return ResponseEntity.ok(ApiResponse.success("Room created", adminService.createRoom(request)));
     }
 
+    @GetMapping("/hospital/{hospitalId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getRoomsByHospital(@PathVariable Long hospitalId) {
+        return ResponseEntity.ok(ApiResponse.success("Rooms fetched for hospital", adminService.getRoomsByHospital(hospitalId)));
+    }
+
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> list() {

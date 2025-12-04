@@ -54,7 +54,8 @@ public class HospitalService {
                 .address(request.getAddress())
                 .city(request.getCity())
                 .state(request.getState())
-                .totalBeds(request.getTotalBeds())
+                .totalBeds(0)
+                .occupiedBeds(0)
                 .build();
 
         Hospital savedHospital = hospitalRepository.save(hospital);

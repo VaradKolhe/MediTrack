@@ -1,42 +1,44 @@
 package com.meditrack.adminservice.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 public class HospitalRequest {
 
-    @NotBlank
-    @Size(max = 120)
+    // Aligned with Hospital.name (length=120, nullable=false)
+    @NotBlank(message = "Name is required")
+    @Size(max = 120, message = "Name must not exceed 120 characters")
     private String name;
 
-    @NotBlank
-    @Size(max = 255)
+    // Aligned with Hospital.contactNumber (length=15, nullable=false)
+    @NotBlank(message = "Contact number is required")
+    @Size(max = 15, message = "Contact number must not exceed 15 characters")
+    @Pattern(regexp = "^[0-9]{10,15}$", message = "Contact number must be 10-15 digits")
+    private String contactNumber;
+
+    // Aligned with Hospital.address (length=255, nullable=false)
+    @NotBlank(message = "Address is required")
+    @Size(max = 255, message = "Address must not exceed 255 characters")
     private String address;
 
-    @NotBlank
-    @Size(max = 120)
+    // Added to align with Hospital.city (length=120, nullable=false)
+    @NotBlank(message = "City is required")
+    @Size(max = 120, message = "City must not exceed 120 characters")
     private String city;
 
-    @NotBlank
-    @Size(max = 120)
+    // Added to align with Hospital.state (length=120, nullable=false)
+    @NotBlank(message = "State is required")
+    @Size(max = 120, message = "State must not exceed 120 characters")
     private String state;
-
-    @NotBlank
-    @Size(max = 30)
-    private String phoneNumber;
-
-    private Integer totalBeds;
 
     public HospitalRequest() {
     }
 
-    public HospitalRequest(String name, String address, String city, String state, String phoneNumber, Integer totalBeds) {
+    public HospitalRequest(String name, String contactNumber, String address, String city, String state) {
         this.name = name;
+        this.contactNumber = contactNumber;
         this.address = address;
         this.city = city;
         this.state = state;
-        this.phoneNumber = phoneNumber;
-        this.totalBeds = totalBeds;
     }
 
     public String getName() {
@@ -45,6 +47,14 @@ public class HospitalRequest {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getContactNumber() {
+        return contactNumber;
+    }
+
+    public void setContactNumber(String contactNumber) {
+        this.contactNumber = contactNumber;
     }
 
     public String getAddress() {
@@ -71,20 +81,5 @@ public class HospitalRequest {
         this.state = state;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public Integer getTotalBeds() {
-        return totalBeds;
-    }
-
-    public void setTotalBeds(Integer totalBeds) {
-        this.totalBeds = totalBeds;
-    }
 }
 

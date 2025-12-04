@@ -38,12 +38,5 @@ public class ReceptionistRequest {
 
     @NotNull
     private Long hospitalId;
-
-    @NotBlank
-    @Size(max = 30)
-    private String phoneNumber;
-
-    @Size(max = 40)
-    private String shift;
 }
 

@@ -13,10 +13,8 @@ import {
   Trash2,
   Users2,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import DashboardLayout from "../../layouts/DashboardLayout";
-import { useAuth } from "../../hooks/useAuth";
 import { adminApi } from "../../api/adminApi";
 
 const sections = [
@@ -57,8 +55,6 @@ const formatDate = (value) =>
   value ? new Date(value).toLocaleString() : "Not available";
 
 export default function AdminDashboard() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("overview");
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState({
@@ -111,16 +107,8 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    if (!user) {
-      navigate("/login", { replace: true });
-      return;
-    }
-    if (user.role !== "ADMIN") {
-      navigate("/home", { replace: true });
-      return;
-    }
     void fetchDashboardData();
-  }, [user, navigate, fetchDashboardData]);
+  }, [fetchDashboardData]);
 
   const hospitalLookup = useMemo(() => {
     const lookup = new Map();
@@ -298,11 +286,6 @@ export default function AdminDashboard() {
         error.response?.data?.message || `Unable to delete ${type}.`
       );
     }
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login", { replace: true });
   };
 
   const overviewSection = (
@@ -1117,8 +1100,7 @@ export default function AdminDashboard() {
       sidebarItems={sections}
       activeKey={activeSection}
       onSelect={setActiveSection}
-      user={user}
-      onLogout={handleLogout}
+      user={null}
     >
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-32 text-slate-500 gap-4">

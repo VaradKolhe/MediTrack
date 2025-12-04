@@ -83,7 +83,7 @@ const LoginPage = () => {
       loading:
         mode === "login"
           ? "Logging you in securely..."
-          : "Creating new patient/staff account...",
+          : "Creating new account...",
 
       success: (role) => {
         if (role === "REGISTER_SUCCESS") {

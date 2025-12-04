@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HospitalResponse {
-    
+
     private Long id;
     private String name;
     private String address;
@@ -19,17 +19,23 @@ public class HospitalResponse {
     private String city;
     private String contactNumber;
     private Integer totalBeds;
-    
+    private Integer occupiedBeds;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
     public static HospitalResponse fromEntity(Hospital hospital) {
-        return new HospitalResponse(
-            hospital.getId(),
-            hospital.getName(),
-            hospital.getAddress(),
-            hospital.getState(),
-            hospital.getCity(),
-            hospital.getContactNumber(),
-            hospital.getTotalBeds()
-        );
+        HospitalResponse response = new HospitalResponse();
+        response.setId(hospital.getId());
+        response.setName(hospital.getName());
+        response.setAddress(hospital.getAddress());
+        response.setState(hospital.getState());
+        response.setCity(hospital.getCity());
+        response.setContactNumber(hospital.getContactNumber());
+        response.setTotalBeds(hospital.getTotalBeds());
+        response.setOccupiedBeds(0); // Can be calculated if needed
+        response.setCreatedAt(hospital.getCreatedAt());
+        response.setUpdatedAt(hospital.getUpdatedAt());
+        return response;
     }
 }
 

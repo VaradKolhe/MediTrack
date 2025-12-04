@@ -38,6 +38,9 @@ public class Hospital {
     @Column
     private Integer totalBeds;
 
+    @Column
+    private Integer occupiedBeds;
+
     @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Room> rooms;
 

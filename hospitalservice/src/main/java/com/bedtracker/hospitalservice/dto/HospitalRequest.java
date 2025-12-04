@@ -36,9 +36,4 @@ public class HospitalRequest {
     @Size(max = 120, message = "State must not exceed 120 characters")
     private String state;
 
-    // Aligned with Hospital.totalBeds (nullable in entity, but requesting it as required)
-    @NotNull(message = "Total beds count is required")
-    @Min(value = 1, message = "Total beds must be at least 1")
-    private Integer totalBeds;
-
 }

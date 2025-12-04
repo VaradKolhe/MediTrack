@@ -17,7 +17,5 @@ public class ReceptionistResponse {
     private String firstName;
     private String lastName;
     private Long hospitalId;
-    private String phoneNumber;
-    private String shift;
 }
 

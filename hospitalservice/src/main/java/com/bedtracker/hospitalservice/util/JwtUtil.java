@@ -85,41 +85,29 @@ public class JwtUtil {
         Claims claims = extractAllClaims(token);
         return claims.get("role", String.class);
     }
-    
-    public Long extractReceptionistId(String token) {
+
+    private Long extractLongClaim(String token, String claimName) {
         Claims claims = extractAllClaims(token);
-        Object receptionistId = claims.get("receptionistId");
-        if (receptionistId == null) {
+        Object claimValue = claims.get(claimName);
+
+        if (claimValue == null) {
             return null;
         }
-        if (receptionistId instanceof Long) {
-            return (Long) receptionistId;
-        }
-        if (receptionistId instanceof Integer) {
-            return ((Integer) receptionistId).longValue();
-        }
-        if (receptionistId instanceof String) {
-            return Long.parseLong((String) receptionistId);
-        }
-        return null;
+
+        return switch (claimValue) {
+            case Long l -> l;
+            case Integer i -> i.longValue();
+            case String s -> Long.parseLong(s);
+            default -> null;
+        };
     }
-    
+
+    public Long extractReceptionistId(String token) {
+        return extractLongClaim(token, "receptionistId");
+    }
+
     public Long extractHospitalId(String token) {
-        Claims claims = extractAllClaims(token);
-        Object hospitalId = claims.get("hospitalId");
-        if (hospitalId == null) {
-            return null;
-        }
-        if (hospitalId instanceof Long) {
-            return (Long) hospitalId;
-        }
-        if (hospitalId instanceof Integer) {
-            return ((Integer) hospitalId).longValue();
-        }
-        if (hospitalId instanceof String) {
-            return Long.parseLong((String) hospitalId);
-        }
-        return null;
+        return extractLongClaim(token, "hospitalId");
     }
 }
 

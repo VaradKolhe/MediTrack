@@ -5,7 +5,7 @@ export const HOSPITAL_SERVICE = "http://localhost:8081";
 export const ADMIN_SERVICE = "http://localhost:8083";
 
 const instance = axios.create({
-  baseURL: USER_SERVICE,
+  baseURL: HOSPITAL_SERVICE,
 });
 
 // Add token from AuthContext

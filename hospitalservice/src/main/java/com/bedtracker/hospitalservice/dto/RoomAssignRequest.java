@@ -9,11 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoomAssignRequest {
-    
+
     @NotNull(message = "Patient ID is required")
     private Long patientId;
-    
+
     @NotNull(message = "Room ID is required")
     private Long roomId;
 }
-

@@ -1,6 +1,6 @@
 package com.bedtracker.userservice.controller;
 
-import com.bedtracker.userservice.dto.UserResponse;
+import com.bedtracker.userservice.dto.*;
 import com.bedtracker.userservice.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,82 +20,128 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {
-    
+
     private final UserService userService;
-    
+
+    // --- Generic User Endpoints ---
+
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllUsers() {
         try {
-            log.info("Request to fetch all users received");
-            
-            List<UserResponse> users = userService.getAllUsers();
-            
-            log.info("Successfully fetched {} users", users.size());
-            return ResponseEntity.ok(users);
-            
+            return ResponseEntity.ok(userService.getAllUsers());
         } catch (Exception e) {
             log.error("Error fetching all users: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse("Failed to fetch users due to internal error"));
+                    .body(new ErrorResponse("Failed to fetch users"));
         }
     }
-    
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         try {
-            log.info("Request to fetch user by ID: {}", id);
-            
-            UserResponse user = userService.getUserById(id);
-            
-            log.info("Successfully fetched user with ID: {}", id);
-            return ResponseEntity.ok(user);
-            
+            return ResponseEntity.ok(userService.getUserById(id));
         } catch (RuntimeException e) {
-            log.error("User not found with ID {}: {}", id, e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse("User not found with ID: " + id));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(e.getMessage()));
         } catch (Exception e) {
-            log.error("Error fetching user with ID {}: {}", id, e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse("Failed to fetch user due to internal error"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse("Internal Error"));
         }
     }
-    
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserRequest request) {
+        try {
+            return ResponseEntity.ok(userService.updateUser(id, request));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Update error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse("Failed to update user"));
+        }
+    }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {
-            log.info("Request to delete user with ID: {}", id);
-            
             userService.deleteUser(id);
-            
-            log.info("Successfully deleted user with ID: {}", id);
             return ResponseEntity.ok(new SuccessResponse("User deleted successfully"));
-            
         } catch (RuntimeException e) {
-            log.error("User not found with ID {}: {}", id, e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse("User not found with ID: " + id));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(e.getMessage()));
         } catch (Exception e) {
-            log.error("Error deleting user with ID {}: {}", id, e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse("Failed to delete user due to internal error"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse("Failed to delete user"));
         }
     }
-    
-    // Simple response classes
+
+    // --- Receptionist Endpoints (Matched to AdminService) ---
+
+    @PostMapping("/receptionists")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> createReceptionist(@RequestBody ReceptionistRequest request) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(userService.createReceptionist(request));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Create receptionist error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse("Error creating receptionist"));
+        }
+    }
+
+    @GetMapping("/receptionists")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getAllReceptionists() {
+        try {
+            return ResponseEntity.ok(userService.getAllReceptionists());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse("Failed to fetch receptionists"));
+        }
+    }
+
+    @GetMapping("/receptionists/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getReceptionistById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(userService.getReceptionistById(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse("Error fetching receptionist"));
+        }
+    }
+
+    @PutMapping("/receptionists/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateReceptionist(@PathVariable Long id, @RequestBody ReceptionistRequest request) {
+        try {
+            return ResponseEntity.ok(userService.updateReceptionist(id, request));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse("Failed to update receptionist"));
+        }
+    }
+
+    @DeleteMapping("/receptionists/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deleteReceptionist(@PathVariable Long id) {
+        try {
+            userService.deleteReceptionist(id);
+            return ResponseEntity.ok(new SuccessResponse("Receptionist deleted successfully"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse("Failed to delete receptionist"));
+        }
+    }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class ErrorResponse {
-        private String message;
-    }
-    
+    public static class ErrorResponse { private String message; }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class SuccessResponse {
-        private String message;
-    }
+    public static class SuccessResponse { private String message; }
 }

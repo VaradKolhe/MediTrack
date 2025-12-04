@@ -11,28 +11,27 @@ import java.util.Optional;
 
 @Repository
 public interface PatientRepository extends JpaRepository<Patient, Long> {
-    
+
     // Find all patients for a specific hospital
     List<Patient> findByHospitalId(Long hospitalId);
-    
-    // Find patients in a specific room
-    @Query("SELECT p FROM Patient p WHERE p.roomId = :roomId AND p.status = 'ADMITTED'")
+
+    // FIX: Changed p.roomId to p.room.id
+    @Query("SELECT p FROM Patient p WHERE p.room.id = :roomId AND p.status = 'ADMITTED'")
     List<Patient> findAdmittedPatientsByRoomId(@Param("roomId") Long roomId);
-    
-    // Find all patients (including discharged) in a room
-    List<Patient> findByRoomId(Long roomId);
-    
-    // Find patient by contact number and hospital (for duplicate check)
+
+    // FIX: Changed findByRoomId to findByRoom_Id for clarity (Spring Data convention for nested objects)
+    List<Patient> findByRoom_Id(Long roomId);
+
+    // Find patient by contact number and hospital
     Optional<Patient> findByContactNumberAndHospitalId(String contactNumber, Long hospitalId);
-    
-    // Count admitted patients in a room
-    @Query("SELECT COUNT(p) FROM Patient p WHERE p.roomId = :roomId AND p.status = 'ADMITTED'")
+
+    // FIX: Changed p.roomId to p.room.id
+    @Query("SELECT COUNT(p) FROM Patient p WHERE p.room.id = :roomId AND p.status = 'ADMITTED'")
     Long countAdmittedPatientsByRoomId(@Param("roomId") Long roomId);
-    
-    // Find patient by ID and hospital (for security - ensure patient belongs to hospital)
+
+    // Find patient by ID and hospital
     Optional<Patient> findByPatientIdAndHospitalId(Long patientId, Long hospitalId);
-    
+
     // Find all admitted patients for a hospital
     List<Patient> findByHospitalIdAndStatus(Long hospitalId, Patient.PatientStatus status);
 }
-

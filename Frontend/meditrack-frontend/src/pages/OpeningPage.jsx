@@ -15,7 +15,7 @@ export default function OpeningPage() {
     <div className="min-h-screen bg-slate-950 text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900/80 to-slate-900/40" />
       <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.35),_transparent_55%)]" />
-      <div className="relative max-w-6xl mx-auto px-6 pt-10 pb-16 flex flex-col gap-12">
+      <div className="relative max-w-6xl mx-auto px-6 pt-10 pb-16 flex flex-col gap-12 top-[60px]">
 
         <section className="grid lg:grid-cols-2 gap-10 items-center">
           <div className="space-y-8">
