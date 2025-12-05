@@ -1,0 +1,99 @@
+/* --- Background Layer: Keep image but make it readable --- */
+.opening-page-container {
+  position: relative;
+  color: #0F172A;
+}
+
+.opening-page-container::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0.75),
+      rgba(255, 255, 255, 0.70)
+    ),
+    url("/images/meditrack-beds-hero.jpg");
+  
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+  filter: blur(8px) brightness(0.55); /* ✨ Cleaner readability */
+  pointer-events: none;
+}
+
+.opening-page-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* --- Section Containers w/ Strong Readability --- */
+.section-container {
+  background: rgba(255, 255, 255, 0.92); /* Main readable layer */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border-radius: 1.5rem;
+  margin: 1.5rem auto;
+  padding: 3.2rem 2rem;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.09);
+
+  max-width: 1100px;
+}
+
+/* Hero gets the brightest readable panel */
+.section-container.hero {
+  background: rgba(255, 255, 255, 0.20);
+}
+
+/* Stats section */
+.section-container.stats {
+  background: rgba(236, 245, 255, 0.92);
+}
+
+/* Features section */
+.section-container.features {
+  background: rgba(240, 253, 250, 0.92);
+}
+
+/* Trust section */
+.section-container.trust {
+  background: rgba(248, 240, 255, 0.92);
+}
+
+/* Cards remain same but text is now 2x more readable */
+.opening-feature-card,
+.opening-stat-card-large {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: 0.25s;
+}
+
+.opening-feature-card:hover,
+.opening-stat-card-large:hover {
+  transform: translateY(-4px);
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Readable text */
+.opening-heading {
+  color: #0F172A;
+}
+.opening-subheading {
+  color: #334155;
+}
+
+/* Responsive Tweaks */
+@media (max-width: 768px) {
+  .section-container {
+    padding: 2rem 1.2rem;
+  }
+}

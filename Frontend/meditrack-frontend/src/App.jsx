@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import OpeningPage from "./pages/OpeningPage";
 import HomePage from "./pages/HomePage";
+import ChatbotWidget from "./components/ChatbotWidget";
 import LoginPage from "./pages/LoginPage";
+import ProfileModal from "./pages/ProfileModal";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ReceptionistDashboard from "./pages/receptionist/ReceptionistDashboard";
 import PublicLayout from "./layouts/PublicLayout";
@@ -11,7 +13,9 @@ import { Toaster } from "react-hot-toast";
 export default function App() {
   return (
     <>
-    <Toaster position="top-right" toastOptions={{ duration: 2000 }} />
+      <Toaster position="top-right" toastOptions={{ duration: 2000 }} />
+      <ChatbotWidget />
+
       <BrowserRouter>
         <Routes>
           {/* Public Pages */}
@@ -42,6 +46,9 @@ export default function App() {
 
           {/* Admin */}
           <Route path="/admin" element={<AdminDashboard />} />
+
+          {/* Profile */}
+          <Route path="/profile" element={<ProfileModal />} />
 
           {/* Receptionist */}
           <Route

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,6 +16,7 @@ public class EmailService {
 
     private final JavaMailSender emailSender;
 
+    @Async("taskExecutor")
     public void sendVerificationEmail(String to, String name, String otp) {
         try {
             MimeMessage message = emailSender.createMimeMessage();
@@ -24,7 +26,7 @@ public class EmailService {
             helper.setSubject("MediTrack Account Verification");
 
             String htmlContent = buildEmailContent(name, otp);
-            helper.setText(htmlContent, true); // true = isHtml
+            helper.setText(htmlContent, true);
 
             emailSender.send(message);
             log.info("Verification email sent to {}", to);

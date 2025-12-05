@@ -21,89 +21,49 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
     private final JwtUtil jwtUtil;
     private static final String LOGIN_ENDPOINT = "/public/auth/staff/login";
-    
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        if (request.getServletPath().equals(LOGIN_ENDPOINT)) {
-            log.debug("Bypassing JWT filter for staff login endpoint: {}", LOGIN_ENDPOINT);
+        if (request.getServletPath().startsWith("/public/")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String authorizationHeader = request.getHeader("Authorization");
-        
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            log.warn("Missing or invalid Authorization header");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"success\":false,\"message\":\"Missing or invalid Authorization header\"}");
+        String header = request.getHeader("Authorization");
+        if (header == null || !header.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);  // <-- let permitAll() work
             return;
         }
-        
-        String token = authorizationHeader.substring(7);
-        
+
+        String token = header.substring(7);
+
         try {
-            // Validate token
             if (!jwtUtil.validateToken(token)) {
-                log.warn("Invalid JWT token");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json");
-                response.getWriter().write("{\"success\":false,\"message\":\"Invalid or expired token\"}");
+                response.getWriter().write("{\"success\":false,\"message\":\"Invalid token\"}");
                 return;
             }
-            
-            // Extract claims
+
             String username = jwtUtil.extractUsername(token);
+            String role = jwtUtil.extractRole(token);
             Long hospitalId = jwtUtil.extractHospitalId(token);
             Long receptionistId = jwtUtil.extractReceptionistId(token);
-            String role = jwtUtil.extractRole(token);
-            
-            if (hospitalId == null) {
-                log.warn("Token does not contain hospitalId claim");
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json");
-                response.getWriter().write("{\"success\":false,\"message\":\"Token missing hospitalId claim\"}");
-                return;
-            }
-            
-            if (role == null) {
-                log.warn("Token does not contain role claim");
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json");
-                response.getWriter().write("{\"success\":false,\"message\":\"Token missing role claim\"}");
-                return;
-            }
-            
-            // Check if role is RECEPTIONIST
-            if (!"RECEPTIONIST".equalsIgnoreCase(role) && !"ADMIN".equalsIgnoreCase(role)) {
-                log.warn("Access denied for role: {}", role);
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.setContentType("application/json");
-                response.getWriter().write("{\"success\":false,\"message\":\"Access denied: Only receptionists and admins can access this service\"}");
-                return;
-            }
-            
-            // Create authentication token
-            JwtAuthenticationToken authentication = new JwtAuthenticationToken(
-                    username, role, hospitalId, receptionistId
-            );
-            
-            // Set authentication in security context
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            
-            log.debug("JWT validated successfully - username: {}, role: {}, hospitalId: {}", 
-                     username, role, hospitalId);
-            
-            filterChain.doFilter(request, response);
-            
+
+            JwtAuthenticationToken auth =
+                    new JwtAuthenticationToken(username, role, hospitalId, receptionistId);
+
+            auth.setAuthenticated(true);
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
         } catch (Exception e) {
-            log.error("Error processing JWT token: {}", e.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"success\":false,\"message\":\"Error processing token: " + e.getMessage() + "\"}");
+            response.getWriter().write("{\"success\":false,\"message\":\"Token error\"}");
+            return;
         }
+
+        filterChain.doFilter(request, response);
     }
 }
 

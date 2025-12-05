@@ -2,7 +2,6 @@ package com.bedtracker.userservice.controller;
 
 import com.bedtracker.userservice.dto.*;
 import com.bedtracker.userservice.service.AuthService;
-import com.bedtracker.userservice.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,10 +20,21 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    private final UserService userService; // Injected UserService
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getme(@RequestHeader("Authorization") String authorizationHeader) {
+        try {
+          return ResponseEntity.ok(authService.getMe(authorizationHeader));
+
+        } catch (Exception e) {
+          log.error("Error fetching user details: {}", e.getMessage());
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                  .body(new ErrorResponse("Failed to fetch user details"));
+
+        }
+    }
 
     @PostMapping("/register")
-    // Changed parameter to UserRequest to match Service
     public ResponseEntity<?> register(@Valid @RequestBody UserRequest userRequest) {
         try {
             log.info("Registration request received for user: {}", userRequest.getUsername());
