@@ -126,7 +126,7 @@ public class UserService implements UserDetailsService {
     }
 
     public void deleteReceptionist(Long id) {
-        User user = userRepository.findByIdAndRole(id, Role.RECEPTIONIST)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Receptionist not found with ID: " + id));
         userRepository.delete(user);
     }
