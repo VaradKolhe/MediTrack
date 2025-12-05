@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Users2, Pencil, Trash2, Loader2, ShieldCheck } from "lucide-react";
 import toast from "react-hot-toast";
 import { adminApi } from "../../api/adminApi";
+import { motion } from "framer-motion";
 
 const initialForm = {
   username: "",
@@ -11,6 +12,14 @@ const initialForm = {
   lastName: "",
   hospitalId: "",
   phoneNumber: "",
+};
+
+const primaryColor = "bg-indigo-600 hover:bg-indigo-700";
+const primaryRing = "focus:ring-indigo-300";
+
+const rowVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
 };
 
 export default function ReceptionistsManager({
@@ -81,59 +90,80 @@ export default function ReceptionistsManager({
 
   return (
     <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-      {/* Left Column: List */}
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 sm:p-6">
-        <div className="flex items-center justify-between mb-5">
+      {/* Left Column: List (Animated Entrance) */}
+      <motion.div 
+        className="bg-white border border-slate-100 rounded-3xl shadow-xl shadow-slate-100/50 p-6"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
           <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500">
-              Manage
+            <p className="text-xs uppercase tracking-widest text-slate-500 font-medium">
+              Staff Management
             </p>
-            <h2 className="text-xl font-semibold text-slate-900">
+            <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+              <Users2 className="w-5 h-5 text-indigo-600" />
               Receptionists
             </h2>
           </div>
-          <span className="text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+          <span className="text-sm font-semibold text-indigo-600 bg-indigo-100 px-3 py-1 rounded-full">
             {receptionists.length} active
           </span>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl border border-slate-100">
           <table className="min-w-full text-sm">
             <thead>
-              <tr className="text-left bg-slate-50 text-slate-500 uppercase text-xs tracking-wide">
-                <th className="px-3 py-2 rounded-l-lg">Name</th>
-                <th className="px-3 py-2">Email</th>
-                <th className="px-3 py-2">Hospital</th>
-                <th className="px-3 py-2 rounded-r-lg text-right">Actions</th>
+              <tr className="text-left bg-slate-50 text-slate-500 uppercase text-xs tracking-wider">
+                <th className="px-4 py-3 font-semibold">Name</th>
+                <th className="px-4 py-3 font-semibold">Email</th>
+                <th className="px-4 py-3 font-semibold">Hospital</th>
+                <th className="px-4 py-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
-              {receptionists.map((rec) => (
-                <tr key={rec.id} className="hover:bg-slate-50/70 transition">
-                  <td className="px-3 py-4 font-semibold text-slate-700 capitalize">
+            <motion.tbody 
+              className="divide-y divide-slate-100"
+              initial="hidden"
+              animate="visible"
+              variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
+            >
+              {receptionists.map((rec, index) => (
+                <motion.tr 
+                  key={rec.id} 
+                  className="group transition duration-150 ease-in-out hover:bg-indigo-50/20 odd:bg-white even:bg-slate-50"
+                  variants={rowVariants}
+                >
+                  <td className="px-4 py-4 font-semibold text-slate-800 capitalize">
                     {rec.firstName} {rec.lastName}
                   </td>
-                  <td className="px-3 py-4 text-slate-500">{rec.email}</td>
-                  <td className="px-3 py-4 text-slate-500">
-                    {hospitalLookup.get(rec.hospitalId)?.name || "Unknown"}
+                  <td className="px-4 py-4 text-slate-600">{rec.email}</td>
+                  <td className="px-4 py-4 text-slate-600">
+                    <span className="bg-indigo-100 text-indigo-700 text-xs font-medium px-2 py-0.5 rounded-full">
+                      {hospitalLookup.get(rec.hospitalId)?.name || "Unknown"}
+                    </span>
                   </td>
-                  <td className="px-3 py-4">
+                  <td className="px-4 py-4">
                     <div className="flex justify-end gap-2">
-                      <button
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => handleEdit(rec)}
-                        className="p-2 rounded-lg border border-slate-200 hover:bg-slate-100 transition"
+                        className="p-2 rounded-full border border-slate-200 hover:bg-indigo-100/50 transition duration-150"
                       >
-                        <Pencil className="w-4 h-4 text-slate-600" />
-                      </button>
-                      <button
+                        <Pencil className="w-4 h-4 text-indigo-600" />
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => handleDelete(rec)}
-                        className="p-2 rounded-lg border border-red-200 hover:bg-red-50 transition"
+                        className="p-2 rounded-full border border-red-200 hover:bg-red-100/50 transition duration-150"
                       >
                         <Trash2 className="w-4 h-4 text-red-500" />
-                      </button>
+                      </motion.button>
                     </div>
                   </td>
-                </tr>
+                </motion.tr>
               ))}
               {receptionists.length === 0 && (
                 <tr>
@@ -142,83 +172,59 @@ export default function ReceptionistsManager({
                   </td>
                 </tr>
               )}
-            </tbody>
+            </motion.tbody>
           </table>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Right Column: Form */}
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 h-fit">
-        <div className="flex items-center justify-between mb-4">
+      {/* Right Column: Form (Animated Entrance) */}
+      <motion.div 
+        className="bg-white border border-slate-100 rounded-3xl shadow-xl shadow-slate-100/50 p-6 h-fit sticky top-6"
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="flex items-center justify-between mb-6 border-b pb-3 border-slate-100">
           <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500">
-              {editingRec ? "Update" : "Add"}
+            <p className="text-xs uppercase tracking-widest text-slate-500">
+              {editingRec ? "Update" : "Add New"}
             </p>
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-xl font-bold">
               {editingRec ? "Edit Receptionist" : "New Receptionist"}
             </h3>
           </div>
-          <ShieldCheck className="w-5 h-5 text-slate-400" />
+          <ShieldCheck className="w-6 h-6 text-indigo-400" />
         </div>
 
-        <form className="space-y-3" onSubmit={handleSubmit}>
-          <input
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm"
-            placeholder="Username"
-            value={form.username}
-            onChange={(e) => setForm({ ...form, username: e.target.value })}
-            required
-          />
-          <input
-            type="email"
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm"
-            placeholder="Email Address"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            required
-          />
-
-          <div className="grid grid-cols-2 gap-3">
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          {['username', 'email', 'firstName', 'lastName', 'phoneNumber'].map((key) => (
             <input
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm"
-              placeholder="First Name"
-              value={form.firstName}
-              onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+              key={key}
+              type={key === 'email' ? 'email' : 'text'}
+              className={`w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 ${primaryRing} transition`}
+              placeholder={key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
+              value={form[key]}
+              onChange={(e) => setForm({ ...form, [key]: e.target.value })}
               required
             />
-            <input
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm"
-              placeholder="Last Name"
-              value={form.lastName}
-              onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-              required
-            />
-          </div>
+          ))}
 
           <input
             type="password"
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm"
-            placeholder="Password"
+            className={`w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 ${primaryRing} transition`}
+            placeholder={editingRec ? "New Password (Leave blank to keep old)" : "Password"}
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
-            required={!editingRec} // Password only required on creation
-          />
-
-          <input
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm"
-            placeholder="Phone Number"
-            value={form.phoneNumber}
-            onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
-            required
+            required={!editingRec}
           />
 
           <select
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm"
+            className={`w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm appearance-none focus:outline-none focus:ring-2 ${primaryRing} transition`}
             value={form.hospitalId}
             onChange={(e) => setForm({ ...form, hospitalId: e.target.value })}
             required
           >
-            <option value="">Assign Hospital</option>
+            <option value="">-- Assign Hospital --</option>
             {hospitals.map((h) => (
               <option key={h.id} value={h.id}>
                 {h.name}
@@ -226,27 +232,31 @@ export default function ReceptionistsManager({
             ))}
           </select>
 
-          <div className="flex items-center gap-2 pt-2">
-            <button
+          <div className="flex items-center gap-3 pt-3">
+            <motion.button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 bg-slate-900 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-800 transition disabled:opacity-60 flex justify-center items-center gap-2"
+              className={`flex-1 ${primaryColor} text-white py-3 rounded-xl text-sm font-semibold transition disabled:opacity-50 flex justify-center items-center gap-2 shadow-md hover:shadow-lg`}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
               {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
               {editingRec ? "Update Staff" : "Add Staff"}
-            </button>
+            </motion.button>
             {editingRec && (
-              <button
+              <motion.button
                 type="button"
                 onClick={resetForm}
-                className="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50 transition"
+                className="px-4 py-3 border border-slate-200 rounded-xl text-sm font-medium hover:bg-slate-100 transition"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 Cancel
-              </button>
+              </motion.button>
             )}
           </div>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 }

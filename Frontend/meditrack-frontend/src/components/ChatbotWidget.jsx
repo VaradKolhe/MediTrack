@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { sendMessageToGemini } from "../services/geminiService";
 import { normalizeMessage } from "../services/chatUtils";
+import { useAuth } from "../hooks/useAuth";
 
 export default function ChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,6 +11,8 @@ export default function ChatbotWidget() {
   const [animating, setAnimating] = useState(false);
 
   const messagesEndRef = useRef(null);
+
+  const { user } = useAuth(); 
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -42,7 +45,7 @@ export default function ChatbotWidget() {
       // Pass the current messages (normalized) as history
       const history = [...messages, userMsg];
 
-      const result = await sendMessageToGemini(input, history);
+      const result = await sendMessageToGemini(input, history, user);
       // result is guaranteed to have reply, steps, tips
 
       const botMsg = normalizeMessage({

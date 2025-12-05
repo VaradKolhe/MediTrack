@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PatientRepository extends JpaRepository<Patient, Long> {
+public interface    PatientRepository extends JpaRepository<Patient, Long> {
 
     // Find all patients for a specific hospital
     List<Patient> findByHospitalId(Long hospitalId);
@@ -20,7 +20,7 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     List<Patient> findAdmittedPatientsByRoomId(@Param("roomId") Long roomId);
 
     // FIX: Changed findByRoomId to findByRoom_Id for clarity (Spring Data convention for nested objects)
-    List<Patient> findByRoom_Id(Long roomId);
+    List<Patient> findByRoomIdAndStatus(Long roomId, Patient.PatientStatus status);
 
     // Find patient by contact number and hospital
     Optional<Patient> findByContactNumberAndHospitalId(String contactNumber, Long hospitalId);

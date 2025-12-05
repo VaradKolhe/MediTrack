@@ -1,6 +1,16 @@
 import { useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "./AuthContextValue";
-import instance, { USER_SERVICE } from "../api/axiosConfig";
+import instance, { USER_SERVICE, HOSPITAL_SERVICE } from "../api/axiosConfig";
+
+// Helper to decode JWT token
+const decodeToken = (token) => {
+  try {
+    return jwtDecode(token);
+  } catch (e) {
+    return null;
+  }
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
@@ -18,20 +28,44 @@ export const AuthProvider = ({ children }) => {
   // On mount, fetch user if token exists but user is missing
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+    
     if (token && !user) {
-      instance
-        .get(`${USER_SERVICE}/api/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((res) => {
-          setUser(res.data);
-          localStorage.setItem("user", JSON.stringify(res.data));
-        })
-        .catch(() => {
-          // Invalid token, remove
-          localStorage.removeItem("token");
-          setUser(null);
-        });
+      const decoded = decodeToken(token);
+      
+      // If token is from hospitalservice (receptionist), it has hospitalId and receptionistId
+      // Receptionist tokens won't work with userservice /api/auth/me endpoint
+      if (decoded?.hospitalId && decoded?.receptionistId) {
+        // This is a hospital JWT - user data should be in localStorage from login
+        if (storedUser) {
+          try {
+            const userData = JSON.parse(storedUser);
+            setUser(userData);
+          } catch (e) {
+            console.error("Failed to parse stored user data", e);
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+          }
+        } else {
+          // No stored user data - can't fetch from userservice with hospital token
+          console.warn("Receptionist token found but no user data in storage");
+        }
+      } else {
+        // Regular user token - fetch from userservice
+        instance
+          .get(`${USER_SERVICE}/api/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((res) => {
+            setUser(res.data);
+            localStorage.setItem("user", JSON.stringify(res.data));
+          })
+          .catch(() => {
+            // Invalid token, remove
+            localStorage.removeItem("token");
+            setUser(null);
+          });
+      }
     }
   }, [user]);
 
