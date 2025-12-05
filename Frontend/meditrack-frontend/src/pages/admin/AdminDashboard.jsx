@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Building2,
@@ -8,6 +9,7 @@ import {
 } from "lucide-react";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { useAdminData } from "../../hooks/useAdminData";
+import { useAuth } from "../../hooks/useAuth";
 
 import OverviewStats from "../../components/admin/OverviewStats";
 import HospitalsManager from "../../components/admin/HospitalsManager";
@@ -24,6 +26,11 @@ const sections = [
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState("overview");
   const { data, isLoading, hospitalLookup, refreshData } = useAdminData();
+  const [isSidebarShrunk, setIsSidebarShrunk] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const toggleSidebar = () => setIsSidebarShrunk((prev) => !prev);
 
   const renderContent = () => {
     switch (activeSection) {
@@ -66,7 +73,11 @@ export default function AdminDashboard() {
       sidebarItems={sections}
       activeKey={activeSection}
       onSelect={setActiveSection}
-      user={null}
+      user={user}
+      onLogout={() => {
+        logout();
+        navigate("/login", { replace: true });
+      }}
     >
       <div className="bg-gradient-to-b from-white via-slate-50 to-white rounded-3xl border border-slate-200 shadow-[0_16px_40px_rgba(15,23,42,0.08)] p-6">
         <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-200">
@@ -128,8 +139,8 @@ export default function AdminDashboard() {
               <div className="pt-4 space-y-4">
                 <div className="rounded-2xl bg-gradient-to-r from-slate-50 to-white border border-slate-200 p-4 shadow-inner">
                   <p className="text-sm text-slate-600">
-                    Data-driven cards and tables support sticky headers and hover
-                    affordances for clarity on all views.
+                    Data-driven cards and tables support sticky headers and
+                    hover affordances for clarity on all views.
                   </p>
                 </div>
                 {renderContent()}

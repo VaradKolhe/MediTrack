@@ -9,11 +9,12 @@ import {
   KeyRound,
   ArrowLeft,
 } from "lucide-react";
+import { jwtDecode } from "jwt-decode";
 import instance, { USER_SERVICE } from "../api/axiosConfig";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { motion } from "framer-motion"; // <-- IMPORT FRAMER MOTION
+import { motion } from "framer-motion";
 
 // --- FRAMER MOTION VARIANTS ---
 
@@ -96,8 +97,35 @@ const LoginPage = () => {
             password: form.password,
           });
 
-          login(res.data.token, res.data.user);
-          return res.data.user?.role;
+          // AuthResponse structure: {token, id, username, email, firstName, lastName, role}
+          // For receptionists, hospitalId is in the JWT token (from hospitalservice)
+          let hospitalId = null;
+          if (res.data.role === "RECEPTIONIST" && res.data.token) {
+            try {
+              const decoded = jwtDecode(res.data.token);
+              hospitalId = decoded.hospitalId || null;
+            } catch (e) {
+              console.warn("Failed to decode receptionist token", e);
+            }
+          }
+
+          // Ensure role is a string (handle enum serialization)
+          const role = typeof res.data.role === 'string' 
+            ? res.data.role 
+            : res.data.role?.name || res.data.role || 'USER';
+
+          const userData = {
+            id: res.data.id,
+            username: res.data.username,
+            email: res.data.email,
+            firstName: res.data.firstName,
+            lastName: res.data.lastName,
+            role: role,
+            hospitalId: hospitalId,
+          };
+
+          login(res.data.token, userData);
+          return role;
         }
 
         if (mode === "register") {
@@ -127,8 +155,35 @@ const LoginPage = () => {
             }
           );
 
-          login(loginRes.data.token, loginRes.data.user);
-          return loginRes.data.user?.role;
+          // AuthResponse structure: {token, id, username, email, firstName, lastName, role}
+          // For receptionists, hospitalId is in the JWT token (from hospitalservice)
+          let hospitalId = null;
+          if (loginRes.data.role === "RECEPTIONIST" && loginRes.data.token) {
+            try {
+              const decoded = jwtDecode(loginRes.data.token);
+              hospitalId = decoded.hospitalId || null;
+            } catch (e) {
+              console.warn("Failed to decode receptionist token", e);
+            }
+          }
+
+          // Ensure role is a string (handle enum serialization)
+          const role = typeof loginRes.data.role === 'string' 
+            ? loginRes.data.role 
+            : loginRes.data.role?.name || loginRes.data.role || 'USER';
+
+          const userData = {
+            id: loginRes.data.id,
+            username: loginRes.data.username,
+            email: loginRes.data.email,
+            firstName: loginRes.data.firstName,
+            lastName: loginRes.data.lastName,
+            role: role,
+            hospitalId: hospitalId,
+          };
+
+          login(loginRes.data.token, userData);
+          return role;
         }
       } catch (err) {
         const message =
@@ -150,9 +205,10 @@ const LoginPage = () => {
           return "Account created! Please check your email for the OTP.";
         }
 
-        if (result.role === "ADMIN") {
+        // result is the role string (e.g., "ADMIN", "RECEPTIONIST", "USER")
+        if (result === "ADMIN") {
           navigate("/admin");
-        } else if (result.role === "RECEPTIONIST") {
+        } else if (result === "RECEPTIONIST") {
           navigate("/receptionist");
         } else {
           navigate("/home");

@@ -67,7 +67,7 @@ public class PatientService {
         log.info("Fetching patients in room {} for hospital {}", roomId, hospitalId);
         
         // Verify room belongs to hospital (should be checked via RoomService or repository)
-        List<Patient> patients = patientRepository.findAdmittedPatientsByRoomId(roomId);
+        List<Patient> patients = patientRepository.findByRoomIdAndStatus(roomId, Patient.PatientStatus.ADMITTED);
 
         // Filter by hospitalId for security
         return patients.stream()

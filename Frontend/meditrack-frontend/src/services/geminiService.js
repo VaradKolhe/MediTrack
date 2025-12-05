@@ -4,7 +4,6 @@ import {
   validateBotJson,
   extractJsonFromText,
 } from "./chatUtils";
-import { useAuth } from "../hooks/useAuth";
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
@@ -102,70 +101,82 @@ JSON
   "tips": []
   }
   `;
-  
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
-    systemInstruction: SYSTEM_PROMPT,
-  });
-  
-  const DEFAULT_TIMEOUT_MS = 12_000; // 12s per attempt
-  const MAX_RETRIES = 2; // initial + 2 retries (tunable)
-  const BACKOFF_BASE = 300; // ms
-  
-  function buildHistoryPayload(history = []) {
-    // ensure every history entry has `.text`
-    return history
+
+const model = genAI.getGenerativeModel({
+  model: "gemini-2.5-flash",
+  systemInstruction: SYSTEM_PROMPT,
+});
+
+const DEFAULT_TIMEOUT_MS = 12_000; // 12s per attempt
+const MAX_RETRIES = 2; // initial + 2 retries (tunable)
+const BACKOFF_BASE = 300; // ms
+
+function buildHistoryPayload(history = []) {
+  // ensure every history entry has `.text`
+  return history
     .map(normalizeMessage)
     .filter(Boolean)
     .map((m) => ({
       role: m.sender === "user" ? "user" : "model",
       parts: [{ text: m.text || "" }],
     }));
+}
+
+/**
+ * Attempts to parse a raw text response into the strict schema, with fallbacks.
+ */
+function parseModelResponseText(rawText) {
+  // 1) Try direct JSON parse
+  try {
+    const parsed = JSON.parse(rawText);
+    return validateBotJson(parsed);
+  } catch (e) {
+    // not direct JSON
   }
-  
-  /**
-   * Attempts to parse a raw text response into the strict schema, with fallbacks.
-  */
- function parseModelResponseText(rawText) {
-   // 1) Try direct JSON parse
-   try {
-     const parsed = JSON.parse(rawText);
-     return validateBotJson(parsed);
+
+  // 2) Try to extract JSON substring
+  const extracted = extractJsonFromText(rawText);
+  if (extracted) {
+    try {
+      return validateBotJson(extracted);
     } catch (e) {
-      // not direct JSON
+      // fallthrough
     }
-    
-    // 2) Try to extract JSON substring
-    const extracted = extractJsonFromText(rawText);
-    if (extracted) {
-      try {
-        return validateBotJson(extracted);
-      } catch (e) {
-        // fallthrough
-      }
-    }
-    
-    // 3) Last resort: attempt to heuristically convert free-text into schema
-    // We will put whole rawText into reply, with empty steps/tips
-    return { reply: rawText.trim().slice(0, 1500), steps: [], tips: [] };
   }
-  
-  /**
-   * Core function: sends query with history and robust error handling.
-   * Returns an object { reply, steps, tips }
-  */
- export async function sendMessageToGemini(query, history = []) {
-   if (!query || typeof query !== "string") {
-     throw new Error("Query must be a non-empty string");
-    }
-    const { user, logout } = useAuth();
-    
-    const payloadHistory = buildHistoryPayload(history);
-    
-    let attempt = 0;
-    let lastErr = null;
-    
-    while (attempt <= MAX_RETRIES) {
+
+  // 3) Last resort: attempt to heuristically convert free-text into schema
+  // We will put whole rawText into reply, with empty steps/tips
+  return { reply: rawText.trim().slice(0, 1500), steps: [], tips: [] };
+}
+
+/**
+ * Core function: sends query with history and robust error handling.
+ * Returns an object { reply, steps, tips }
+ * @param {string} query - The user's message
+ * @param {Array} history - Chat history
+ * @param {Object} userData - User data containing role information
+ */
+export async function sendMessageToGemini(
+  query,
+  history = [],
+  userData = null
+) {
+  if (!query || typeof query !== "string") {
+    throw new Error("Query must be a non-empty string");
+  }
+
+  // Access user role from passed userData parameter
+  const userRole = userData?.role || "USER";
+
+  // Prepend user role context to the query
+  const contextualizedQuery = `[User Role: ${userRole}]\n\n${query}`;
+
+  const payloadHistory = buildHistoryPayload(history);
+
+  let attempt = 0;
+  let lastErr = null;
+
+  while (attempt <= MAX_RETRIES) {
     attempt += 1;
     const timeout = DEFAULT_TIMEOUT_MS + attempt * 2000; // slight increase per attempt
 
@@ -177,8 +188,9 @@ JSON
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeout);
 
+      // Send the contextualized query with user role
       const result = await chat
-        .sendMessage(query, { signal: controller.signal })
+        .sendMessage(contextualizedQuery, { signal: controller.signal })
         .catch((err) => {
           throw err;
         });
