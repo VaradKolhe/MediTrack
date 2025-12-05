@@ -32,7 +32,7 @@ public class HospitalResponse {
         response.setCity(hospital.getCity());
         response.setContactNumber(hospital.getContactNumber());
         response.setTotalBeds(hospital.getTotalBeds());
-        response.setOccupiedBeds(0); // Can be calculated if needed
+        response.setOccupiedBeds(hospital.getOccupiedBeds());
         response.setCreatedAt(hospital.getCreatedAt());
         response.setUpdatedAt(hospital.getUpdatedAt());
         return response;

@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -28,5 +28,8 @@ public class Room {
 
     @Column(name = "total_beds", nullable = false)
     private Integer totalBeds;
+
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Patient> patients;
 
 }

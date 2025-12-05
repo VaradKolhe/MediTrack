@@ -19,7 +19,7 @@ import java.util.List;
 @RequestMapping("/hospitals")
 @RequiredArgsConstructor
 @Slf4j
-@PreAuthorize("hasAnyRole('RECEPTIONIST','ADMIN')")
+@PreAuthorize("hasRole('ADMIN')")
 public class HospitalController {
     
     private final HospitalService hospitalService;

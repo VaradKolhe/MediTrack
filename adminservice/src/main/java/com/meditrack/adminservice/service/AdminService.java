@@ -2,6 +2,7 @@ package com.meditrack.adminservice.service;
 
 import com.meditrack.adminservice.dto.*;
 import com.meditrack.adminservice.entity.Hospital;
+import com.meditrack.adminservice.entity.Patient;
 import com.meditrack.adminservice.entity.Room;
 import com.meditrack.adminservice.exception.*;
 import com.meditrack.adminservice.repository.HospitalRepository;
@@ -61,8 +62,10 @@ public class AdminService {
         try {
             HttpEntity<?> entity = body != null ? new HttpEntity<>(body, getHeaders()) : new HttpEntity<>(getHeaders());
             ResponseEntity<T> response = restTemplate.exchange(baseUrl + path, method, entity, responseType);
-            
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+
+            // FIX: Removed "&& response.getBody() != null"
+            // It is perfectly valid for a successful response (especially DELETE) to have a null body.
+            if (response.getStatusCode().is2xxSuccessful()) {
                 return response.getBody();
             } else {
                 log.warn("Unexpected response from {}: status={}", serviceName, response.getStatusCode());
@@ -87,8 +90,9 @@ public class AdminService {
         try {
             HttpEntity<?> entity = body != null ? new HttpEntity<>(body, getHeaders()) : new HttpEntity<>(getHeaders());
             ResponseEntity<T> response = restTemplate.exchange(baseUrl + path, method, entity, responseType);
-            
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+
+            // FIX: Removed "&& response.getBody() != null"
+            if (response.getStatusCode().is2xxSuccessful()) {
                 return response.getBody();
             } else {
                 log.warn("Unexpected response from {}: status={}", serviceName, response.getStatusCode());
@@ -238,14 +242,14 @@ public class AdminService {
             }
             
             log.info("Deleting hospital with ID: {}", id);
-            if (!hospitalRepository.existsById(id)) {
-                throw new ResourceNotFoundException("Hospital", id);
-            }
-            
+
+            Hospital hospital = hospitalRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Hospital", id));
+
             // Check if hospital has rooms
-            List<Room> rooms = roomRepository.findByHospital_Id(id);
+            List<Room> rooms = hospital.getRooms();
             if (!rooms.isEmpty()) {
-                throw new ValidationException("Cannot delete hospital with ID " + id + " because it has " + rooms.size() + " room(s). Please delete rooms first.");
+                throw new ValidationException("Cannot delete hospital  " + hospital.getName() + " because it has " + rooms.size() + " room(s). Please delete rooms first.");
             }
             
             hospitalRepository.deleteById(id);
@@ -419,6 +423,11 @@ public class AdminService {
             log.info("Deleting room with ID: {}", id);
             Room room = roomRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Room", id));
+
+            List<Patient> patients = room.getPatients();
+            if(!patients.isEmpty()) {
+                throw new ValidationException("Cannot delete Room  " + room.getRoomNumber() + " because it has " + patients.size() + " patients(s).");
+            }
 
             Hospital hospital = room.getHospital();
 
