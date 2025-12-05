@@ -6,13 +6,49 @@ import {
   Mail,
   Shield,
   User,
-  KeyRound, // Added for OTP input
-  ArrowLeft, // Added for back button
+  KeyRound,
+  ArrowLeft,
 } from "lucide-react";
 import instance, { USER_SERVICE } from "../api/axiosConfig";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { motion } from "framer-motion"; // <-- IMPORT FRAMER MOTION
+
+// --- FRAMER MOTION VARIANTS ---
+
+// 1. Container for the whole Login/Register Card
+const cardContainerVariants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut",
+      when: "beforeChildren",
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+// 2. Variants for the content inside the side hero panel (staggered effect)
+const heroItemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 10 } },
+};
+
+// 3. Variants for the entire form panel (slides in from the right)
+const formPanelVariants = {
+  hidden: { opacity: 0, x: 50 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: "easeOut", delay: 0.2 } },
+};
+
+// 4. Variants for each input field (staggered entry)
+const inputItemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { type: "tween", duration: 0.3 } },
+};
 
 const highlights = [
   "HIPAA-grade encryption and audit trails",
@@ -22,8 +58,7 @@ const highlights = [
 
 const LoginPage = () => {
   const { login, user } = useAuth();
-  
-  // modes: 'login', 'register', 'verify'
+
   const [mode, setMode] = useState("login");
   const navigate = useNavigate();
 
@@ -33,7 +68,7 @@ const LoginPage = () => {
     email: "",
     firstName: "",
     lastName: "",
-    otp: "", // Added OTP field
+    otp: "",
   });
 
   useEffect(() => {
@@ -84,7 +119,6 @@ const LoginPage = () => {
             verificationCode: form.otp,
           });
 
-          // ⭐ AUTO-LOGIN HERE ⭐
           const loginRes = await instance.post(
             `${USER_SERVICE}/api/auth/login`,
             {
@@ -111,7 +145,6 @@ const LoginPage = () => {
           : mode === "register"
           ? "Creating new account..."
           : "Verifying OTP...",
-
       success: (result) => {
         if (result === "REGISTER_SUCCESS") {
           return "Account created! Please check your email for the OTP.";
@@ -127,12 +160,10 @@ const LoginPage = () => {
 
         return "Login successful! Redirecting...";
       },
-
       error: (error) => error.message,
     });
   };
 
-  // Helper title based on mode
   const getTitle = () => {
     if (mode === "login") return "Welcome back";
     if (mode === "register") return "Create an account";
@@ -140,108 +171,164 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen text-slate-900 flex items-center justify-center px-4 py-10 relative" style={{
-      backgroundImage: `linear-gradient(135deg, rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.80)), url('/images/meditrack-login-hero.jpg')`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
-      backgroundAttachment: "fixed",
-      filter: "blur(0px)",
-    }}>
-      {/* Blur overlay for subtle effect (approx. 5-10%) */}
-      <div className="absolute inset-0" style={{
-        backgroundColor: "rgba(15, 23, 42, 0.06)",
-        backdropFilter: "blur(4px)",
-        WebkitBackdropFilter: "blur(4px)",
-        pointerEvents: "none",
-      }}></div>
-      
-      <div className="w-full max-w-5xl bg-transparent rounded-[32px] shadow-2xl overflow-hidden relative z-10">
-        <div className="grid md:grid-cols-2 divide-x divide-slate-900/10 bg-white/5 backdrop-blur-sm rounded-[32px] overflow-hidden">
-          {/* Left Side - Branding */}
-          <div className="bg-gradient-to-br from-[#2563EB] to-[#0f172a] p-12 text-white flex flex-col justify-between">
+    <div
+      className="min-h-screen text-slate-900 flex items-center justify-center px-4 py-10 relative"
+      style={{
+        backgroundImage: `linear-gradient(135deg, rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.80)), url('/images/meditrack-login-hero.jpg')`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundAttachment: "fixed",
+      }}
+    >
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundColor: "rgba(15, 23, 42, 0.06)",
+          backdropFilter: "blur(4px)",
+          WebkitBackdropFilter: "blur(4px)",
+          pointerEvents: "none",
+        }}
+      />
+      {/* 1. Main Card Animation: Fade in and Scale */}
+      <motion.div
+        className="relative w-full max-w-5xl bg-white/10 rounded-[32px] shadow-[0_20px_60px_rgba(15,23,42,0.25)] border border-white/20 overflow-hidden backdrop-blur"
+        variants={cardContainerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <div className="grid md:grid-cols-2">
+          {/* Left Panel: Hero Content with Staggered Entrance */}
+          <motion.div
+            className="bg-gradient-to-br from-[#EBF8FF] via-white to-[#E0F2FE] p-12 text-slate-900 flex flex-col justify-between border-r border-slate-200"
+            variants={cardContainerVariants} // Use same container variant for staggering
+          >
             <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center">
-                  <Shield className="w-6 h-6" />
+              {/* Logo/Header */}
+              <motion.div className="flex items-center gap-3 mb-8" variants={heroItemVariants}>
+                <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center border border-slate-200">
+                  <Shield className="w-6 h-6 text-[#1D4ED8]" />
                 </div>
                 <div>
-                  <p className="text-sm uppercase tracking-[0.3em] text-white/80">
+                  <p className="text-sm uppercase tracking-[0.3em] text-slate-500">
                     Trusted access
                   </p>
-                  <p className="text-xl font-semibold">MediTrack Control</p>
+                  <p className="text-xl font-semibold text-slate-900">
+                    MediTrack Control
+                  </p>
                 </div>
-              </div>
-              <h2 className="text-4xl font-extrabold leading-tight">
-                Synchronize every bed update with military-grade security.
-              </h2>
-              <p className="text-white/80 mt-4">
+              </motion.div>
+              {/* Headline */}
+              <motion.h2 className="text-4xl font-extrabold leading-tight text-slate-900" variants={heroItemVariants}>
+                Synchronize every bed update with confidence.
+              </motion.h2>
+              {/* Subtext */}
+              <motion.p className="text-slate-600 mt-4 text-base leading-relaxed" variants={heroItemVariants}>
                 Sign in to broadcast capacity, manage rooms, and coordinate
-                admissions in real-time.
-              </p>
-              <div className="mt-8 space-y-4">
-                {highlights.map((item) => (
-                  <div key={item} className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-200" />
-                    <p className="text-sm text-white/90">{item}</p>
-                  </div>
+                admissions in real-time on a secure, modern interface.
+              </motion.p>
+              {/* Highlights */}
+              <motion.div className="mt-8 space-y-4" variants={cardContainerVariants}> {/* Stagger the list */}
+                {highlights.map((item, index) => (
+                  <motion.div key={item} className="flex items-center gap-3" variants={heroItemVariants} transition={{ delay: 0.1 * index }}>
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                    <p className="text-sm text-slate-700">{item}</p>
+                  </motion.div>
                 ))}
+              </motion.div>
+            </div>
+            {/* Footer Text */}
+            <motion.p className="text-xs uppercase tracking-[0.3em] text-slate-500" variants={heroItemVariants}>
+              ISO 27001 | SOC2 | HIPAA
+            </motion.p>
+          </motion.div>
+
+          {/* Right Panel: Form Content with Slide-in */}
+          <motion.div
+            className="bg-white text-slate-900 p-10 flex flex-col gap-8"
+            variants={formPanelVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {/* Logo/Header */}
+            <div className="flex items-center gap-3">
+              <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-sky-500 to-cyan-500 flex items-center justify-center shadow-md">
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                  MediTrack
+                </p>
+                <p className="text-lg font-semibold text-slate-900">
+                  Secure Access
+                </p>
               </div>
             </div>
-            <p className="text-xs uppercase tracking-[0.4em] text-white/70">
-              ISO 27001 &nbsp;|&nbsp; SOC2 &nbsp;|&nbsp; HIPAA
-            </p>
-          </div>
-
-          {/* Right Side - Form */}
-          <div className="bg-white text-slate-900 p-10">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm uppercase tracking-[0.3em] text-slate-400">
                   Access center
                 </p>
+                {/* Title */}
                 <h1 className="text-2xl font-semibold mt-1">{getTitle()}</h1>
               </div>
-              <Activity className="w-7 h-7 text-cyan-500" />
+              <motion.div
+                animate={{ rotate: [0, 15, -15, 0] }} // Quick wiggle animation
+                transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 5 }} // Wiggle every 5 seconds
+              >
+                <Activity className="w-7 h-7 text-[#1D4ED8]" />
+              </motion.div>
             </div>
 
-            {/* Hide Tabs when in Verify Mode */}
+            {/* Mode Switcher */}
             {mode !== "verify" && (
-              <div className="flex bg-slate-100 p-1 rounded-2xl mb-8 w-full max-w-md">
-                <button
+              <motion.div className="flex bg-slate-100 p-1 rounded-2xl w-full max-w-md" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.4, type: "spring", stiffness: 150 }}>
+                <motion.button
                   type="button"
                   className={`flex-1 py-3 text-sm font-medium rounded-2xl transition-all cursor-pointer ${
                     mode === "login"
-                      ? "bg-white text-slate-900 shadow-inner"
+                      ? "bg-white text-slate-900 shadow-sm border border-slate-200"
                       : "text-slate-500 hover:text-slate-700"
                   }`}
                   onClick={() => setMode("login")}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   Login
-                </button>
-                <button
+                </motion.button>
+                <motion.button
                   type="button"
                   className={`flex-1 py-3 text-sm font-medium rounded-2xl transition-all cursor-pointer ${
                     mode === "register"
-                      ? "bg-white text-slate-900 shadow-inner"
+                      ? "bg-white text-slate-900 shadow-sm border border-slate-200"
                       : "text-slate-500 hover:text-slate-700"
                   }`}
                   onClick={() => setMode("register")}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   Register
-                </button>
-              </div>
+                </motion.button>
+              </motion.div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* --- VERIFY MODE UI --- */}
+            {/* Form */}
+            <motion.form
+                onSubmit={handleSubmit}
+                className="space-y-5"
+                key={mode} // Key change causes the entire form to re-render and re-animate when mode changes
+                initial="hidden"
+                animate="visible"
+                variants={cardContainerVariants} // Use container for staggered inputs
+            >
+              {/* Verify Mode */}
               {mode === "verify" && (
-                <div className="animate-fade-in space-y-4">
-                  <div className="p-4 bg-cyan-50 text-cyan-900 rounded-xl text-sm mb-4">
+                <motion.div className="space-y-4" variants={inputItemVariants}>
+                  <div className="p-4 bg-[#ECFEFF] text-cyan-900 rounded-xl text-sm border border-cyan-100">
                     Please enter the OTP sent to <strong>{form.email}</strong>.
                     It expires in 15 minutes.
                   </div>
-                  <div className="relative">
+                  <motion.div className="relative" whileFocus={{ scale: 1.01 }}>
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <KeyRound className="h-5 w-5 text-slate-400" />
                     </div>
@@ -252,116 +339,135 @@ const LoginPage = () => {
                       value={form.otp}
                       onChange={handleChange}
                       required
-                      className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-transparent transition placeholder:text-slate-400 text-slate-700 font-mono tracking-widest text-center text-lg"
+                      className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/30 focus:border-transparent transition placeholder:text-slate-400 text-slate-700 font-mono tracking-widest text-center text-lg"
                     />
-                  </div>
-                </div>
+                  </motion.div>
+                </motion.div>
               )}
 
-              {/* --- LOGIN/REGISTER UI --- */}
+              {/* Login/Register Fields */}
               {mode !== "verify" && (
                 <>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <User className="h-5 w-5 text-slate-400" />
-                    </div>
+                  <motion.div className="relative" variants={inputItemVariants} whileFocus={{ scale: 1.01 }}>
                     <input
                       type="text"
                       name="username"
-                      placeholder="Username / Medical ID"
                       value={form.username}
                       onChange={handleChange}
                       required
-                      className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/25 focus:border-transparent transition placeholder:text-slate-400 text-slate-700"
+                      className="peer w-full px-4 pt-5 pb-2 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-200 focus:border-sky-300 transition placeholder-transparent"
+                      placeholder="Username / Medical ID"
                     />
-                  </div>
+                    <label className="pointer-events-none absolute left-4 top-3 text-sm text-slate-500 transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:top-2 peer-focus:text-xs peer-focus:text-sky-600">
+                      <span className="inline-flex items-center gap-2">
+                        <User className="h-4 w-4 text-slate-400" />
+                        Username / Medical ID
+                      </span>
+                    </label>
+                  </motion.div>
 
                   {mode === "register" && (
-                    <div className="relative animate-fade-in">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Mail className="h-5 w-5 text-slate-400" />
-                      </div>
+                    <motion.div className="relative" variants={inputItemVariants} whileFocus={{ scale: 1.01 }}>
                       <input
                         type="email"
                         name="email"
-                        placeholder="Email Address"
                         value={form.email}
                         onChange={handleChange}
                         required
-                        className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-transparent transition placeholder:text-slate-400 text-slate-700"
+                        className="peer w-full px-4 pt-5 pb-2 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-200 focus:border-sky-300 transition placeholder-transparent"
+                        placeholder="Email Address"
                       />
-                    </div>
+                      <label className="pointer-events-none absolute left-4 top-3 text-sm text-slate-500 transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:top-2 peer-focus:text-xs peer-focus:text-sky-600">
+                        <span className="inline-flex items-center gap-2">
+                          <Mail className="h-4 w-4 text-slate-400" />
+                          Email Address
+                        </span>
+                      </label>
+                    </motion.div>
                   )}
 
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-slate-400" />
-                    </div>
+                  <motion.div className="relative" variants={inputItemVariants} whileFocus={{ scale: 1.01 }}>
                     <input
                       type="password"
                       name="password"
-                      placeholder="Password"
                       value={form.password}
                       onChange={handleChange}
                       required
-                      className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/25 focus:border-transparent transition placeholder:text-slate-400 text-slate-700"
+                      className="peer w-full px-4 pt-5 pb-2 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-200 focus:border-sky-300 transition placeholder-transparent"
+                      placeholder="Password"
                     />
-                  </div>
+                    <label className="pointer-events-none absolute left-4 top-3 text-sm text-slate-500 transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:top-2 peer-focus:text-xs peer-focus:text-sky-600">
+                      <span className="inline-flex items-center gap-2">
+                        <Lock className="h-4 w-4 text-slate-400" />
+                        Password
+                      </span>
+                    </label>
+                  </motion.div>
 
                   {mode === "register" && (
-                    <div className="grid grid-cols-2 gap-4 animate-fade-in">
-                      <input
+                    <motion.div className="grid grid-cols-1 sm:grid-cols-2 gap-4" variants={inputItemVariants}>
+                      <motion.input
                         type="text"
                         name="firstName"
                         placeholder="First Name"
                         value={form.firstName}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-transparent transition text-slate-700"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/25 focus:border-transparent transition text-slate-700"
+                        whileFocus={{ scale: 1.01 }}
                       />
-                      <input
+                      <motion.input
                         type="text"
                         name="lastName"
                         placeholder="Last Name"
                         value={form.lastName}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-transparent transition text-slate-700"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/25 focus:border-transparent transition text-slate-700"
+                        whileFocus={{ scale: 1.01 }}
                       />
-                    </div>
+                    </motion.div>
                   )}
                 </>
               )}
 
-              <button
+              {/* Submit Button */}
+              <motion.button
                 type="submit"
-                className="w-full bg-[#F97316] text-white font-semibold py-4 rounded-2xl hover:bg-[#EA580C] focus:ring-4 focus:ring-[#FDBA74]/40 transition flex items-center justify-center gap-2 cursor-pointer text-lg"
+                className="w-full bg-[#1D4ED8] text-white font-semibold py-4 rounded-2xl hover:bg-[#1B46C2] focus:ring-4 focus:ring-[#93C5FD]/70 transition flex items-center justify-center gap-2 cursor-pointer text-lg shadow-sm"
+                variants={inputItemVariants} // Animate with the rest of the form
+                whileHover={{ scale: 1.015, boxShadow: "0 10px 20px rgba(29, 78, 216, 0.4)" }} // Lift and shadow
+                whileTap={{ scale: 0.98, boxShadow: "0 5px 15px rgba(29, 78, 216, 0.2)" }} // Press down effect
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
                 {mode === "login"
                   ? "Secure Login"
                   : mode === "register"
                   ? "Create Account"
                   : "Verify Code"}
-              </button>
+              </motion.button>
 
-              {/* Back button only visible in Verify Mode */}
+              {/* Back to Login Button */}
               {mode === "verify" && (
-                <button
+                <motion.button
                   type="button"
                   onClick={() => setMode("login")}
                   className="w-full mt-2 text-slate-500 hover:text-slate-700 text-sm font-medium flex items-center justify-center gap-2 transition cursor-pointer"
+                  variants={inputItemVariants} // Animate with the rest of the form
+                  whileHover={{ scale: 1.01, color: "#1E293B" }}
+                  whileTap={{ scale: 0.99 }}
                 >
                   <ArrowLeft className="w-4 h-4" /> Back to Login
-                </button>
+                </motion.button>
               )}
-            </form>
+            </motion.form>
 
-            <p className="text-center text-slate-400 text-xs mt-8">
+            <motion.p className="text-center text-slate-400 text-xs mt-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.0 }}>
               Multi-factor authentication enforced for staff and admin access.
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

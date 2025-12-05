@@ -13,6 +13,7 @@
     "@google/generative-ai": "^0.24.1",
     "@tailwindcss/postcss": "^4.1.17",
     "axios": "^1.13.2",
+    "framer-motion": "^12.23.25",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.554.0",
     "react": "^19.2.0",
