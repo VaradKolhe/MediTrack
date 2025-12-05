@@ -3,7 +3,7 @@ import OpeningPage from "./pages/OpeningPage";
 import HomePage from "./pages/HomePage";
 import ChatbotWidget from "./components/ChatbotWidget";
 import LoginPage from "./pages/LoginPage";
-import Profile from "./pages/ProfileModal";
+import ProfileModal from "./pages/ProfileModal";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ReceptionistDashboard from "./pages/receptionist/ReceptionistDashboard";
 import PublicLayout from "./layouts/PublicLayout";
@@ -48,7 +48,7 @@ export default function App() {
           <Route path="/admin" element={<AdminDashboard />} />
 
           {/* Profile */}
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile" element={<ProfileModal />} />
 
           {/* Receptionist */}
           <Route

@@ -22,7 +22,6 @@ const highlights = [
 
 const LoginPage = () => {
   const { login, user } = useAuth();
-  console.log(login + " " + user);
   
   // modes: 'login', 'register', 'verify'
   const [mode, setMode] = useState("login");
@@ -118,9 +117,9 @@ const LoginPage = () => {
           return "Account created! Please check your email for the OTP.";
         }
 
-        if (result === "ADMIN") {
+        if (result.role === "ADMIN") {
           navigate("/admin");
-        } else if (result === "RECEPTIONIST") {
+        } else if (result.role === "RECEPTIONIST") {
           navigate("/receptionist");
         } else {
           navigate("/home");

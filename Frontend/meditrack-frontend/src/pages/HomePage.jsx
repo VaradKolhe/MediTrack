@@ -73,6 +73,9 @@ const HomePage = () => {
     return Array.from(unique);
   }, [hospitals]);
 
+  // Check if filters are active
+  const hasActiveFilters = search.trim() !== "" || selectedCity !== "ALL";
+
   const renderSkeleton = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {Array.from({ length: 6 }).map((_, idx) => (
@@ -158,99 +161,150 @@ const HomePage = () => {
       </div>
 
       <div className="space-y-10">
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-          {[
-            {
-              label: "Hospitals",
-              value: summary.total,
-              icon: MapPin,
-              sub: "Active on network",
-              color: "text-blue-600",
-              bgColor: "bg-blue-50",
-            },
-            {
-              label: "Total Beds",
-              value: summary.totalBeds,
-              icon: BedDouble,
-              sub: "Across all facilities",
-              color: "text-emerald-600",
-              bgColor: "bg-emerald-50",
-            },
-            {
-              label: "Occupied",
-              value: summary.occupiedBeds,
-              icon: Activity,
-              sub: "Currently in use",
-              color: "text-rose-600",
-              bgColor: "bg-rose-50",
-            },
-            {
-              label: "Free Beds",
-              value: summary.freeBeds,
-              icon: AlertTriangle,
-              sub: "Immediately available",
-              color: "text-amber-600",
-              bgColor: "bg-amber-50",
-            },
-          ].map((card) => {
-            const Icon = card.icon;
-            return (
-              <div
-                key={card.label}
-                className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 hover:shadow-md transition"
-              >
-                <div className={`w-14 h-14 rounded-xl ${card.bgColor} ${card.color} flex items-center justify-center mb-4`}>
-                  <Icon className="w-7 h-7" />
-                </div>
-                <p className="text-xs uppercase tracking-widest text-slate-500 font-semibold">
-                  {card.label}
-                </p>
-                <p className="text-3xl font-bold text-slate-900 mt-2">
-                  {card.value}
-                </p>
-                <p className="text-sm text-slate-600 mt-2">{card.sub}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        <div>
-          <h2 className="text-3xl font-bold text-slate-900">
-            {selectedCity === "ALL"
-              ? "Hospitals across the network"
-              : `Hospitals in ${selectedCity}`}
-          </h2>
-          <p className="text-slate-600 text-lg mt-2">
-            {filteredHospitals.length} location{filteredHospitals.length === 1 ? "" : "s"} match
-            {selectedCity !== "ALL" && ` in ${selectedCity}`}.
-          </p>
-        </div>
-
-        {isLoading ? (
-          renderSkeleton()
-        ) : filteredHospitals.length ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredHospitals.map((hospital) => (
-              <HospitalCard
-                key={hospital.id}
-                hospital={hospital}
-                onClick={(h) => setSelectedHospital(h)}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-slate-100 p-16 text-center">
-            <div className="w-16 h-16 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle className="w-8 h-8 text-slate-400" />
+        {/* Show results first when filters are active */}
+        {hasActiveFilters && (
+          <>
+            <div>
+              <h2 className="text-3xl font-bold text-slate-900">
+                {selectedCity === "ALL"
+                  ? search.trim() !== ""
+                    ? `Search results for "${search}"`
+                    : "Hospitals across the network"
+                  : `Hospitals in ${selectedCity}`}
+              </h2>
+              <p className="text-slate-600 text-lg mt-2">
+                {filteredHospitals.length} location{filteredHospitals.length === 1 ? "" : "s"} found
+                {search.trim() !== "" && ` matching "${search}"`}
+                {selectedCity !== "ALL" && ` in ${selectedCity}`}.
+              </p>
             </div>
-            <p className="text-xl font-semibold text-slate-900">
-              No hospitals match "{search}"{" "}
-              {selectedCity !== "ALL" && `in ${selectedCity}`}.
-            </p>
-            <p className="text-slate-600 mt-2 text-base">
-              Try clearing filters or checking spelling to see more facilities.
-            </p>
+
+            {isLoading ? (
+              renderSkeleton()
+            ) : filteredHospitals.length ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {filteredHospitals.map((hospital) => (
+                  <HospitalCard
+                    key={hospital.id}
+                    hospital={hospital}
+                    onClick={(h) => setSelectedHospital(h)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-slate-100 p-16 text-center">
+                <div className="w-16 h-16 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center mx-auto mb-4">
+                  <AlertTriangle className="w-8 h-8 text-slate-400" />
+                </div>
+                <p className="text-xl font-semibold text-slate-900">
+                  No hospitals match {search.trim() !== "" && `"${search}"`}{" "}
+                  {selectedCity !== "ALL" && `in ${selectedCity}`}.
+                </p>
+                <p className="text-slate-600 mt-2 text-base">
+                  Try clearing filters or checking spelling to see more facilities.
+                </p>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Show summary cards only when no filters are active */}
+        {!hasActiveFilters && (
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+            {[
+              {
+                label: "Hospitals",
+                value: summary.total,
+                icon: MapPin,
+                sub: "Active on network",
+                color: "text-blue-600",
+                bgColor: "bg-blue-50",
+              },
+              {
+                label: "Total Beds",
+                value: summary.totalBeds,
+                icon: BedDouble,
+                sub: "Across all facilities",
+                color: "text-emerald-600",
+                bgColor: "bg-emerald-50",
+              },
+              {
+                label: "Occupied",
+                value: summary.occupiedBeds,
+                icon: Activity,
+                sub: "Currently in use",
+                color: "text-rose-600",
+                bgColor: "bg-rose-50",
+              },
+              {
+                label: "Free Beds",
+                value: summary.freeBeds,
+                icon: AlertTriangle,
+                sub: "Immediately available",
+                color: "text-amber-600",
+                bgColor: "bg-amber-50",
+              },
+            ].map((card) => {
+              const Icon = card.icon;
+              return (
+                <div
+                  key={card.label}
+                  className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 hover:shadow-md transition"
+                >
+                  <div className={`w-14 h-14 rounded-xl ${card.bgColor} ${card.color} flex items-center justify-center mb-4`}>
+                    <Icon className="w-7 h-7" />
+                  </div>
+                  <p className="text-xs uppercase tracking-widest text-slate-500 font-semibold">
+                    {card.label}
+                  </p>
+                  <p className="text-3xl font-bold text-slate-900 mt-2">
+                    {card.value}
+                  </p>
+                  <p className="text-sm text-slate-600 mt-2">{card.sub}</p>
+                </div>
+              );
+            })}
           </div>
+        )}
+
+        {/* Show results below cards when no filters are active */}
+        {!hasActiveFilters && (
+          <>
+            <div>
+              <h2 className="text-3xl font-bold text-slate-900">
+                Hospitals across the network
+              </h2>
+              <p className="text-slate-600 text-lg mt-2">
+                {filteredHospitals.length} location{filteredHospitals.length === 1 ? "" : "s"} available.
+              </p>
+            </div>
+
+            {isLoading ? (
+              renderSkeleton()
+            ) : filteredHospitals.length ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {filteredHospitals.map((hospital) => (
+                  <HospitalCard
+                    key={hospital.id}
+                    hospital={hospital}
+                    onClick={(h) => setSelectedHospital(h)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-slate-100 p-16 text-center">
+                <div className="w-16 h-16 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center mx-auto mb-4">
+                  <AlertTriangle className="w-8 h-8 text-slate-400" />
+                </div>
+                <p className="text-xl font-semibold text-slate-900">
+                  No hospitals available.
+                </p>
+                <p className="text-slate-600 mt-2 text-base">
+                  Please check back later.
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
 

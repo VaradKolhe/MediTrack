@@ -5,52 +5,32 @@ const HospitalModal = ({ hospital, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
       onClick={onClose}
     >
       <div
-        className="bg-slate-900 rounded-2xl p-8 w-[500px] max-h-[80vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.6)] border border-white/10 animate-fade-in text-white"
+        className="bg-white rounded-3xl p-8 w-[500px] max-h-[80vh] overflow-y-auto shadow-2xl border border-gray-200 animate-fade-in text-gray-900"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-2xl font-bold mb-4">{hospital.name}</h2>
+        <h2 className="text-2xl font-bold mb-6 text-gray-900">{hospital.name}</h2>
 
-        <div className="space-y-3 text-slate-300">
-          <p>
-            <span className="font-semibold text-white">Address:</span>{" "}
-            {hospital.address}
-          </p>
-          <p>
-            <span className="font-semibold text-white">Contact:</span>{" "}
-            {hospital.contactNumber}
-          </p>
-          <p>
-            <span className="font-semibold text-white">Email:</span>{" "}
-            {hospital.email ?? "N/A"}
-          </p>
-          <p>
-            <span className="font-semibold text-white">Total Rooms:</span>{" "}
-            {hospital.totalRooms ?? "N/A"}
-          </p>
-          <p>
-            <span className="font-semibold text-white">Total Beds:</span>{" "}
-            {hospital.totalBeds ?? "N/A"}
-          </p>
-          <p>
-            <span className="font-semibold text-white">Created At:</span>{" "}
-            {hospital.createdAt
-              ? new Date(hospital.createdAt).toLocaleString()
-              : "Unknown"}
-          </p>
-          <p>
-            <span className="font-semibold text-white">Updated At:</span>{" "}
-            {hospital.updatedAt
-              ? new Date(hospital.updatedAt).toLocaleString()
-              : "Unknown"}
-          </p>
+        <div className="space-y-4">
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <p className="text-sm font-semibold text-gray-600 mb-1">Address:</p>
+            <p className="text-gray-900">{hospital.address}</p>
+          </div>
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <p className="text-sm font-semibold text-gray-600 mb-1">Contact:</p>
+            <p className="text-gray-900">{hospital.contactNumber}</p>
+          </div>
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <p className="text-sm font-semibold text-gray-600 mb-1">Total Beds:</p>
+            <p className="text-gray-900">{hospital.totalBeds ?? "N/A"}</p>
+          </div>
         </div>
 
         <button
-          className="mt-6 bg-gradient-to-r from-cyan-400 to-blue-500 hover:opacity-90 text-slate-950 px-4 py-2 rounded-xl transition font-semibold cursor-pointer"
+          className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl transition font-semibold cursor-pointer shadow-md hover:shadow-lg"
           onClick={onClose}
         >
           Close

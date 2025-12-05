@@ -1,9 +1,7 @@
-/* Professional light theme for MediTrack opening page - matching HomePage aesthetics */
-
+/* --- Background Layer: Keep image but make it readable --- */
 .opening-page-container {
   position: relative;
   color: #0F172A;
-  overflow: hidden;
 }
 
 .opening-page-container::before {
@@ -11,142 +9,91 @@
   position: fixed;
   inset: 0;
   z-index: 0;
-  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.50)), url("/images/meditrack-beds-hero.jpg");
+
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0.75),
+      rgba(255, 255, 255, 0.70)
+    ),
+    url("/images/meditrack-beds-hero.jpg");
+  
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  filter: blur(7px); /* 10-15% blur */
+
+  filter: blur(8px) brightness(0.55); /* ✨ Cleaner readability */
   pointer-events: none;
 }
 
-/* Ensure all content sits above the overlay */
 .opening-page-content {
   position: relative;
   z-index: 2;
 }
 
-/* Large stat cards: professional white cards with subtle borders - like HomePage */
-.opening-stat-card-large {
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+/* --- Section Containers w/ Strong Readability --- */
+.section-container {
+  background: rgba(255, 255, 255, 0.92); /* Main readable layer */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
   border-radius: 1.5rem;
-  padding: 2.5rem 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
+  margin: 1.5rem auto;
+  padding: 3.2rem 2rem;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.09);
+
+  max-width: 1100px;
 }
 
-.opening-stat-card-large:hover {
-  background: #FFFFFF;
-  border-color: #CBD5E1;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+/* Hero gets the brightest readable panel */
+.section-container.hero {
+  background: rgba(255, 255, 255, 0.20);
 }
 
-/* Feature cards with professional white styling */
-.opening-feature-card {
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+/* Stats section */
+.section-container.stats {
+  background: rgba(236, 245, 255, 0.92);
+}
+
+/* Features section */
+.section-container.features {
+  background: rgba(240, 253, 250, 0.92);
+}
+
+/* Trust section */
+.section-container.trust {
+  background: rgba(248, 240, 255, 0.92);
+}
+
+/* Cards remain same but text is now 2x more readable */
+.opening-feature-card,
+.opening-stat-card-large {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 1.5rem;
   padding: 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: 0.25s;
 }
 
-.opening-feature-card:hover {
-  border-color: #CBD5E1;
-  background: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+.opening-feature-card:hover,
+.opening-stat-card-large:hover {
+  transform: translateY(-4px);
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
-/* Section containers with colored backgrounds for visibility */
-.opening-page-content section {
-  background: rgba(240, 248, 255, 0.92);
-  backdrop-filter: blur(12px);
-  margin: 1.5rem;
-  padding: 2.5rem 1.5rem;
-  border-radius: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  position: relative;
-  z-index: 10;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-/* First hero section - more opaque white background */
-.opening-page-content section:first-of-type {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(15px);
-  padding: 3rem 2rem;
-  margin: 1rem;
-}
-
-/* Statistics section styling */
-.opening-page-content section:nth-of-type(2) {
-  background: rgba(219, 234, 254, 0.90);
-  padding: 3rem 2rem;
-}
-
-/* Features section styling */
-.opening-page-content section:nth-of-type(3) {
-  background: rgba(240, 253, 250, 0.90);
-  padding: 3rem 2rem;
-}
-
-/* Trust section styling */
-.opening-page-content section:last-of-type {
-  background: rgba(248, 240, 255, 0.90);
-  padding: 3rem 2rem;
-}
-
-
-/* Heading and text styling */
+/* Readable text */
 .opening-heading {
   color: #0F172A;
-  letter-spacing: -0.02em;
 }
-
 .opening-subheading {
-  color: #475569;
+  color: #334155;
 }
 
-/* Smooth animations */
-@keyframes pulse-subtle {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-.animate-pulse-subtle {
-  animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Responsive adjustments */
+/* Responsive Tweaks */
 @media (max-width: 768px) {
-  .opening-stat-card-large {
-    padding: 2rem 1.5rem;
-  }
-
-  .opening-feature-card {
-    padding: 1.5rem;
-  }
-
-  .opening-heading {
-    font-size: 1.75rem;
-  }
-
-  .opening-subheading {
-    font-size: 1rem;
+  .section-container {
+    padding: 2rem 1.2rem;
   }
 }
-
-@media (max-width: 640px) {
-  .opening-stat-card-large {
-    padding: 1.5rem 1rem;
-  }
-
-  .opening-heading {
-    font-size: 1.5rem;
-  }
-}
-
-
