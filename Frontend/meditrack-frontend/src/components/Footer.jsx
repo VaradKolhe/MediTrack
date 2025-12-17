@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="bg-slate-900 text-white">
+    <footer className="bg-slate-900 text-white z-1">
       <div className="max-w-6xl mx-auto px-6 py-10 grid gap-8 md:grid-cols-3">
         <div>
           <p className="text-lg font-semibold">BedTracker</p>

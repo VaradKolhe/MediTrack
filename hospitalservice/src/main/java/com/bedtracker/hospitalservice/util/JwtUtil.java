@@ -109,5 +109,9 @@ public class JwtUtil {
     public Long extractHospitalId(String token) {
         return extractLongClaim(token, "hospitalId");
     }
+
+    public Long extractUserId(String token) {
+        return extractLongClaim(token, "userId");
+    }
 }
 

@@ -41,6 +41,20 @@ public class Hospital {
     @Column
     private Integer occupiedBeds;
 
+    @Column
+    private Double latitude;
+
+    @Column
+    private Double longitude;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Double averageRating = 0.0;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer totalReviews = 0;
+
     @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Room> rooms;
 

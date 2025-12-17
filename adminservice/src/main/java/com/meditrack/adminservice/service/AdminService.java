@@ -158,7 +158,11 @@ public class AdminService {
                     .address(request.getAddress())
                     .city(request.getCity())
                     .state(request.getState())
+                    .latitude(request.getLatitude())
+                    .longitude(request.getLongitude())
                     .totalBeds(0)
+                    .averageRating(0.0)
+                    .totalReviews(0)
                     .build();
             
             Hospital saved = hospitalRepository.save(hospital);
@@ -221,7 +225,10 @@ public class AdminService {
             hospital.setAddress(request.getAddress());
             hospital.setCity(request.getCity());
             hospital.setState(request.getState());
+            hospital.setLatitude(request.getLatitude());
+            hospital.setLongitude(request.getLongitude());
             // Keep existing totalBeds as it's calculated from rooms
+            // Keep existing averageRating and totalReviews as they're calculated from reviews
             
             Hospital saved = hospitalRepository.save(hospital);
             log.info("Hospital updated successfully with ID: {}", saved.getId());
@@ -426,7 +433,7 @@ public class AdminService {
 
             List<Patient> patients = room.getPatients();
             if(!patients.isEmpty()) {
-                throw new ValidationException("Cannot delete Room  " + room.getRoomNumber() + " because it has " + patients.size() + " patients(s).");
+                throw new ValidationException("Cannot delete Room  " + room.getRoomNumber() + " because it has " + patients.size() + " patient(s).");
             }
 
             Hospital hospital = room.getHospital();

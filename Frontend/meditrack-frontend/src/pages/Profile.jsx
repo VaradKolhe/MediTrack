@@ -2,9 +2,26 @@ import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, User, Mail, Shield, Hash } from "lucide-react";
 import PublicLayout from "../layouts/PublicLayout";
+import { userApiInstance as instance } from "../api/axiosConfig";
 
 export default function Profile() {
   const { user } = useAuth();
+  const userDetails = async () => {
+    try {
+      const response = await instance.get(
+        `/api/users/${user.id}`
+      );
+      console.log(response.data);
+      
+
+      // Check if your backend wraps data in a "data" field or sends it directly
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+      return null; // Return null so the calling function knows it failed
+    }
+  };
+
   const navigate = useNavigate();
 
   if (!user) {
@@ -41,8 +58,8 @@ export default function Profile() {
             <div className="grid grid-cols-1 md:grid-cols-[280px_1fr]">
               <div className="bg-gradient-to-br from-sky-50 via-white to-cyan-50 p-8 border-b md:border-b-0 md:border-r border-slate-200 flex flex-col items-center gap-6">
                 <div className="w-28 h-28 rounded-full bg-gradient-to-br from-sky-500 to-cyan-500 flex items-center justify-center text-white text-4xl font-bold shadow-lg ring-4 ring-white">
-                  {user.firstName?.[0]?.toUpperCase() ||
-                    user.username?.[0]?.toUpperCase() ||
+                  {userDetails.firstName?.[0]?.toUpperCase() ||
+                    userDetails.username?.[0]?.toUpperCase() ||
                     "U"}
                 </div>
                 <div className="text-center space-y-1">
@@ -50,9 +67,11 @@ export default function Profile() {
                     Profile
                   </p>
                   <h1 className="text-2xl font-bold text-slate-900">
-                    {user.firstName && user.lastName
-                      ? `${user.firstName} ${user.lastName}`
-                      : user.name || user.username || "My Profile"}
+                    {userDetails.firstName && userDetails.lastName
+                      ? `${userDetails.firstName} ${userDetails.lastName}`
+                      : userDetails.name ||
+                        userDetails.username ||
+                        "My Profile"}
                   </h1>
                   <p className="text-slate-600 text-sm">
                     Manage your account details securely.
@@ -63,14 +82,16 @@ export default function Profile() {
                     <p className="text-xs uppercase tracking-[0.25em] text-slate-500">
                       Status
                     </p>
-                    <p className="text-sm font-semibold text-slate-900">Active</p>
+                    <p className="text-sm font-semibold text-slate-900">
+                      Active
+                    </p>
                   </div>
                   <div className="rounded-2xl bg-white/70 border border-slate-200 px-4 py-3 text-center shadow-sm">
                     <p className="text-xs uppercase tracking-[0.25em] text-slate-500">
                       Role
                     </p>
                     <p className="text-sm font-semibold text-slate-900">
-                      {user.role || "USER"}
+                      {userDetails.role || "USER"}
                     </p>
                   </div>
                 </div>
@@ -87,14 +108,14 @@ export default function Profile() {
                         Full Name
                       </p>
                       <p className="text-slate-900 font-semibold text-lg">
-                        {user.firstName && user.lastName
-                          ? `${user.firstName} ${user.lastName}`
-                          : user.name || user.username || "N/A"}
+                        {userDetails.firstName && userDetails.lastName
+                          ? `${userDetails.firstName} ${userDetails.lastName}`
+                          : userDetails.name || userDetails.username || "N/A"}
                       </p>
                     </div>
                   </div>
 
-                  {user.username && (
+                  {userDetails.username && (
                     <div className="flex items-start gap-4 bg-slate-50 rounded-2xl p-4 border border-slate-200">
                       <div className="p-2 bg-purple-100 rounded-lg">
                         <User className="w-5 h-5 text-purple-600" />
@@ -104,13 +125,13 @@ export default function Profile() {
                           Username
                         </p>
                         <p className="text-slate-900 font-semibold text-lg">
-                          {user.username}
+                          {userDetails.username}
                         </p>
                       </div>
                     </div>
                   )}
 
-                  {user.email && (
+                  {userDetails.email && (
                     <div className="flex items-start gap-4 bg-slate-50 rounded-2xl p-4 border border-slate-200">
                       <div className="p-2 bg-green-100 rounded-lg">
                         <Mail className="w-5 h-5 text-green-600" />
@@ -120,37 +141,27 @@ export default function Profile() {
                           Email
                         </p>
                         <p className="text-slate-900 font-semibold text-lg">
-                          {user.email}
+                          {userDetails.email}
                         </p>
                       </div>
                     </div>
                   )}
 
-                  <div className="flex items-start gap-4 bg-slate-50 rounded-2xl p-4 border border-slate-200">
-                    <div className="p-2 bg-amber-100 rounded-lg">
-                      <Shield className="w-5 h-5 text-amber-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-slate-600 font-medium mb-1">
-                        Role
-                      </p>
-                      <p className="text-slate-900 font-semibold text-lg">
-                        {user.role || "USER"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {user.id && (
+                  {userDetails.createdAt && (
                     <div className="flex items-start gap-4 bg-slate-50 rounded-2xl p-4 border border-slate-200">
-                      <div className="p-2 bg-slate-100 rounded-lg">
-                        <Hash className="w-5 h-5 text-slate-600" />
+                      <div className="p-2 bg-green-100 rounded-lg">
+                        <Mail className="w-5 h-5 text-green-600" />
                       </div>
                       <div className="flex-1">
                         <p className="text-sm text-slate-600 font-medium mb-1">
-                          User ID
+                          Member Since
                         </p>
                         <p className="text-slate-900 font-semibold text-lg">
-                          {user.id}
+                          {userDetails.createdAt.toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }) || "N/A"}
                         </p>
                       </div>
                     </div>
@@ -159,8 +170,8 @@ export default function Profile() {
 
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center">
                   <p className="text-sm text-slate-500">
-                    For security reasons, some account details can only be changed
-                    by contacting the administrator.
+                    For security reasons, some account details can only be
+                    changed by contacting the administrator.
                   </p>
                 </div>
               </div>
@@ -171,4 +182,3 @@ export default function Profile() {
     </PublicLayout>
   );
 }
-

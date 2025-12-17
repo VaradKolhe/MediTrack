@@ -1,7 +1,11 @@
 package com.bedtracker.hospitalservice.repository;
 
 import com.bedtracker.hospitalservice.entity.Room;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,5 +22,9 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     
     // Find room by room number and hospital
     Optional<Room> findByRoomNumberAndHospital_Id(String roomNumber, Long hospitalId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT r FROM Room r WHERE r.id = :id AND r.hospital.id = :hospitalId")
+    Optional<Room> findByIdAndHospitalIdWithLock(@Param("id") Long id, @Param("hospitalId") Long hospitalId);
 }
 

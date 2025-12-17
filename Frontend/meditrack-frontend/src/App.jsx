@@ -44,15 +44,22 @@ export default function App() {
             }
           />
 
-          {/* Admin */}
-          <Route path="/admin" element={<AdminDashboard />} />
-
           {/* Profile */}
           <Route
             path="/profile"
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute roles={["ADMIN"]}>
+                <AdminDashboard />
               </ProtectedRoute>
             }
           />

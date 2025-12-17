@@ -7,10 +7,10 @@ import {
   RefreshCw,
   Search,
 } from "lucide-react";
-import instancehospital from "../api/axiosConfig";
+import { hospitalApiInstance as instancehospital } from "../api/axiosConfig";
 import HospitalCard from "../components/HospitalCard";
 import HospitalModal from "../components/HospitalModal";
-import { motion } from "framer-motion"; // <-- IMPORT FRAMER MOTION
+import { motion } from "framer-motion"; 
 
 // --- FRAMER MOTION VARIANTS ---
 
@@ -42,12 +42,12 @@ const listItem = {
   },
 };
 
-// Data remains the same
-const headlineMetrics = [
-  { label: "Hospitals connected", value: "120+", tone: "text-sky-600", bg: "bg-sky-50" },
-  { label: "Beds tracked", value: "18.4k", tone: "text-emerald-600", bg: "bg-emerald-50" },
-  { label: "Regions covered", value: "42", tone: "text-indigo-600", bg: "bg-indigo-50" },
-];
+// // Data remains the same
+// const headlineMetrics = [
+//   { label: "Hospitals connected", value: "120+", tone: "text-sky-600", bg: "bg-sky-50" },
+//   { label: "Beds tracked", value: "18.4k", tone: "text-emerald-600", bg: "bg-emerald-50" },
+//   { label: "Regions covered", value: "42", tone: "text-indigo-600", bg: "bg-indigo-50" },
+// ];
 
 const HomePage = () => {
   const [hospitals, setHospitals] = useState([]);
@@ -199,28 +199,6 @@ const HomePage = () => {
                     </motion.span>
                   ))}
                 </motion.div>
-
-                {/* CTA Button and Subtext */}
-                <motion.div 
-                    className="flex flex-wrap items-center gap-3"
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 1.2, duration: 0.5 }}
-                >
-                  <motion.button
-                    type="button"
-                    onClick={() => window.scrollTo({ top: 520, behavior: "smooth" })}
-                    className="inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-sky-500 to-cyan-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(56,189,248,0.35)] focus:outline-none focus:ring-2 focus:ring-sky-300"
-                    whileHover={{ scale: 1.05, boxShadow: "0 15px 30px rgba(56,189,248,0.55)" }} // Enhanced hover
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Launch availability scan
-                    <RefreshCw className="w-4 h-4" />
-                  </motion.button>
-                  <span className="text-sm text-slate-600">
-                    Light, secure, and data-forward experience.
-                  </span>
-                </motion.div>
               </div>
 
               {/* Status Box */}
@@ -289,7 +267,7 @@ const HomePage = () => {
                         }`}
                         onClick={() => setSelectedCity(item.city)}
                         variants={{ // Custom variant for delay
-                            hidden: { opacity: 0, scale: 0.9 },
+                            hidden: { opacity: 0.7, scale: 0.9 },
                             visible: { opacity: 1, scale: 1, transition: { type: "spring", stiffness: 200, delay: index * 0.05 } }
                         }}
                         whileHover={{ scale: 1.05 }}
@@ -305,7 +283,7 @@ const HomePage = () => {
 
       {/* HEADLINE METRICS SECTION: Pop in with enhanced hover effects
        */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {headlineMetrics.map((m, index) => (
           <motion.div
             key={m.label}
@@ -330,7 +308,7 @@ const HomePage = () => {
             </div>
           </motion.div>
         ))}
-      </div>
+      </div> */}
 
       <div className="space-y-10">
         {hasActiveFilters && (
@@ -442,6 +420,7 @@ const HomePage = () => {
             ].map((card) => {
               const Icon = card.icon;
               return (
+                
                 <motion.div
                   key={card.label}
                   className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6"

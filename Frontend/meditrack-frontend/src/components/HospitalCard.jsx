@@ -7,6 +7,9 @@ const HospitalCard = ({ hospital, onClick }) => {
   const freeBeds = Math.max(totalBeds - occupiedBeds, 0);
   const totalRooms = hospital.totalRooms ?? hospital.rooms?.length ?? "—";
 
+  console.log(hospital);
+  
+
   return (
     <button
       type="button"

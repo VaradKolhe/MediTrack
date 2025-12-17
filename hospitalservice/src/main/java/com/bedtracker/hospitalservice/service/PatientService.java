@@ -4,10 +4,12 @@ import com.bedtracker.hospitalservice.dto.PatientRegisterRequest;
 import com.bedtracker.hospitalservice.dto.PatientResponse;
 import com.bedtracker.hospitalservice.dto.PatientUpdateRequest;
 import com.bedtracker.hospitalservice.entity.Patient;
+import com.bedtracker.hospitalservice.entity.Room;
 import com.bedtracker.hospitalservice.exception.BadRequestException;
 import com.bedtracker.hospitalservice.exception.ResourceAlreadyExistsException;
 import com.bedtracker.hospitalservice.exception.ResourceNotFoundException;
 import com.bedtracker.hospitalservice.repository.PatientRepository;
+import com.bedtracker.hospitalservice.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,21 +23,22 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class PatientService {
-    
+
     private final PatientRepository patientRepository;
-    
+    private final RoomRepository roomRepository;
+
     @Transactional
     public PatientResponse registerPatient(PatientRegisterRequest request, Long hospitalId) {
         log.info("Registering new patient for hospital: {}", hospitalId);
-        
+
         // Check for duplicate by contact number
         patientRepository.findByContactNumberAndHospitalId(request.getContactNumber(), hospitalId)
                 .ifPresent(patient -> {
                     throw new ResourceAlreadyExistsException(
-                            "Patient with contact number " + request.getContactNumber() + " already exists"
+                            "Patient with contact number: " + request.getContactNumber() + " already exists"
                     );
                 });
-        
+
         // Create patient entity using builder
         Patient patient = Patient.builder()
                 .hospitalId(hospitalId)
@@ -46,15 +49,15 @@ public class PatientService {
                 .address(request.getAddress())
                 .symptoms(request.getSymptoms())
                 .entryDate(request.getEntryDate() != null ? request.getEntryDate() : LocalDate.now())
-                .status(Patient.PatientStatus.ADMITTED)
+                .status(Patient.PatientStatus.DISCHARGED)
                 .build();
-        
+
         Patient savedPatient = patientRepository.save(patient);
         log.info("Patient registered successfully with ID: {}", savedPatient.getPatientId());
-        
+
         return PatientResponse.fromEntity(savedPatient);
     }
-    
+
     public List<PatientResponse> getAllPatients(Long hospitalId) {
         log.info("Fetching all patients for hospital: {}", hospitalId);
         List<Patient> patients = patientRepository.findByHospitalId(hospitalId);
@@ -62,10 +65,10 @@ public class PatientService {
                 .map(PatientResponse::fromEntity)
                 .collect(Collectors.toList());
     }
-    
+
     public List<PatientResponse> getPatientsByRoom(Long roomId, Long hospitalId) {
         log.info("Fetching patients in room {} for hospital {}", roomId, hospitalId);
-        
+
         // Verify room belongs to hospital (should be checked via RoomService or repository)
         List<Patient> patients = patientRepository.findByRoomIdAndStatus(roomId, Patient.PatientStatus.ADMITTED);
 
@@ -75,7 +78,7 @@ public class PatientService {
                 .map(PatientResponse::fromEntity)
                 .collect(Collectors.toList());
     }
-    
+
     public PatientResponse getPatientById(Long patientId, Long hospitalId) {
         log.info("Fetching patient {} for hospital {}", patientId, hospitalId);
         Patient patient = patientRepository.findByPatientIdAndHospitalId(patientId, hospitalId)
@@ -84,21 +87,21 @@ public class PatientService {
                 ));
         return PatientResponse.fromEntity(patient);
     }
-    
+
     @Transactional
     public PatientResponse updatePatient(Long patientId, PatientUpdateRequest request, Long hospitalId) {
         log.info("Updating patient {} for hospital {}", patientId, hospitalId);
-        
+
         Patient patient = patientRepository.findByPatientIdAndHospitalId(patientId, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Patient not found with ID: " + patientId + " for hospital: " + hospitalId
                 ));
-        
+
         // Don't allow updating discharged patients
         if (patient.getStatus() == Patient.PatientStatus.DISCHARGED) {
             throw new BadRequestException("Cannot update discharged patient");
         }
-        
+
         // Update fields if provided
         if (request.getName() != null) {
             patient.setName(request.getName());
@@ -130,34 +133,34 @@ public class PatientService {
         if (request.getEntryDate() != null) {
             patient.setEntryDate(request.getEntryDate());
         }
-        
+
         Patient updatedPatient = patientRepository.save(patient);
         log.info("Patient updated successfully with ID: {}", updatedPatient.getPatientId());
-        
+
         return PatientResponse.fromEntity(updatedPatient);
     }
-    
+
     @Transactional
     public PatientResponse dischargePatient(Long patientId, Long hospitalId) {
         log.info("Discharging patient {} for hospital {}", patientId, hospitalId);
-        
+
         Patient patient = patientRepository.findByPatientIdAndHospitalId(patientId, hospitalId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Patient not found with ID: " + patientId + " for hospital: " + hospitalId
                 ));
-        
+
         if (patient.getStatus() == Patient.PatientStatus.DISCHARGED) {
             throw new BadRequestException("Patient is already discharged");
         }
-        
+
         // Update patient status
         patient.setStatus(Patient.PatientStatus.DISCHARGED);
         patient.setExitDate(LocalDate.now());
         // Keep roomId for historical record
-        
+
         Patient dischargedPatient = patientRepository.save(patient);
         log.info("Patient discharged successfully with ID: {}", dischargedPatient.getPatientId());
-        
+
         return PatientResponse.fromEntity(dischargedPatient);
     }
 }

@@ -13,12 +13,16 @@
     "@google/generative-ai": "^0.24.1",
     "@tailwindcss/postcss": "^4.1.17",
     "axios": "^1.13.2",
+    "esri-leaflet": "^3.0.19",
     "framer-motion": "^12.23.25",
     "jwt-decode": "^4.0.0",
+    "leaflet": "^1.9.4",
+    "leaflet-routing-machine": "^3.2.12",
     "lucide-react": "^0.554.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hot-toast": "^2.6.0",
+    "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.9.6"
   },
   "devDependencies": {

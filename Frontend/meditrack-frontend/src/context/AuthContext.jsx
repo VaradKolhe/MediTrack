@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "./AuthContextValue";
-import instance, { USER_SERVICE, HOSPITAL_SERVICE } from "../api/axiosConfig";
+import { userApiInstance } from "../api/axiosConfig";
 
 // Helper to decode JWT token
 const decodeToken = (token) => {
@@ -29,14 +29,10 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
-    
+
     if (token && !user) {
       const decoded = decodeToken(token);
-      
-      // If token is from hospitalservice (receptionist), it has hospitalId and receptionistId
-      // Receptionist tokens won't work with userservice /api/auth/me endpoint
       if (decoded?.hospitalId && decoded?.receptionistId) {
-        // This is a hospital JWT - user data should be in localStorage from login
         if (storedUser) {
           try {
             const userData = JSON.parse(storedUser);
@@ -52,10 +48,8 @@ export const AuthProvider = ({ children }) => {
         }
       } else {
         // Regular user token - fetch from userservice
-        instance
-          .get(`${USER_SERVICE}/api/auth/me`, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
+        userApiInstance
+          .get(`${USER_SERVICE}/api/users/me`)
           .then((res) => {
             setUser(res.data);
             localStorage.setItem("user", JSON.stringify(res.data));

@@ -40,5 +40,14 @@ public class SecurityUtil {
         }
         return null;
     }
+
+    public static Long getUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication instanceof JwtAuthenticationToken) {
+            JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
+            return jwtAuth.getUserId();
+        }
+        return null;
+    }
 }
 

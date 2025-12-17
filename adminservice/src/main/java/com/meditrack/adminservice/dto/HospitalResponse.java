@@ -20,6 +20,10 @@ public class HospitalResponse {
     private String contactNumber;
     private Integer totalBeds;
     private Integer occupiedBeds;
+    private Double latitude;
+    private Double longitude;
+    private Double averageRating;
+    private Integer totalReviews;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
@@ -33,6 +37,10 @@ public class HospitalResponse {
         response.setContactNumber(hospital.getContactNumber());
         response.setTotalBeds(hospital.getTotalBeds());
         response.setOccupiedBeds(hospital.getOccupiedBeds());
+        response.setLatitude(hospital.getLatitude());
+        response.setLongitude(hospital.getLongitude());
+        response.setAverageRating(hospital.getAverageRating());
+        response.setTotalReviews(hospital.getTotalReviews());
         response.setCreatedAt(hospital.getCreatedAt());
         response.setUpdatedAt(hospital.getUpdatedAt());
         return response;
