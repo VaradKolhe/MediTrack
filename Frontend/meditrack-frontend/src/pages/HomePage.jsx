@@ -11,6 +11,8 @@ import { hospitalApiInstance as instancehospital } from "../api/axiosConfig";
 import HospitalCard from "../components/HospitalCard";
 import HospitalModal from "../components/HospitalModal";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 // --- FRAMER MOTION VARIANTS ---
 
@@ -42,19 +44,14 @@ const listItem = {
   },
 };
 
-// // Data remains the same
-// const headlineMetrics = [
-//   { label: "Hospitals connected", value: "120+", tone: "text-sky-600", bg: "bg-sky-50" },
-//   { label: "Beds tracked", value: "18.4k", tone: "text-emerald-600", bg: "bg-emerald-50" },
-//   { label: "Regions covered", value: "42", tone: "text-indigo-600", bg: "bg-indigo-50" },
-// ];
-
 const HomePage = () => {
   const [hospitals, setHospitals] = useState([]);
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [search, setSearch] = useState("");
   const [selectedCity, setSelectedCity] = useState("ALL");
+  const [expandedId, setExpandedId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let ignore = false;
@@ -131,8 +128,7 @@ const HomePage = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      {/* HEADER SECTION: Single, high-impact entrance animation for the whole block
-       */}
+      {/* HEADER SECTION */}
       <motion.div
         className="overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-white via-[#ECFEFF] to-white shadow-xl"
         initial={{ y: -50, opacity: 0, scale: 0.98 }}
@@ -268,7 +264,6 @@ const HomePage = () => {
                     }`}
                     onClick={() => setSelectedCity(item.city)}
                     variants={{
-                      // Custom variant for delay
                       hidden: { opacity: 0.7, scale: 0.9 },
                       visible: {
                         opacity: 1,
@@ -290,35 +285,6 @@ const HomePage = () => {
           </div>
         </div>
       </motion.div>
-
-      {/* HEADLINE METRICS SECTION: Pop in with enhanced hover effects
-       */}
-      {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {headlineMetrics.map((m, index) => (
-          <motion.div
-            key={m.label}
-            className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 flex items-center gap-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 + index * 0.1, duration: 0.5 }}
-            whileHover={{ 
-              scale: 1.05, 
-              boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
-              rotateZ: index % 2 === 0 ? 0.2 : -0.2 // subtle rotation
-            }}
-          >
-            <div className={`h-14 w-14 rounded-2xl ${m.bg} flex items-center justify-center shadow-inner`}>
-              <span className={`text-2xl font-bold ${m.tone}`}>{m.value}</span>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-slate-500 font-semibold">
-                {m.label}
-              </p>
-              <p className="text-sm text-slate-600">Data-backed live network</p>
-            </div>
-          </motion.div>
-        ))}
-      </div> */}
 
       <div className="space-y-10">
         {hasActiveFilters && (
@@ -355,14 +321,45 @@ const HomePage = () => {
                 animate="visible"
                 variants={listContainer}
               >
-                {filteredHospitals.map((hospital) => (
-                  <motion.div key={hospital.id} variants={listItem}>
-                    <HospitalCard
-                      hospital={hospital}
-                      onClick={(h) => setSelectedHospital(h)}
-                    />
-                  </motion.div>
-                ))}
+                {filteredHospitals.map((hospital) => {
+                  // FIX 1: Determine expansion state
+                  const isExpanded = expandedId === hospital.id;
+
+                  return (
+                    <motion.div
+                      key={hospital.id}
+                      layout // FIX 2: Layout prop for smooth resizing
+                      variants={listItem}
+                      // FIX 3: Dynamic class to span columns when expanded
+                      className={`transition-all duration-500 ease-in-out ${
+                        isExpanded
+                          ? "col-span-1 sm:col-span-2 xl:col-span-3 z-10"
+                          : ""
+                      }`}
+                    >
+                      <HospitalCard
+                        hospital={hospital}
+                        // FIX 4: Pass the missing props
+                        isExpanded={isExpanded}
+                        onExpand={setExpandedId}
+                        onClick={(h) => setSelectedHospital(h)}
+                        onNavigate={(h) => {
+                          if (h.latitude && h.longitude) {
+                            navigate(
+                              `/user/map?lat=${h.latitude}&lng=${
+                                h.longitude
+                              }&name=${encodeURIComponent(h.name)}`
+                            );
+                          } else {
+                            toast.error(
+                              "Location data not available for this hospital"
+                            );
+                          }
+                        }}
+                      />
+                    </motion.div>
+                  );
+                })}
               </motion.div>
             ) : (
               <motion.div
@@ -434,12 +431,12 @@ const HomePage = () => {
                 <motion.div
                   key={card.label}
                   className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6"
-                  variants={listItem} // Staggered bounce-in
+                  variants={listItem}
                   whileHover={{
                     scale: 1.05,
                     y: -5,
                     boxShadow: "0 10px 20px rgba(0, 0, 0, 0.15)",
-                  }} // Enhanced hover
+                  }}
                 >
                   <div
                     className={`w-14 h-14 rounded-xl ${card.bgColor} ${card.color} flex items-center justify-center mb-4`}
@@ -488,30 +485,45 @@ const HomePage = () => {
                 animate="visible"
                 variants={listContainer}
               >
-                {filteredHospitals.map((hospital) => (
-                  <motion.div key={hospital.id} variants={listItem}>
-                    <HospitalCard
-                      hospital={hospital}
-                      onClick={(h) => setSelectedHospital(h)}
-                      /* --- ADD THIS PROP --- */
-                      onNavigate={(h) => {
-                        // Check if coordinates exist before navigating
-                        if (h.latitude && h.longitude) {
-                          navigate(
-                            `/user/map?lat=${h.latitude}&lng=${
-                              h.longitude
-                            }&name=${encodeURIComponent(h.name)}`
-                          );
-                        } else {
-                          // Optional: Handle missing coordinates
-                          toast.error(
-                            "Location data not available for this hospital"
-                          );
-                        }
-                      }}
-                    />
-                  </motion.div>
-                ))}
+                {filteredHospitals.map((hospital) => {
+                  // FIX 1: Determine expansion state
+                  const isExpanded = expandedId === hospital.id;
+
+                  return (
+                    <motion.div
+                      key={hospital.id}
+                      layout // FIX 2: Layout prop for smooth resizing
+                      variants={listItem}
+                      // FIX 3: Dynamic class to span columns when expanded
+                      className={`transition-all duration-500 ease-in-out ${
+                        isExpanded
+                          ? "col-span-1 sm:col-span-2 xl:col-span-3 z-10"
+                          : ""
+                      }`}
+                    >
+                      <HospitalCard
+                        hospital={hospital}
+                        // FIX 4: Pass the missing props
+                        isExpanded={isExpanded}
+                        onExpand={setExpandedId}
+                        onClick={(h) => setSelectedHospital(h)}
+                        onNavigate={(h) => {
+                          if (h.latitude && h.longitude) {
+                            navigate(
+                              `/user/map?lat=${h.latitude}&lng=${
+                                h.longitude
+                              }&name=${encodeURIComponent(h.name)}`
+                            );
+                          } else {
+                            toast.error(
+                              "Location data not available for this hospital"
+                            );
+                          }
+                        }}
+                      />
+                    </motion.div>
+                  );
+                })}
               </motion.div>
             ) : (
               <motion.div

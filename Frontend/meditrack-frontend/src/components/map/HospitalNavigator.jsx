@@ -52,11 +52,18 @@ export default function HospitalNavigator({
   const [error, setError] = useState(null);
 
   // 1. Get User's Live Location
+  // 1. Get User's Live Location
   useEffect(() => {
     if (!navigator.geolocation) {
       setError("Geolocation is not supported by your browser");
       return;
     }
+
+    const options = {
+      enableHighAccuracy: true, // Forces better accuracy (uses WiFi triangulation)
+      timeout: 10000, // Wait up to 10 seconds
+      maximumAge: 0, // Do not use a cached position
+    };
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -67,8 +74,9 @@ export default function HospitalNavigator({
       },
       (err) => {
         setError("Unable to retrieve your location.");
-        console.error(err);
-      }
+        console.warn("Geolocation error:", err);
+      },
+      options
     );
   }, []);
 

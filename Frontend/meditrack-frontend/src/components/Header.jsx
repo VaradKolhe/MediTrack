@@ -1,6 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, User, LogOut } from "lucide-react";
+import {
+  Menu,
+  X,
+  ChevronDown,
+  User,
+  LogOut,
+  LayoutDashboard,
+} from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 
 const navLinks = [
@@ -15,6 +22,10 @@ export default function Header({ isTransparent = false }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+
+  // Check if user is Admin and NOT on admin pages
+  const isAdmin = user?.role === "ADMIN";
+  const isOnAdminPage = location.pathname.startsWith("/admin");
 
   const handleLogout = () => {
     logout();
@@ -54,8 +65,6 @@ export default function Header({ isTransparent = false }) {
   };
 
   // --- STYLES ---
-
-  // Header Container
   const headerClasses =
     "sticky top-0 left-0 w-full z-50 transition-all duration-300 border-b " +
     (isTransparent
@@ -88,7 +97,7 @@ export default function Header({ isTransparent = false }) {
             </div>
           </Link>
 
-          {/* DESKTOP NAV - IMPROVED BUTTONS */}
+          {/* DESKTOP NAV */}
           <nav className="hidden md:flex items-center gap-2 bg-slate-100/50 p-1.5 rounded-full border border-slate-200/60">
             {navLinks.map((l) => {
               const isActive = location.pathname === l.to;
@@ -110,6 +119,17 @@ export default function Header({ isTransparent = false }) {
                 </Link>
               );
             })}
+
+            {/* ADMIN DASHBOARD LINK (Desktop) */}
+            {isAdmin && !isOnAdminPage && (
+              <Link
+                to="/admin"
+                className="relative px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ease-out flex items-center justify-center text-orange-600 hover:bg-orange-50"
+              >
+                <LayoutDashboard size={16} className="mr-2" />
+                Admin Panel
+              </Link>
+            )}
           </nav>
 
           {/* RIGHT SIDE ACTIONS */}
@@ -147,8 +167,26 @@ export default function Header({ isTransparent = false }) {
                       <p className="text-sm font-semibold text-slate-900">
                         {getUsersname()}
                       </p>
+                      <p className="text-xs text-slate-500 font-medium">
+                        {user.role}
+                      </p>
                     </div>
                     <div className="p-2">
+                      {/* Admin Link in Dropdown as fallback */}
+                      {isAdmin && (
+                        <Link
+                          to="/admin"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="w-full px-3 py-2.5 rounded-xl text-left text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors flex items-center gap-3 font-medium"
+                        >
+                          <LayoutDashboard
+                            size={16}
+                            className="text-slate-400"
+                          />
+                          Dashboard
+                        </Link>
+                      )}
+
                       <button
                         type="button"
                         onClick={handleProfileClick}
@@ -214,6 +252,18 @@ export default function Header({ isTransparent = false }) {
                   </Link>
                 );
               })}
+
+              {/* ADMIN DASHBOARD LINK (Mobile) */}
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  onClick={() => setMobileOpen(false)}
+                  className="px-4 py-3 rounded-xl text-base font-semibold flex items-center justify-between text-orange-600 bg-orange-50 hover:bg-orange-100"
+                >
+                  Admin Dashboard
+                  <LayoutDashboard size={18} />
+                </Link>
+              )}
             </nav>
 
             <div className="px-4 pt-2 border-t border-slate-100">

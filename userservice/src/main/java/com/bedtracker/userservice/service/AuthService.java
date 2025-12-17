@@ -104,9 +104,8 @@ public class AuthService {
                 user.getVerificationCode().equals(request.getVerificationCode())) {
 
             // Enable user and clear OTP
-            user.setIsEnabled(true);
-            user.setVerificationCode(null);
-            user.setVerificationCodeExpiresAt(null);
+//            user.setIsEnabled(true);
+//            user.setVerificationCode(null);
             userRepository.save(user);
         } else {
             throw new RuntimeException("Invalid verification code");
