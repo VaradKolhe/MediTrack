@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { hospitalApiInstance as axios } from "../api/axiosConfig";
 import {
   X,
   MapPin,
@@ -37,7 +37,7 @@ const HospitalModal = ({ hospital, onClose }) => {
     setIsLoadingReviews(true);
     try {
       const response = await axios.get(
-        `http://localhost:8080/hospitals/reviews/${hospital.id}`
+        `hospitals/reviews/${hospital.id}`
       );
       if (response.data && response.data.success) {
         setReviews(response.data.data);
@@ -70,7 +70,7 @@ const HospitalModal = ({ hospital, onClose }) => {
       };
 
       const response = await axios.post(
-        `http://localhost:8080/hospitals/${hospital.id}/reviews`,
+        `hospitals/${hospital.id}/reviews`,
         payload,
         {
           headers: {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BedDouble, Pencil, Trash2, Loader2 } from "lucide-react";
+import { BedDouble, Pencil, Trash2, Loader2, Search } from "lucide-react";
 import toast from "react-hot-toast";
 import { adminApi } from "../../api/adminApi";
 import { motion } from "framer-motion";
@@ -27,6 +27,9 @@ export default function RoomsManager({
   const [form, setForm] = useState(initialForm);
   const [editingRoom, setEditingRoom] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Search State
+  const [searchHospital, setSearchHospital] = useState("");
 
   const resetForm = () => {
     setForm(initialForm);
@@ -86,10 +89,17 @@ export default function RoomsManager({
     }
   };
 
+  // Filter Logic
+  const filteredRooms = rooms.filter((room) => {
+    const hospName =
+      hospitalLookup.get(room.hospitalId)?.name?.toLowerCase() || "";
+    return hospName.includes(searchHospital.toLowerCase());
+  });
+
   return (
     <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
       {/* Left Column: List of Rooms (Animated Entrance) */}
-      <motion.div 
+      <motion.div
         className="bg-white border border-slate-100 rounded-3xl shadow-xl shadow-slate-100/50 p-6"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -106,8 +116,22 @@ export default function RoomsManager({
             </h2>
           </div>
           <span className="text-sm font-semibold text-indigo-600 bg-indigo-100 px-3 py-1 rounded-full">
-            {rooms.length} total rooms
+            {filteredRooms.length} visible
           </span>
+        </div>
+
+        {/* --- Search Bar --- */}
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search by hospital name..."
+              className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 transition"
+              value={searchHospital}
+              onChange={(e) => setSearchHospital(e.target.value)}
+            />
+          </div>
         </div>
 
         <div className="overflow-x-auto rounded-xl border border-slate-100">
@@ -120,15 +144,15 @@ export default function RoomsManager({
                 <th className="px-4 py-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <motion.tbody 
+            <motion.tbody
               className="divide-y divide-slate-100"
               initial="hidden"
               animate="visible"
               variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
             >
-              {rooms.map((room, index) => (
-                <motion.tr 
-                  key={room.roomId} 
+              {filteredRooms.map((room, index) => (
+                <motion.tr
+                  key={room.roomId}
                   className="group transition duration-150 ease-in-out hover:bg-indigo-50/20 odd:bg-white even:bg-slate-50"
                   variants={rowVariants}
                 >
@@ -137,7 +161,7 @@ export default function RoomsManager({
                   </td>
                   <td className="px-4 py-4 text-slate-600">
                     <span className="font-mono bg-slate-200 text-slate-800 px-2 py-0.5 rounded text-xs font-semibold">
-                        {room.roomNumber}
+                      {room.roomNumber}
                     </span>
                   </td>
                   <td className="px-4 py-4 text-slate-600 font-medium">
@@ -165,10 +189,12 @@ export default function RoomsManager({
                   </td>
                 </motion.tr>
               ))}
-              {rooms.length === 0 && (
+              {filteredRooms.length === 0 && (
                 <tr>
                   <td colSpan={4} className="text-center py-10 text-slate-400">
-                    No rooms added yet.
+                    {rooms.length === 0
+                      ? "No rooms added yet."
+                      : "No matches found."}
                   </td>
                 </tr>
               )}
@@ -178,7 +204,7 @@ export default function RoomsManager({
       </motion.div>
 
       {/* Right Column: Form (Animated Entrance) */}
-      <motion.div 
+      <motion.div
         className="bg-white border border-slate-100 rounded-3xl shadow-xl shadow-slate-100/50 p-6 h-fit sticky top-6"
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -239,8 +265,10 @@ export default function RoomsManager({
             >
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
+              ) : editingRoom ? (
+                "Update Room"
               ) : (
-                editingRoom ? "Update Room" : "Create Room"
+                "Create Room"
               )}
             </motion.button>
             {editingRoom && (

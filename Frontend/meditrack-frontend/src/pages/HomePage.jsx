@@ -16,19 +16,17 @@ import { useNavigate } from "react-router-dom";
 
 // --- FRAMER MOTION VARIANTS ---
 
-// Container for staggered elements (used for the hospital grid)
 const listContainer = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.05, // Subtle stagger for cards
+      staggerChildren: 0.05,
       delayChildren: 0.1,
     },
   },
 };
 
-// Individual item variant (used for the hospital cards, metrics, and summary cards)
 const listItem = {
   hidden: { y: 40, opacity: 0, scale: 0.95 },
   visible: {
@@ -111,38 +109,96 @@ const HomePage = () => {
   const hasActiveFilters = search.trim() !== "" || selectedCity !== "ALL";
 
   const renderSkeleton = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
       {Array.from({ length: 6 }).map((_, idx) => (
         <div
           key={idx}
-          className="h-48 rounded-2xl bg-slate-100 animate-pulse border border-slate-200"
+          className="h-48 rounded-2xl bg-white/80 backdrop-blur-sm animate-pulse border border-slate-200"
         />
       ))}
     </div>
   );
 
+  const FloatingParticles = () => {
+    const particles = useMemo(() => {
+      return Array.from({ length: 40 }).map((_, i) => {
+        const left = Math.random() * 100;
+        const top = Math.random() * 100;
+        const size = Math.random() < 0.3 ? 4 : 8;
+        const duration = 15 + Math.random() * 20;
+        const delay = Math.random() * 5;
+        // Increased opacity slightly so they are visible but subtle behind glass
+        const opacity = 0.3 + Math.random() * 0.3;
+        const colors = ["bg-teal-300", "bg-blue-300", "bg-sky-300"];
+        const color = colors[i % 3];
+
+        return { left, top, size, duration, delay, opacity, color };
+      });
+    }, []);
+
+    return (
+      // CHANGE 1: Used 'fixed' instead of absolute so it covers screen on scroll
+      // CHANGE 2: Used '-z-10' to put it behind everything else
+      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10 h-full w-full bg-slate-50/50">
+        <style>
+          {`
+          @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0.8); opacity: 0; }
+            20% { opacity: var(--target-opacity); }
+            80% { opacity: var(--target-opacity); }
+            100% { transform: translateY(-10vh) scale(1.1); opacity: 0; }
+          }
+        `}
+        </style>
+        {particles.map((p, i) => (
+          <div
+            key={`particle-${i}`}
+            className={`absolute rounded-full ${p.color} blur-[2px]`}
+            style={{
+              left: `${p.left}%`,
+              top: `${p.top}%`, // Initial random position
+              width: `${p.size}px`,
+              height: `${p.size}px`,
+              opacity: 0,
+              "--target-opacity": p.opacity,
+              // Using a simple float up animation
+              animation: `floatUp ${p.duration}s linear infinite`,
+              animationDelay: `-${p.delay}s`,
+            }}
+          />
+        ))}
+      </div>
+    );
+  };
+
   return (
     <motion.div
-      className="space-y-10"
+      className="space-y-10 relative min-h-screen"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
+      <FloatingParticles />
+
       {/* HEADER SECTION */}
       <motion.div
-        className="overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-white via-[#ECFEFF] to-white shadow-xl"
+        // CHANGE 3: Added 'relative z-10' to stack above particles
+        // CHANGE 4: Added 'backdrop-blur-xl' and semi-transparent white background
+        className="relative z-10 overflow-hidden rounded-3xl border border-white/40 bg-white/60 backdrop-blur-xl shadow-xl"
         initial={{ y: -50, opacity: 0, scale: 0.98 }}
         animate={{ y: 0, opacity: 1, scale: 1 }}
         transition={{ type: "spring", stiffness: 50, damping: 15, delay: 0.1 }}
       >
         <div className="relative">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(14,165,233,0.08),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(59,130,246,0.08),transparent_30%)]" />
+          {/* Subtle gradients inside the card to keep depth */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(14,165,233,0.1),transparent_40%)]" />
+
           <div className="relative px-6 py-12 lg:px-12">
             <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10">
               <div className="space-y-4 flex-1 max-w-3xl">
                 {/* Tagline */}
                 <motion.span
-                  className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-[#1D4ED8] shadow-sm border border-[#BFDBFE]"
+                  className="inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-[#1D4ED8] shadow-sm border border-blue-100"
                   initial={{ scale: 0.7, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
@@ -163,7 +219,7 @@ const HomePage = () => {
 
                 {/* Subheading */}
                 <motion.p
-                  className="text-lg text-slate-600 leading-relaxed"
+                  className="text-lg text-slate-700 leading-relaxed font-medium"
                   initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.6, duration: 0.6 }}
@@ -188,7 +244,7 @@ const HomePage = () => {
                   ].map((chip, index) => (
                     <motion.span
                       key={chip}
-                      className="rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm border border-slate-200"
+                      className="rounded-full bg-white/80 backdrop-blur-md px-4 py-2 text-sm font-medium text-slate-700 shadow-sm border border-white/50"
                       variants={listItem}
                       transition={{ delay: 0.7 + index * 0.1 }}
                     >
@@ -205,8 +261,8 @@ const HomePage = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 1.0, type: "spring", stiffness: 100 }}
               >
-                <div className="rounded-2xl border border-[#BFDBFE] bg-white shadow-md px-6 py-5 flex items-center gap-4">
-                  <div className="flex-shrink-0 h-12 w-12 rounded-xl bg-[#EFF6FF] flex items-center justify-center">
+                <div className="rounded-2xl border border-blue-100 bg-white/90 backdrop-blur-md shadow-lg px-6 py-5 flex items-center gap-4">
+                  <div className="flex-shrink-0 h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center">
                     <RefreshCw className="w-6 h-6 text-[#1D4ED8] animate-spin" />
                   </div>
                   <div>
@@ -241,7 +297,8 @@ const HomePage = () => {
                   placeholder="Search by hospital name..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-[#1D4ED8]/30 focus:border-[#1D4ED8] focus:outline-none shadow-sm transition"
+                  // Slightly transparent bg for input too
+                  className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white/90 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-[#1D4ED8]/30 focus:border-[#1D4ED8] focus:outline-none shadow-sm transition"
                 />
               </div>
               <motion.div
@@ -250,7 +307,6 @@ const HomePage = () => {
                 animate="visible"
                 variants={listContainer}
               >
-                {/* City Filter Buttons - Pop in with a slight stagger */}
                 {[
                   { city: "ALL", label: "All cities" },
                   ...cities.map((c) => ({ city: c, label: c })),
@@ -260,7 +316,7 @@ const HomePage = () => {
                     className={`px-6 py-3 rounded-2xl border text-sm font-semibold transition whitespace-nowrap ${
                       selectedCity === item.city
                         ? "bg-[#1D4ED8] text-white border-[#1D4ED8] shadow-md"
-                        : "bg-white border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50"
+                        : "bg-white/80 backdrop-blur-sm border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-white"
                     }`}
                     onClick={() => setSelectedCity(item.city)}
                     variants={{
@@ -286,7 +342,9 @@ const HomePage = () => {
         </div>
       </motion.div>
 
-      <div className="space-y-10">
+      {/* MAIN CONTENT AREA */}
+      {/* CHANGE 5: Wrapped content in relative z-10 so cards sit ABOVE particles */}
+      <div className="space-y-10 relative z-10">
         {hasActiveFilters && (
           <>
             {/* Filtered Results Header */}
@@ -322,15 +380,12 @@ const HomePage = () => {
                 variants={listContainer}
               >
                 {filteredHospitals.map((hospital) => {
-                  // FIX 1: Determine expansion state
                   const isExpanded = expandedId === hospital.id;
-
                   return (
                     <motion.div
                       key={hospital.id}
-                      layout // FIX 2: Layout prop for smooth resizing
+                      layout
                       variants={listItem}
-                      // FIX 3: Dynamic class to span columns when expanded
                       className={`transition-all duration-500 ease-in-out ${
                         isExpanded
                           ? "col-span-1 sm:col-span-2 xl:col-span-3 z-10"
@@ -339,7 +394,6 @@ const HomePage = () => {
                     >
                       <HospitalCard
                         hospital={hospital}
-                        // FIX 4: Pass the missing props
                         isExpanded={isExpanded}
                         onExpand={setExpandedId}
                         onClick={(h) => setSelectedHospital(h)}
@@ -363,7 +417,7 @@ const HomePage = () => {
               </motion.div>
             ) : (
               <motion.div
-                className="rounded-2xl border border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-slate-100 p-16 text-center"
+                className="rounded-2xl border border-dashed border-slate-300 bg-white/50 backdrop-blur-sm p-16 text-center"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ type: "spring", stiffness: 100 }}
@@ -430,7 +484,7 @@ const HomePage = () => {
               return (
                 <motion.div
                   key={card.label}
-                  className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6"
+                  className="bg-white/90 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-sm p-6"
                   variants={listItem}
                   whileHover={{
                     scale: 1.05,
@@ -459,7 +513,6 @@ const HomePage = () => {
         {/* DEFAULT HOSPITAL LIST (When no filters are active) */}
         {!hasActiveFilters && (
           <>
-            {/* Header */}
             <motion.div
               className="flex flex-col gap-2"
               initial={{ opacity: 0, y: 20 }}
@@ -475,7 +528,6 @@ const HomePage = () => {
               </p>
             </motion.div>
 
-            {/* Hospital Cards Grid */}
             {isLoading ? (
               renderSkeleton()
             ) : filteredHospitals.length ? (
@@ -486,15 +538,12 @@ const HomePage = () => {
                 variants={listContainer}
               >
                 {filteredHospitals.map((hospital) => {
-                  // FIX 1: Determine expansion state
                   const isExpanded = expandedId === hospital.id;
-
                   return (
                     <motion.div
                       key={hospital.id}
-                      layout // FIX 2: Layout prop for smooth resizing
+                      layout
                       variants={listItem}
-                      // FIX 3: Dynamic class to span columns when expanded
                       className={`transition-all duration-500 ease-in-out ${
                         isExpanded
                           ? "col-span-1 sm:col-span-2 xl:col-span-3 z-10"
@@ -503,7 +552,6 @@ const HomePage = () => {
                     >
                       <HospitalCard
                         hospital={hospital}
-                        // FIX 4: Pass the missing props
                         isExpanded={isExpanded}
                         onExpand={setExpandedId}
                         onClick={(h) => setSelectedHospital(h)}
@@ -527,7 +575,7 @@ const HomePage = () => {
               </motion.div>
             ) : (
               <motion.div
-                className="rounded-2xl border border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-slate-100 p-16 text-center"
+                className="rounded-2xl border border-dashed border-slate-300 bg-white/50 backdrop-blur-sm p-16 text-center"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ type: "spring", stiffness: 100 }}

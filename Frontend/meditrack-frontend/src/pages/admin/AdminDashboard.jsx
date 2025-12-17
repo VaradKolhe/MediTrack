@@ -6,6 +6,8 @@ import {
   BedDouble,
   Users2,
   Loader2,
+  Globe, // 1. Imported Globe icon
+  ArrowRight, // 1. Imported Arrow icon
 } from "lucide-react";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { useAdminData } from "../../hooks/useAdminData";
@@ -26,11 +28,13 @@ const sections = [
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState("overview");
   const { data, isLoading, hospitalLookup, refreshData } = useAdminData();
-  const [isSidebarShrunk, setIsSidebarShrunk] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const toggleSidebar = () => setIsSidebarShrunk((prev) => !prev);
+  // 2. Handler to go to User Page
+  const handleGoToUserPage = () => {
+    navigate("/"); // Redirects to root/home page
+  };
 
   const renderContent = () => {
     switch (activeSection) {
@@ -68,19 +72,12 @@ export default function AdminDashboard() {
 
   return (
     <DashboardLayout
-      title="Bed Availability Control Center"
-      subtitle="National hospital network"
       sidebarItems={sections}
       activeKey={activeSection}
       onSelect={setActiveSection}
-      user={user}
-      onLogout={() => {
-        logout();
-        navigate("/login", { replace: true });
-      }}
     >
       <div className="bg-gradient-to-b from-white via-slate-50 to-white rounded-3xl border border-slate-200 shadow-[0_16px_40px_rgba(15,23,42,0.08)] p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-200">
+        <div className="flex flex-wrap items-end justify-between gap-4 pb-4 border-b border-slate-200">
           <div>
             <p className="text-sm uppercase tracking-[0.25em] text-slate-500">
               Admin dashboard
@@ -92,24 +89,41 @@ export default function AdminDashboard() {
               Manage network data with a unified, light, and responsive layout.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {sections.map((s) => {
-              const Icon = s.icon;
-              const active = s.key === activeSection;
-              return (
-                <span
-                  key={s.key}
-                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold border transition ${
-                    active
-                      ? "bg-gradient-to-r from-sky-500/10 to-cyan-500/10 text-sky-700 border-sky-200 shadow-sm"
-                      : "bg-white text-slate-600 border-slate-200 hover:border-sky-100"
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {s.label}
-                </span>
-              );
-            })}
+
+          <div className="flex flex-col sm:flex-row gap-4 items-end sm:items-center">
+            {/* 3. New Button to Go to User Page */}
+            <button
+              onClick={handleGoToUserPage}
+              className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-full text-sm font-semibold hover:bg-slate-800 transition shadow-lg shadow-slate-200"
+            >
+              <Globe size={16} />
+              View Public Site
+              <ArrowRight size={14} className="opacity-70" />
+            </button>
+
+            {/* Separator */}
+            <div className="hidden sm:block w-px h-8 bg-slate-200 mx-2"></div>
+
+            <div className="flex flex-wrap gap-2">
+              {sections.map((s) => {
+                const Icon = s.icon;
+                const active = s.key === activeSection;
+                return (
+                  <button
+                    key={s.key}
+                    onClick={() => setActiveSection(s.key)}
+                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold border transition ${
+                      active
+                        ? "bg-gradient-to-r from-sky-500/10 to-cyan-500/10 text-sky-700 border-sky-200 shadow-sm"
+                        : "bg-white text-slate-600 border-slate-200 hover:border-sky-100 hover:bg-slate-50"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {s.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 

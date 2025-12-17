@@ -31,7 +31,18 @@ export default function PatientCard({
 
   // Normalize status check
   const isDischarged = patient.status?.toLowerCase() === "discharged";
-  const currentRoomId = patient.room?.roomId;
+
+  // Safely get current room ID. If discharged, this is likely null/undefined.
+  const currentRoomId = patient.room?.roomId || patient.roomId;
+
+  // Filter Logic:
+  // 1. Must have available beds
+  // 2. Must NOT be the room the patient is currently in (if they are assigned one)
+  const targetRooms = rooms.filter(
+    (room) =>
+      (room.availableBeds ?? 0) > 0 &&
+      (!currentRoomId || room.roomId !== currentRoomId)
+  );
 
   return (
     <div
@@ -84,7 +95,6 @@ export default function PatientCard({
       {/* --- ACTIONS AREA --- */}
       <div className="mt-auto space-y-3 pt-4 border-t border-slate-200/60 pl-2">
         {/* REASSIGN / ADMIT SECTION */}
-        {/* We show this for everyone: Admitted patients can move, Discharged can re-admit */}
         <div>
           <label className="block text-xs text-slate-500 font-semibold mb-1">
             {isDischarged ? "Readmit to Room" : "Transfer Room"}
@@ -100,34 +110,28 @@ export default function PatientCard({
               }`}
             >
               <option value="">Select Room</option>
-              {rooms
-                .filter(
-                  (room) =>
-                    room.roomId !== currentRoomId &&
-                    (room.availableBeds ?? 0) > 0
-                )
-                .map((room) => (
-                  <option key={room.roomId} value={room.roomId}>
-                    {room.roomNumber} ({room.availableBeds} beds)
-                  </option>
-                ))}
+              {targetRooms.map((room) => (
+                <option key={room.roomId} value={room.roomId}>
+                  {room.roomNumber} ({room.availableBeds} beds)
+                </option>
+              ))}
             </select>
 
             <button
               type="button"
               onClick={handleReassignClick}
               disabled={isLoading === "move" || !selectedNewRoom}
-              className={`inline-flex items-center justify-center w-24 py-2 rounded-lg text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed ${
                 isDischarged
-                  ? "bg-blue-600 text-white hover:bg-blue-700 shadow-sm" // Bright blue for Admission
-                  : "bg-white border border-slate-300 text-slate-700 hover:bg-slate-50" // Neutral for Moving
+                  ? "bg-blue-600 text-white hover:bg-blue-700 shadow-sm" // Blue for Readmit
+                  : "bg-white border border-slate-300 text-slate-700 hover:bg-slate-50" // Neutral for Move
               }`}
             >
               {isLoading === "move" ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : isDischarged ? (
                 <>
-                  <LogIn className="w-3.5 h-3.5 mr-1.5" /> Admit
+                  <LogIn className="w-3.5 h-3.5 mr-1.5" /> Re-Admit
                 </>
               ) : (
                 <>
@@ -155,7 +159,7 @@ export default function PatientCard({
           </button>
         )}
 
-        {/* If Discharged, show entry date or simple status footer instead of discharge button */}
+        {/* If Discharged, show footer */}
         {isDischarged && (
           <div className="text-center py-2 text-xs text-slate-400 italic">
             Patient is currently discharged

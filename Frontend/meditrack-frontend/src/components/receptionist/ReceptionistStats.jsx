@@ -1,14 +1,17 @@
 import React from "react";
 import { Activity, BedDouble, CheckCircle2, XCircle } from "lucide-react";
 
-export default function ReceptionistStats({ user, summary }) {
+export default function ReceptionistStats({ user, summary, hospital }) {
   return (
     <div className="grid lg:grid-cols-4 gap-4">
       <StatCard
         icon={Activity}
         colorClass="bg-blue-50 text-blue-700"
         label="Hospital"
-        value={user.hospitalId ? `#${user.hospitalId}` : "Not assigned"}
+        value={
+          hospital?.name ||
+          (user.hospitalId ? `#${user.hospitalId}` : "Not assigned")
+        }
       />
       <StatCard
         icon={BedDouble}
@@ -39,8 +42,15 @@ function StatCard({ icon: Icon, colorClass, label, value }) {
         <Icon className="w-5 h-5" />
       </div>
       <div>
-        <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
-        <p className="text-lg font-semibold text-slate-900">{value}</p>
+        <p className="text-xs uppercase tracking-wide text-slate-500">
+          {label}
+        </p>
+        <p
+          className="text-lg font-semibold text-slate-900 truncate max-w-[150px]"
+          title={value}
+        >
+          {value}
+        </p>
       </div>
     </div>
   );

@@ -143,7 +143,7 @@ export default function Header({ isTransparent = false }) {
                 >
                   <div className="flex flex-col items-end mr-1">
                     <span className="text-xs text-slate-500 font-medium">
-                      Welcome back
+                      Welcome {user.role === "ADMIN" ? "Admin" : "Back"}
                     </span>
                     <span className="text-sm font-bold text-slate-800 leading-none">
                       {getUsersname()}
@@ -172,21 +172,6 @@ export default function Header({ isTransparent = false }) {
                       </p>
                     </div>
                     <div className="p-2">
-                      {/* Admin Link in Dropdown as fallback */}
-                      {isAdmin && (
-                        <Link
-                          to="/admin"
-                          onClick={() => setProfileDropdownOpen(false)}
-                          className="w-full px-3 py-2.5 rounded-xl text-left text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors flex items-center gap-3 font-medium"
-                        >
-                          <LayoutDashboard
-                            size={16}
-                            className="text-slate-400"
-                          />
-                          Dashboard
-                        </Link>
-                      )}
-
                       <button
                         type="button"
                         onClick={handleProfileClick}

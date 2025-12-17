@@ -2,7 +2,7 @@ package com.bedtracker.userservice.config;
 
 import com.bedtracker.userservice.filter.JwtAuthenticationFilter;
 import com.bedtracker.userservice.service.UserService;
-import lombok.RequiredArgsConstructor; // Changed to RequiredArgsConstructor for clarity
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -69,13 +69,15 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
+        http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "RECEPTIONIST")
                         .requestMatchers("/api/users/{id}").hasAnyRole("ADMIN", "RECEPTIONIST", "USER")
+                        .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "RECEPTIONIST")
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())

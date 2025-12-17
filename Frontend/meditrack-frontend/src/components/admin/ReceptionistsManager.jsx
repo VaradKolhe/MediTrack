@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Users2, Pencil, Trash2, Loader2, ShieldCheck } from "lucide-react";
+import {
+  Users2,
+  Pencil,
+  Trash2,
+  Loader2,
+  ShieldCheck,
+  Search,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import { adminApi } from "../../api/adminApi";
 import { motion } from "framer-motion";
@@ -32,6 +39,10 @@ export default function ReceptionistsManager({
   const [editingRec, setEditingRec] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Search States
+  const [searchEmail, setSearchEmail] = useState("");
+  const [searchHospital, setSearchHospital] = useState("");
+
   const resetForm = () => {
     setForm(initialForm);
     setEditingRec(null);
@@ -42,7 +53,7 @@ export default function ReceptionistsManager({
     setForm({
       username: rec.username,
       email: rec.email,
-      password: "", // Password usually reset or handled separately, but included in form
+      password: "",
       firstName: rec.firstName,
       lastName: rec.lastName,
       hospitalId: rec.hospitalId,
@@ -88,10 +99,21 @@ export default function ReceptionistsManager({
     }
   };
 
+  // Filter Logic
+  const filteredReceptionists = receptionists.filter((rec) => {
+    const hospName =
+      hospitalLookup.get(rec.hospitalId)?.name?.toLowerCase() || "";
+    const emailMatch = rec.email
+      .toLowerCase()
+      .includes(searchEmail.toLowerCase());
+    const hospitalMatch = hospName.includes(searchHospital.toLowerCase());
+    return emailMatch && hospitalMatch;
+  });
+
   return (
     <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
       {/* Left Column: List (Animated Entrance) */}
-      <motion.div 
+      <motion.div
         className="bg-white border border-slate-100 rounded-3xl shadow-xl shadow-slate-100/50 p-6"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -108,8 +130,34 @@ export default function ReceptionistsManager({
             </h2>
           </div>
           <span className="text-sm font-semibold text-indigo-600 bg-indigo-100 px-3 py-1 rounded-full">
-            {receptionists.length} active
+            {filteredReceptionists.length} visible
           </span>
+        </div>
+
+        {/* --- Search Bars --- */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          {/* Search by Email */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search by email..."
+              className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 transition"
+              value={searchEmail}
+              onChange={(e) => setSearchEmail(e.target.value)}
+            />
+          </div>
+          {/* Search by Hospital */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Filter by hospital..."
+              className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 transition"
+              value={searchHospital}
+              onChange={(e) => setSearchHospital(e.target.value)}
+            />
+          </div>
         </div>
 
         <div className="overflow-x-auto rounded-xl border border-slate-100">
@@ -122,15 +170,15 @@ export default function ReceptionistsManager({
                 <th className="px-4 py-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <motion.tbody 
+            <motion.tbody
               className="divide-y divide-slate-100"
               initial="hidden"
               animate="visible"
               variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
             >
-              {receptionists.map((rec, index) => (
-                <motion.tr 
-                  key={rec.id} 
+              {filteredReceptionists.map((rec, index) => (
+                <motion.tr
+                  key={rec.id}
                   className="group transition duration-150 ease-in-out hover:bg-indigo-50/20 odd:bg-white even:bg-slate-50"
                   variants={rowVariants}
                 >
@@ -165,10 +213,12 @@ export default function ReceptionistsManager({
                   </td>
                 </motion.tr>
               ))}
-              {receptionists.length === 0 && (
+              {filteredReceptionists.length === 0 && (
                 <tr>
                   <td colSpan={5} className="text-center py-10 text-slate-400">
-                    No receptionists assigned.
+                    {receptionists.length === 0
+                      ? "No receptionists assigned."
+                      : "No matches found."}
                   </td>
                 </tr>
               )}
@@ -178,7 +228,7 @@ export default function ReceptionistsManager({
       </motion.div>
 
       {/* Right Column: Form (Animated Entrance) */}
-      <motion.div 
+      <motion.div
         className="bg-white border border-slate-100 rounded-3xl shadow-xl shadow-slate-100/50 p-6 h-fit sticky top-6"
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -197,22 +247,29 @@ export default function ReceptionistsManager({
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
-          {['username', 'email', 'firstName', 'lastName', 'phoneNumber'].map((key) => (
-            <input
-              key={key}
-              type={key === 'email' ? 'email' : 'text'}
-              className={`w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 ${primaryRing} transition`}
-              placeholder={key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
-              value={form[key]}
-              onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-              required
-            />
-          ))}
+          {["username", "email", "firstName", "lastName", "phoneNumber"].map(
+            (key) => (
+              <input
+                key={key}
+                type={key === "email" ? "email" : "text"}
+                className={`w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 ${primaryRing} transition`}
+                placeholder={
+                  key.charAt(0).toUpperCase() +
+                  key.slice(1).replace(/([A-Z])/g, " $1")
+                }
+                value={form[key]}
+                onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                required
+              />
+            )
+          )}
 
           <input
             type="password"
             className={`w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 ${primaryRing} transition`}
-            placeholder={editingRec ? "New Password (Leave blank to keep old)" : "Password"}
+            placeholder={
+              editingRec ? "New Password (Leave blank to keep old)" : "Password"
+            }
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             required={!editingRec}

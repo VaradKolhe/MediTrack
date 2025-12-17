@@ -19,7 +19,6 @@ export default function App() {
       <ChatbotWidget />
 
       <BrowserRouter>
-        <FloatingAdminButton />
 
         <Routes>
           {/* Public Pages */}

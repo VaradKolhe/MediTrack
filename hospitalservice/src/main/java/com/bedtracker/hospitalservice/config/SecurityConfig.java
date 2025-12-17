@@ -55,7 +55,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**", "/error", "/public/**").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/hospitals/reviews/**").permitAll() // Allow public access to GET reviews
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/hospitals/reviews/{hospitalId}").permitAll() // Allow public access to GET reviews
                         .requestMatchers("/patients/**", "/rooms/**", "/hospitals/**").authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
