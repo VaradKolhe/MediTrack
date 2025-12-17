@@ -38,7 +38,7 @@ public class AuthService {
     private final UserRepository userRepository;
 
     public UserResponse getMe(String authorizationHeader) {
-        if(authorizationHeader == null  || !authorizationHeader.startsWith("Bearer ")) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             throw new RuntimeException("Invalid authorization header");
         }
         String token = authorizationHeader.substring(7);
@@ -63,20 +63,23 @@ public class AuthService {
         // Generate 6-digit OTP
         String otp = String.valueOf(new Random().nextInt(900000) + 100000);
 
-        User user = new User();
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setHospitalId(request.getHospitalId());
-        user.setRole(Role.USER);
-        user.setIsEnabled(false);
+        // In your Register Service
+        User user = User.builder()
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .hospitalId(request.getHospitalId())
+                .role(Role.USER)
+                .isEnabled(false)
+                .verificationCode(otp) // Set OTP here
+                .verificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15))
+                .build();
 
-        user.setVerificationCode(otp);
-        user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
-
+        System.out.println("OTP before save: " + user.getVerificationCode()); // Check console
         User savedUser = userRepository.save(user);
+        System.out.println("OTP after save: " + savedUser.getVerificationCode()); // Check console
 
         // Send Email
         emailService.sendVerificationEmail(savedUser.getEmail(), savedUser.getFirstName(), otp);

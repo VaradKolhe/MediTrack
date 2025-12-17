@@ -19,7 +19,7 @@ export const receptionistApi = {
   },
 
   async dischargePatient(patientId) {
-    const res = await instance.put(`/patients/discharge/${patientId}`);
+    const res = await instance.put(`/rooms/discharge/${patientId}`);
     return res?.data?.data;
   },
 

@@ -22,8 +22,21 @@ export default function DashboardLayout({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  const hospitalData = useMemo(() => {
-    return receptionistApi.getHospital();
+  // FIX 1: Use state to hold the fetched hospital data
+  const [hospital, setHospital] = useState(null);
+
+  // FIX 2: Fetch data when the component mounts
+  useEffect(() => {
+    const fetchHospitalData = async () => {
+      try {
+        const data = await receptionistApi.getHospital();
+        setHospital(data);
+      } catch (error) {
+        console.error("Failed to fetch hospital info:", error);
+      }
+    };
+
+    fetchHospitalData();
   }, []);
 
   // Close mobile menu on resize
@@ -187,11 +200,12 @@ export default function DashboardLayout({
                   month: "short",
                 })}
               </p>
+              {/* FIX 3: Display the fetched hospital name */}
               <p
                 className="text-sm font-semibold text-slate-700 truncate max-w-[140px]"
-                title={user?.hospital?.name}
+                title={hospital?.name || user?.hospital?.name}
               >
-                {user?.hospital?.name ?? "National Network"}
+                {hospital?.name ?? user?.hospital?.name ?? "National Network"}
               </p>
             </div>
           </div>

@@ -75,5 +75,16 @@ public class RoomController {
         RoomResponse room = roomService.reassignPatient(request, hospitalId);
         return ResponseEntity.ok(ApiResponse.success("Patient reassigned to room successfully", room));
     }
+
+    @PutMapping("/discharge/{patientId}")
+    public ResponseEntity<ApiResponse<Void>> dischargePatient(@PathVariable Long patientId) {
+        Long hospitalId = SecurityUtil.getHospitalId();
+        log.info("Request to discharge patient {} from hospital: {}", patientId, hospitalId);
+
+        roomService.dischargePatient(patientId, hospitalId);
+
+        // Return success with null data since the operation is void
+        return ResponseEntity.ok(ApiResponse.success("Patient discharged successfully", null));
+    }
 }
 
