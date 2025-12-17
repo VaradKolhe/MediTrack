@@ -2,6 +2,7 @@ package com.bedtracker.hospitalservice.dto;
 
 import com.bedtracker.hospitalservice.entity.Patient;
 import com.bedtracker.hospitalservice.entity.Room;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,8 @@ public class PatientResponse {
     
     private Long patientId;
     private Long hospitalId;
+
+    @JsonIgnoreProperties({"patients", "hospital"})
     private Room room;
     private String name;
     private Integer age;

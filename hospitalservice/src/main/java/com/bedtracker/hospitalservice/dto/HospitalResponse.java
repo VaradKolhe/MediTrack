@@ -19,7 +19,12 @@ public class HospitalResponse {
     private String city;
     private String contactNumber;
     private Integer totalBeds;
+    private Integer totalRooms;
     private Integer occupiedBeds;
+    private Double latitude;
+    private Double longitude;
+    private Double averageRating;
+    private Integer totalReviews;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -32,9 +37,14 @@ public class HospitalResponse {
         response.setCity(hospital.getCity());
         response.setContactNumber(hospital.getContactNumber());
         response.setTotalBeds(hospital.getTotalBeds());
-        response.setOccupiedBeds(0); // Can be calculated if needed
+        response.setOccupiedBeds(hospital.getOccupiedBeds());
+        response.setLatitude(hospital.getLatitude());
+        response.setLongitude(hospital.getLongitude());
+        response.setAverageRating(hospital.getAverageRating());
+        response.setTotalReviews(hospital.getTotalReviews());
         response.setCreatedAt(hospital.getCreatedAt());
         response.setUpdatedAt(hospital.getUpdatedAt());
+        response.setTotalRooms(hospital.getRooms().size());
         return response;
     }
 }

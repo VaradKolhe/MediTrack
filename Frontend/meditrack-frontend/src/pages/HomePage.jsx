@@ -7,10 +7,12 @@ import {
   RefreshCw,
   Search,
 } from "lucide-react";
-import instancehospital from "../api/axiosConfig";
+import { hospitalApiInstance as instancehospital } from "../api/axiosConfig";
 import HospitalCard from "../components/HospitalCard";
 import HospitalModal from "../components/HospitalModal";
-import { motion } from "framer-motion"; // <-- IMPORT FRAMER MOTION
+import { motion } from "framer-motion";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 // --- FRAMER MOTION VARIANTS ---
 
@@ -42,19 +44,14 @@ const listItem = {
   },
 };
 
-// Data remains the same
-const headlineMetrics = [
-  { label: "Hospitals connected", value: "120+", tone: "text-sky-600", bg: "bg-sky-50" },
-  { label: "Beds tracked", value: "18.4k", tone: "text-emerald-600", bg: "bg-emerald-50" },
-  { label: "Regions covered", value: "42", tone: "text-indigo-600", bg: "bg-indigo-50" },
-];
-
 const HomePage = () => {
   const [hospitals, setHospitals] = useState([]);
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [search, setSearch] = useState("");
   const [selectedCity, setSelectedCity] = useState("ALL");
+  const [expandedId, setExpandedId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let ignore = false;
@@ -125,14 +122,13 @@ const HomePage = () => {
   );
 
   return (
-    <motion.div 
+    <motion.div
       className="space-y-10"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      {/* HEADER SECTION: Single, high-impact entrance animation for the whole block
-       */}
+      {/* HEADER SECTION */}
       <motion.div
         className="overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-white via-[#ECFEFF] to-white shadow-xl"
         initial={{ y: -50, opacity: 0, scale: 0.98 }}
@@ -172,16 +168,17 @@ const HomePage = () => {
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.6, duration: 0.6 }}
                 >
-                  Filter by city, scan live bed capacity, and drill into hospital
-                  details—all within a crisp, distraction-free workspace.
+                  Filter by city, scan live bed capacity, and drill into
+                  hospital details—all within a crisp, distraction-free
+                  workspace.
                 </motion.p>
-                
+
                 {/* Feature Chips */}
-                <motion.div 
-                    className="flex flex-wrap gap-3"
-                    initial="hidden"
-                    animate="visible"
-                    variants={listContainer}
+                <motion.div
+                  className="flex flex-wrap gap-3"
+                  initial="hidden"
+                  animate="visible"
+                  variants={listContainer}
                 >
                   {[
                     "Instant search",
@@ -199,32 +196,10 @@ const HomePage = () => {
                     </motion.span>
                   ))}
                 </motion.div>
-
-                {/* CTA Button and Subtext */}
-                <motion.div 
-                    className="flex flex-wrap items-center gap-3"
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 1.2, duration: 0.5 }}
-                >
-                  <motion.button
-                    type="button"
-                    onClick={() => window.scrollTo({ top: 520, behavior: "smooth" })}
-                    className="inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-sky-500 to-cyan-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(56,189,248,0.35)] focus:outline-none focus:ring-2 focus:ring-sky-300"
-                    whileHover={{ scale: 1.05, boxShadow: "0 15px 30px rgba(56,189,248,0.55)" }} // Enhanced hover
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Launch availability scan
-                    <RefreshCw className="w-4 h-4" />
-                  </motion.button>
-                  <span className="text-sm text-slate-600">
-                    Light, secure, and data-forward experience.
-                  </span>
-                </motion.div>
               </div>
 
               {/* Status Box */}
-              <motion.div 
+              <motion.div
                 className="w-full max-w-sm"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -253,11 +228,11 @@ const HomePage = () => {
             </div>
 
             {/* Search and Filters Block */}
-            <motion.div 
-                className="mt-10 flex flex-col sm:flex-row sm:items-center gap-4 flex-wrap"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 1.4, duration: 0.5 }}
+            <motion.div
+              className="mt-10 flex flex-col sm:flex-row sm:items-center gap-4 flex-wrap"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 1.4, duration: 0.5 }}
             >
               <div className="relative flex-1 min-w-[280px]">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
@@ -269,7 +244,7 @@ const HomePage = () => {
                   className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-[#1D4ED8]/30 focus:border-[#1D4ED8] focus:outline-none shadow-sm transition"
                 />
               </div>
-              <motion.div 
+              <motion.div
                 className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1"
                 initial="hidden"
                 animate="visible"
@@ -278,24 +253,32 @@ const HomePage = () => {
                 {/* City Filter Buttons - Pop in with a slight stagger */}
                 {[
                   { city: "ALL", label: "All cities" },
-                  ...cities.map(c => ({ city: c, label: c }))
+                  ...cities.map((c) => ({ city: c, label: c })),
                 ].map((item, index) => (
-                    <motion.button
-                        key={item.city}
-                        className={`px-6 py-3 rounded-2xl border text-sm font-semibold transition whitespace-nowrap ${
-                          selectedCity === item.city
-                            ? "bg-[#1D4ED8] text-white border-[#1D4ED8] shadow-md"
-                            : "bg-white border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50"
-                        }`}
-                        onClick={() => setSelectedCity(item.city)}
-                        variants={{ // Custom variant for delay
-                            hidden: { opacity: 0, scale: 0.9 },
-                            visible: { opacity: 1, scale: 1, transition: { type: "spring", stiffness: 200, delay: index * 0.05 } }
-                        }}
-                        whileHover={{ scale: 1.05 }}
-                    >
-                        {item.label}
-                    </motion.button>
+                  <motion.button
+                    key={item.city}
+                    className={`px-6 py-3 rounded-2xl border text-sm font-semibold transition whitespace-nowrap ${
+                      selectedCity === item.city
+                        ? "bg-[#1D4ED8] text-white border-[#1D4ED8] shadow-md"
+                        : "bg-white border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50"
+                    }`}
+                    onClick={() => setSelectedCity(item.city)}
+                    variants={{
+                      hidden: { opacity: 0.7, scale: 0.9 },
+                      visible: {
+                        opacity: 1,
+                        scale: 1,
+                        transition: {
+                          type: "spring",
+                          stiffness: 200,
+                          delay: index * 0.05,
+                        },
+                      },
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    {item.label}
+                  </motion.button>
                 ))}
               </motion.div>
             </motion.div>
@@ -303,44 +286,15 @@ const HomePage = () => {
         </div>
       </motion.div>
 
-      {/* HEADLINE METRICS SECTION: Pop in with enhanced hover effects
-       */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {headlineMetrics.map((m, index) => (
-          <motion.div
-            key={m.label}
-            className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 flex items-center gap-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 + index * 0.1, duration: 0.5 }}
-            whileHover={{ 
-              scale: 1.05, 
-              boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
-              rotateZ: index % 2 === 0 ? 0.2 : -0.2 // subtle rotation
-            }}
-          >
-            <div className={`h-14 w-14 rounded-2xl ${m.bg} flex items-center justify-center shadow-inner`}>
-              <span className={`text-2xl font-bold ${m.tone}`}>{m.value}</span>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-slate-500 font-semibold">
-                {m.label}
-              </p>
-              <p className="text-sm text-slate-600">Data-backed live network</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
       <div className="space-y-10">
         {hasActiveFilters && (
           <>
             {/* Filtered Results Header */}
-            <motion.div 
-                className="flex flex-col gap-2"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+            <motion.div
+              className="flex flex-col gap-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
             >
               <h2 className="text-3xl font-bold text-slate-900">
                 {selectedCity === "ALL"
@@ -361,23 +315,54 @@ const HomePage = () => {
             {isLoading ? (
               renderSkeleton()
             ) : filteredHospitals.length ? (
-              <motion.div 
+              <motion.div
                 className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"
                 initial="hidden"
                 animate="visible"
                 variants={listContainer}
               >
-                {filteredHospitals.map((hospital) => (
-                  <motion.div key={hospital.id} variants={listItem}>
-                    <HospitalCard
-                      hospital={hospital}
-                      onClick={(h) => setSelectedHospital(h)}
-                    />
-                  </motion.div>
-                ))}
+                {filteredHospitals.map((hospital) => {
+                  // FIX 1: Determine expansion state
+                  const isExpanded = expandedId === hospital.id;
+
+                  return (
+                    <motion.div
+                      key={hospital.id}
+                      layout // FIX 2: Layout prop for smooth resizing
+                      variants={listItem}
+                      // FIX 3: Dynamic class to span columns when expanded
+                      className={`transition-all duration-500 ease-in-out ${
+                        isExpanded
+                          ? "col-span-1 sm:col-span-2 xl:col-span-3 z-10"
+                          : ""
+                      }`}
+                    >
+                      <HospitalCard
+                        hospital={hospital}
+                        // FIX 4: Pass the missing props
+                        isExpanded={isExpanded}
+                        onExpand={setExpandedId}
+                        onClick={(h) => setSelectedHospital(h)}
+                        onNavigate={(h) => {
+                          if (h.latitude && h.longitude) {
+                            navigate(
+                              `/user/map?lat=${h.latitude}&lng=${
+                                h.longitude
+                              }&name=${encodeURIComponent(h.name)}`
+                            );
+                          } else {
+                            toast.error(
+                              "Location data not available for this hospital"
+                            );
+                          }
+                        }}
+                      />
+                    </motion.div>
+                  );
+                })}
               </motion.div>
             ) : (
-              <motion.div 
+              <motion.div
                 className="rounded-2xl border border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-slate-100 p-16 text-center"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -391,7 +376,8 @@ const HomePage = () => {
                   {selectedCity !== "ALL" && `in ${selectedCity}`}.
                 </p>
                 <p className="text-slate-600 mt-2 text-base">
-                  Try clearing filters or checking spelling to see more facilities.
+                  Try clearing filters or checking spelling to see more
+                  facilities.
                 </p>
               </motion.div>
             )}
@@ -400,7 +386,7 @@ const HomePage = () => {
 
         {/* SUMMARY CARDS (When no filters are active) */}
         {!hasActiveFilters && (
-          <motion.div 
+          <motion.div
             className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4"
             initial="hidden"
             animate="visible"
@@ -445,8 +431,12 @@ const HomePage = () => {
                 <motion.div
                   key={card.label}
                   className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6"
-                  variants={listItem} // Staggered bounce-in
-                  whileHover={{ scale: 1.05, y: -5, boxShadow: "0 10px 20px rgba(0, 0, 0, 0.15)" }} // Enhanced hover
+                  variants={listItem}
+                  whileHover={{
+                    scale: 1.05,
+                    y: -5,
+                    boxShadow: "0 10px 20px rgba(0, 0, 0, 0.15)",
+                  }}
                 >
                   <div
                     className={`w-14 h-14 rounded-xl ${card.bgColor} ${card.color} flex items-center justify-center mb-4`}
@@ -470,11 +460,11 @@ const HomePage = () => {
         {!hasActiveFilters && (
           <>
             {/* Header */}
-            <motion.div 
-                className="flex flex-col gap-2"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.5 }}
+            <motion.div
+              className="flex flex-col gap-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
             >
               <h2 className="text-3xl font-bold text-slate-900">
                 Hospitals across the network
@@ -489,23 +479,54 @@ const HomePage = () => {
             {isLoading ? (
               renderSkeleton()
             ) : filteredHospitals.length ? (
-              <motion.div 
+              <motion.div
                 className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"
                 initial="hidden"
                 animate="visible"
-                variants={listContainer} // Applies staggered entrance to the cards below
+                variants={listContainer}
               >
-                {filteredHospitals.map((hospital) => (
-                  <motion.div key={hospital.id} variants={listItem}>
-                    <HospitalCard
-                      hospital={hospital}
-                      onClick={(h) => setSelectedHospital(h)}
-                    />
-                  </motion.div>
-                ))}
+                {filteredHospitals.map((hospital) => {
+                  // FIX 1: Determine expansion state
+                  const isExpanded = expandedId === hospital.id;
+
+                  return (
+                    <motion.div
+                      key={hospital.id}
+                      layout // FIX 2: Layout prop for smooth resizing
+                      variants={listItem}
+                      // FIX 3: Dynamic class to span columns when expanded
+                      className={`transition-all duration-500 ease-in-out ${
+                        isExpanded
+                          ? "col-span-1 sm:col-span-2 xl:col-span-3 z-10"
+                          : ""
+                      }`}
+                    >
+                      <HospitalCard
+                        hospital={hospital}
+                        // FIX 4: Pass the missing props
+                        isExpanded={isExpanded}
+                        onExpand={setExpandedId}
+                        onClick={(h) => setSelectedHospital(h)}
+                        onNavigate={(h) => {
+                          if (h.latitude && h.longitude) {
+                            navigate(
+                              `/user/map?lat=${h.latitude}&lng=${
+                                h.longitude
+                              }&name=${encodeURIComponent(h.name)}`
+                            );
+                          } else {
+                            toast.error(
+                              "Location data not available for this hospital"
+                            );
+                          }
+                        }}
+                      />
+                    </motion.div>
+                  );
+                })}
               </motion.div>
             ) : (
-              <motion.div 
+              <motion.div
                 className="rounded-2xl border border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-slate-100 p-16 text-center"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}

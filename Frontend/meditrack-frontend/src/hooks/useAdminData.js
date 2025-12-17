@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
-import { adminApi } from "../api/adminApi"; // Adjust path as needed
+import { adminApi } from "../api/adminApi";
 
 export function useAdminData() {
   const [isLoading, setIsLoading] = useState(true);

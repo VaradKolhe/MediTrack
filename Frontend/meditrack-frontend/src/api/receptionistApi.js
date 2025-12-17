@@ -1,4 +1,4 @@
-import instance from "./axiosConfig";
+import { hospitalApiInstance as instance } from "./axiosConfig";
 
 const unwrap = (response) => response?.data?.data ?? [];
 
@@ -19,7 +19,7 @@ export const receptionistApi = {
   },
 
   async dischargePatient(patientId) {
-    const res = await instance.put(`/patients/discharge/${patientId}`);
+    const res = await instance.put(`/rooms/discharge/${patientId}`);
     return res?.data?.data;
   },
 
@@ -38,5 +38,12 @@ export const receptionistApi = {
     });
     return res?.data?.data;
   },
+  async getAllPatients() {
+    const res = await instance.get("/patients");
+    return unwrap(res);
+  },
+  async getHospital()  {
+    const res = await instance.get("/hospitals");
+    return unwrap(res);
+  }
 };
-

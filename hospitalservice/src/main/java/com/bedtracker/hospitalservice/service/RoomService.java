@@ -4,7 +4,6 @@ import com.bedtracker.hospitalservice.dto.OccupancyResponse;
 import com.bedtracker.hospitalservice.dto.RoomAssignRequest;
 import com.bedtracker.hospitalservice.dto.RoomReassignRequest;
 import com.bedtracker.hospitalservice.dto.RoomResponse;
-import com.bedtracker.hospitalservice.entity.Hospital;
 import com.bedtracker.hospitalservice.entity.Patient;
 import com.bedtracker.hospitalservice.entity.Room;
 import com.bedtracker.hospitalservice.exception.BadRequestException;
@@ -75,87 +74,72 @@ public class RoomService {
     public RoomResponse assignPatientToRoom(RoomAssignRequest request, Long hospitalId) {
         log.info("Assigning patient {} to room {} in hospital {}", request.getPatientId(), request.getRoomId(), hospitalId);
 
-        // 1. Verify room belongs to hospital
-        Room room = roomRepository.findByIdAndHospital_Id(request.getRoomId(), hospitalId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Room not found with ID: " + request.getRoomId() + " for hospital: " + hospitalId
-                ));
+        // 1. ATOMICITY FIX: Acquire a Database Lock on the Room
+        // This prevents two receptionists from grabbing the last bed simultaneously.
+        Room room = roomRepository.findByIdAndHospitalIdWithLock(request.getRoomId(), hospitalId)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found"));
 
-        // 2. Verify patient belongs to hospital
         Patient patient = patientRepository.findByPatientIdAndHospitalId(request.getPatientId(), hospitalId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Patient not found with ID: " + request.getPatientId() + " for hospital: " + hospitalId
-                ));
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
-        // 3. Validation checks
-        if (patient.getStatus() == Patient.PatientStatus.DISCHARGED) {
-            throw new BadRequestException("Cannot assign discharged patient to room");
+        // Check if actually admitted (prevent duplicates)
+        if (patient.getStatus() == Patient.PatientStatus.ADMITTED) {
+            throw new BadRequestException("Patient is already assigned to a room. Use 'Reassign' to move them.");
         }
 
-        if (patient.getStatus() == Patient.PatientStatus.ADMITTED || patient.getRoom() != null && patient.getRoom().getId().equals(request.getRoomId())) {
-            throw new BadRequestException("Patient is already assigned to this or another room");
-        }
-
+        // 2. Check Capacity (Safe now due to Lock)
         Long currentOccupancy = patientRepository.countAdmittedPatientsByRoomId(request.getRoomId());
         if (currentOccupancy >= room.getTotalBeds()) {
             throw new BadRequestException("Room is full — cannot assign more patients");
         }
 
-        // 4. Assign patient to room
+        // 3. Update Patient
         patient.setRoom(room);
+        patient.setStatus(Patient.PatientStatus.ADMITTED);
+        patient.setExitDate(null); // Clear exit date if they are being readmitted
         patientRepository.save(patient);
 
-        // 5. Update Hospital Occupied Beds Count (Increment)
-        Hospital hospital = room.getHospital();
-        int currentHospitalOccupancy = hospital.getOccupiedBeds() != null ? hospital.getOccupiedBeds() : 0;
-        hospital.setOccupiedBeds(currentHospitalOccupancy + 1);
-        hospitalRepository.save(hospital);
+        // 4. ATOMICITY FIX: Atomic Update for Hospital Stats
+        // We do not read-modify-write. We fire an update query.
+        hospitalRepository.incrementOccupancy(hospitalId);
 
-        log.info("Patient {} assigned to room {} successfully. Hospital occupancy updated.", request.getPatientId(), request.getRoomId());
-
-        // Return updated room info
-        Long updatedOccupancy = patientRepository.countAdmittedPatientsByRoomId(request.getRoomId());
-        return RoomResponse.fromEntity(room, updatedOccupancy.intValue());
+        return RoomResponse.fromEntity(room, currentOccupancy.intValue() + 1);
     }
 
     @Transactional
     public RoomResponse reassignPatient(RoomReassignRequest request, Long hospitalId) {
-        log.info("Reassigning patient {} to room {} in hospital {}",
-                request.getPatientId(), request.getNewRoomId(), hospitalId);
+        log.info("Reassigning patient {} to new room {}", request.getPatientId(), request.getNewRoomId());
 
-        Room newRoom = roomRepository.findByIdAndHospital_Id(request.getNewRoomId(), hospitalId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Room not found with ID: " + request.getNewRoomId() + " for hospital: " + hospitalId
-                ));
+        // 1. Lock the NEW room to prevent overbooking
+        Room newRoom = roomRepository.findByIdAndHospitalIdWithLock(request.getNewRoomId(), hospitalId)
+                .orElseThrow(() -> new ResourceNotFoundException("Target room not found"));
 
         Patient patient = patientRepository.findByPatientIdAndHospitalId(request.getPatientId(), hospitalId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Patient not found with ID: " + request.getPatientId() + " for hospital: " + hospitalId
-                ));
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
-        if (patient.getStatus() == Patient.PatientStatus.DISCHARGED) {
-            throw new BadRequestException("Cannot reassign discharged patient");
-        }
-
-        if (patient.getRoom() != null && patient.getRoom().getId().equals(request.getNewRoomId())) {
-            throw new BadRequestException("Patient is already assigned to this room");
-        }
-
+        // 2. Check Capacity of new room
         Long currentOccupancy = patientRepository.countAdmittedPatientsByRoomId(request.getNewRoomId());
         if (currentOccupancy >= newRoom.getTotalBeds()) {
-            throw new BadRequestException("Room is full — cannot assign more patients");
+            throw new BadRequestException("Target Room is full");
         }
 
-        // Update relationship
+        // 3. LOGIC FIX: Handle Transfer vs Readmission
+        boolean isTransfer = (patient.getStatus() == Patient.PatientStatus.ADMITTED);
+
+        if (!isTransfer) {
+            // CASE A: Readmission (Discharged -> Admitted)
+            // If they were discharged, we must increment hospital stats
+            hospitalRepository.incrementOccupancy(hospitalId);
+            patient.setStatus(Patient.PatientStatus.ADMITTED);
+            patient.setExitDate(null);
+        }
+        // CASE B: Transfer (Admitted Room A -> Admitted Room B)
+        // We do NOT increment hospital stats, as they are already counted.
+
         patient.setRoom(newRoom);
         patientRepository.save(patient);
 
-        // Note: Reassigning within the same hospital does not change the total Occupied Beds of the hospital.
-
-        log.info("Patient {} reassigned to room {} successfully", request.getPatientId(), request.getNewRoomId());
-
-        Long updatedOccupancy = patientRepository.countAdmittedPatientsByRoomId(request.getNewRoomId());
-        return RoomResponse.fromEntity(newRoom, updatedOccupancy.intValue());
+        return RoomResponse.fromEntity(newRoom, currentOccupancy.intValue() + 1);
     }
 
     @Transactional
@@ -163,35 +147,18 @@ public class RoomService {
         log.info("Discharging patient {} from hospital {}", patientId, hospitalId);
 
         Patient patient = patientRepository.findByPatientIdAndHospitalId(patientId, hospitalId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Patient not found with ID: " + patientId + " for hospital: " + hospitalId
-                ));
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
         if (patient.getStatus() == Patient.PatientStatus.DISCHARGED) {
             throw new BadRequestException("Patient is already discharged");
         }
 
-        // 1. Update Patient Status
         patient.setStatus(Patient.PatientStatus.DISCHARGED);
         patient.setExitDate(LocalDate.now());
-        patient.setRoom(null); // Remove from room
+        patient.setRoom(null);
         patientRepository.save(patient);
 
-        // 2. Update Hospital Occupied Beds Count (Decrement)
-        // We fetch the hospital explicitly to ensure we have the latest state
-        Hospital hospital = hospitalRepository.findById(hospitalId)
-                .orElseThrow(() -> new ResourceNotFoundException("Hospital not found: " + hospitalId));
-
-        int currentHospitalOccupancy = hospital.getOccupiedBeds() != null ? hospital.getOccupiedBeds() : 0;
-        if (currentHospitalOccupancy > 0) {
-            hospital.setOccupiedBeds(currentHospitalOccupancy - 1);
-            hospitalRepository.save(hospital);
-        }
-
-        log.info("Patient {} discharged successfully. Hospital occupancy updated.", patientId);
-    }
-
-    public Long countOccupiedBeds(Long roomId) {
-        return patientRepository.countAdmittedPatientsByRoomId(roomId);
+        // ATOMICITY FIX: Atomic Decrement
+        hospitalRepository.decrementOccupancy(hospitalId);
     }
 }

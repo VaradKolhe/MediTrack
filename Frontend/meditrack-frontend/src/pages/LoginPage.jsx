@@ -10,7 +10,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
-import instance, { USER_SERVICE } from "../api/axiosConfig";
+import { userApiInstance as instance } from "../api/axiosConfig";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -18,7 +18,6 @@ import { motion } from "framer-motion";
 
 // --- FRAMER MOTION VARIANTS ---
 
-// 1. Container for the whole Login/Register Card
 const cardContainerVariants = {
   hidden: { opacity: 0, scale: 0.95 },
   visible: {
@@ -33,19 +32,24 @@ const cardContainerVariants = {
   },
 };
 
-// 2. Variants for the content inside the side hero panel (staggered effect)
 const heroItemVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 10 } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 100, damping: 10 },
+  },
 };
 
-// 3. Variants for the entire form panel (slides in from the right)
 const formPanelVariants = {
   hidden: { opacity: 0, x: 50 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: "easeOut", delay: 0.2 } },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.7, ease: "easeOut", delay: 0.2 },
+  },
 };
 
-// 4. Variants for each input field (staggered entry)
 const inputItemVariants = {
   hidden: { opacity: 0, y: 10 },
   visible: { opacity: 1, y: 0, transition: { type: "tween", duration: 0.3 } },
@@ -59,13 +63,13 @@ const highlights = [
 
 const LoginPage = () => {
   const { login, user } = useAuth();
-
   const [mode, setMode] = useState("login");
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
     username: "",
     password: "",
+    confirmPassword: "", // Added confirmPassword to state
     email: "",
     firstName: "",
     lastName: "",
@@ -89,16 +93,24 @@ const LoginPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // --- FRONTEND VALIDATION ---
+    if (mode === "register") {
+      if (form.password !== form.confirmPassword) {
+        toast.error("Passwords do not match!");
+        // Clear passwords immediately if mismatch
+        setForm((prev) => ({ ...prev, password: "", confirmPassword: "" }));
+        return;
+      }
+    }
+
     const authPromise = (async () => {
       try {
         if (mode === "login") {
-          const res = await instance.post(`${USER_SERVICE}/api/auth/login`, {
+          const res = await instance.post(`/api/auth/login`, {
             username: form.username,
             password: form.password,
           });
 
-          // AuthResponse structure: {token, id, username, email, firstName, lastName, role}
-          // For receptionists, hospitalId is in the JWT token (from hospitalservice)
           let hospitalId = null;
           if (res.data.role === "RECEPTIONIST" && res.data.token) {
             try {
@@ -109,10 +121,10 @@ const LoginPage = () => {
             }
           }
 
-          // Ensure role is a string (handle enum serialization)
-          const role = typeof res.data.role === 'string' 
-            ? res.data.role 
-            : res.data.role?.name || res.data.role || 'USER';
+          const role =
+            typeof res.data.role === "string"
+              ? res.data.role
+              : res.data.role?.name || res.data.role || "USER";
 
           const userData = {
             id: res.data.id,
@@ -129,7 +141,8 @@ const LoginPage = () => {
         }
 
         if (mode === "register") {
-          await instance.post(`${USER_SERVICE}/api/auth/register`, {
+          // Send only the required fields to backend (exclude confirmPassword)
+          await instance.post(`/api/auth/register`, {
             username: form.username,
             email: form.email,
             password: form.password,
@@ -142,21 +155,16 @@ const LoginPage = () => {
         }
 
         if (mode === "verify") {
-          await instance.post(`${USER_SERVICE}/api/auth/verify`, {
+          await instance.post(`/api/auth/verify`, {
             email: form.email,
             verificationCode: form.otp,
           });
 
-          const loginRes = await instance.post(
-            `${USER_SERVICE}/api/auth/login`,
-            {
-              username: form.username,
-              password: form.password,
-            }
-          );
+          const loginRes = await instance.post(`/api/auth/login`, {
+            username: form.username,
+            password: form.password,
+          });
 
-          // AuthResponse structure: {token, id, username, email, firstName, lastName, role}
-          // For receptionists, hospitalId is in the JWT token (from hospitalservice)
           let hospitalId = null;
           if (loginRes.data.role === "RECEPTIONIST" && loginRes.data.token) {
             try {
@@ -167,10 +175,10 @@ const LoginPage = () => {
             }
           }
 
-          // Ensure role is a string (handle enum serialization)
-          const role = typeof loginRes.data.role === 'string' 
-            ? loginRes.data.role 
-            : loginRes.data.role?.name || loginRes.data.role || 'USER';
+          const role =
+            typeof loginRes.data.role === "string"
+              ? loginRes.data.role
+              : loginRes.data.role?.name || loginRes.data.role || "USER";
 
           const userData = {
             id: loginRes.data.id,
@@ -190,6 +198,11 @@ const LoginPage = () => {
           err.response?.data?.message ||
           "Something went wrong during the process.";
         throw new Error(message);
+      } finally {
+        // --- CLEAR PASSWORD FIELDS ---
+        // As requested: clear passwords to empty string, keep other fields
+        // This runs whether success or failure (though on success verify mode usually takes over)
+        setForm((prev) => ({ ...prev, password: "", confirmPassword: "" }));
       }
     })();
 
@@ -205,7 +218,6 @@ const LoginPage = () => {
           return "Account created! Please check your email for the OTP.";
         }
 
-        // result is the role string (e.g., "ADMIN", "RECEPTIONIST", "USER")
         if (result === "ADMIN") {
           navigate("/admin");
         } else if (result === "RECEPTIONIST") {
@@ -213,7 +225,7 @@ const LoginPage = () => {
         } else {
           navigate("/home");
         }
-
+        
         return "Login successful! Redirecting...";
       },
       error: (error) => error.message,
@@ -225,6 +237,15 @@ const LoginPage = () => {
     if (mode === "register") return "Create an account";
     return "Verify Account";
   };
+
+  // Shared classes for inputs to ensure exact alignment
+  const inputClasses =
+    "peer w-full px-4 pt-4 pb-4 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-200 focus:border-sky-300 transition placeholder-transparent";
+  const labelClasses =
+    "absolute left-4 transition-all duration-200 ease-in-out pointer-events-none top-2 text-xs text-blue-600 bg-white px-1 " +
+    "peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-500 peer-placeholder-shown:bg-transparent " +
+    "peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:-text-xs peer-[:not(:placeholder-shown)]:-text-blue-600 peer-[:not(:placeholder-shown)]:-bg-white " +
+    "peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 peer-focus:bg-white rounded-full";
 
   return (
     <div
@@ -246,7 +267,6 @@ const LoginPage = () => {
           pointerEvents: "none",
         }}
       />
-      {/* 1. Main Card Animation: Fade in and Scale */}
       <motion.div
         className="relative w-full max-w-5xl bg-white/10 rounded-[32px] shadow-[0_20px_60px_rgba(15,23,42,0.25)] border border-white/20 overflow-hidden backdrop-blur"
         variants={cardContainerVariants}
@@ -254,14 +274,16 @@ const LoginPage = () => {
         animate="visible"
       >
         <div className="grid md:grid-cols-2">
-          {/* Left Panel: Hero Content with Staggered Entrance */}
+          {/* Left Panel */}
           <motion.div
             className="bg-gradient-to-br from-[#EBF8FF] via-white to-[#E0F2FE] p-12 text-slate-900 flex flex-col justify-between border-r border-slate-200"
-            variants={cardContainerVariants} // Use same container variant for staggering
+            variants={cardContainerVariants}
           >
             <div>
-              {/* Logo/Header */}
-              <motion.div className="flex items-center gap-3 mb-8" variants={heroItemVariants}>
+              <motion.div
+                className="flex items-center gap-3 mb-8"
+                variants={heroItemVariants}
+              >
                 <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center border border-slate-200">
                   <Shield className="w-6 h-6 text-[#1D4ED8]" />
                 </div>
@@ -274,39 +296,51 @@ const LoginPage = () => {
                   </p>
                 </div>
               </motion.div>
-              {/* Headline */}
-              <motion.h2 className="text-4xl font-extrabold leading-tight text-slate-900" variants={heroItemVariants}>
+              <motion.h2
+                className="text-4xl font-extrabold leading-tight text-slate-900"
+                variants={heroItemVariants}
+              >
                 Synchronize every bed update with confidence.
               </motion.h2>
-              {/* Subtext */}
-              <motion.p className="text-slate-600 mt-4 text-base leading-relaxed" variants={heroItemVariants}>
+              <motion.p
+                className="text-slate-600 mt-4 text-base leading-relaxed"
+                variants={heroItemVariants}
+              >
                 Sign in to broadcast capacity, manage rooms, and coordinate
                 admissions in real-time on a secure, modern interface.
               </motion.p>
-              {/* Highlights */}
-              <motion.div className="mt-8 space-y-4" variants={cardContainerVariants}> {/* Stagger the list */}
+              <motion.div
+                className="mt-8 space-y-4"
+                variants={cardContainerVariants}
+              >
                 {highlights.map((item, index) => (
-                  <motion.div key={item} className="flex items-center gap-3" variants={heroItemVariants} transition={{ delay: 0.1 * index }}>
+                  <motion.div
+                    key={item}
+                    className="flex items-center gap-3"
+                    variants={heroItemVariants}
+                    transition={{ delay: 0.1 * index }}
+                  >
                     <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                     <p className="text-sm text-slate-700">{item}</p>
                   </motion.div>
                 ))}
               </motion.div>
             </div>
-            {/* Footer Text */}
-            <motion.p className="text-xs uppercase tracking-[0.3em] text-slate-500" variants={heroItemVariants}>
+            <motion.p
+              className="text-xs uppercase tracking-[0.3em] text-slate-500"
+              variants={heroItemVariants}
+            >
               ISO 27001 | SOC2 | HIPAA
             </motion.p>
           </motion.div>
 
-          {/* Right Panel: Form Content with Slide-in */}
+          {/* Right Panel: Form Content */}
           <motion.div
             className="bg-white text-slate-900 p-10 flex flex-col gap-8"
             variants={formPanelVariants}
             initial="hidden"
             animate="visible"
           >
-            {/* Logo/Header */}
             <div className="flex items-center gap-3">
               <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-sky-500 to-cyan-500 flex items-center justify-center shadow-md">
                 <Shield className="w-6 h-6 text-white" />
@@ -325,12 +359,11 @@ const LoginPage = () => {
                 <p className="text-sm uppercase tracking-[0.3em] text-slate-400">
                   Access center
                 </p>
-                {/* Title */}
                 <h1 className="text-2xl font-semibold mt-1">{getTitle()}</h1>
               </div>
               <motion.div
-                animate={{ rotate: [0, 15, -15, 0] }} // Quick wiggle animation
-                transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 5 }} // Wiggle every 5 seconds
+                animate={{ rotate: [0, 15, -15, 0] }}
+                transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 5 }}
               >
                 <Activity className="w-7 h-7 text-[#1D4ED8]" />
               </motion.div>
@@ -338,7 +371,12 @@ const LoginPage = () => {
 
             {/* Mode Switcher */}
             {mode !== "verify" && (
-              <motion.div className="flex bg-slate-100 p-1 rounded-2xl w-full max-w-md" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.4, type: "spring", stiffness: 150 }}>
+              <motion.div
+                className="flex bg-slate-100 p-1 rounded-2xl w-full max-w-md"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.4, type: "spring", stiffness: 150 }}
+              >
                 <motion.button
                   type="button"
                   className={`flex-1 py-3 text-sm font-medium rounded-2xl transition-all cursor-pointer ${
@@ -370,12 +408,12 @@ const LoginPage = () => {
 
             {/* Form */}
             <motion.form
-                onSubmit={handleSubmit}
-                className="space-y-5"
-                key={mode} // Key change causes the entire form to re-render and re-animate when mode changes
-                initial="hidden"
-                animate="visible"
-                variants={cardContainerVariants} // Use container for staggered inputs
+              onSubmit={handleSubmit}
+              className="space-y-5"
+              key={mode}
+              initial="hidden"
+              animate="visible"
+              variants={cardContainerVariants}
             >
               {/* Verify Mode */}
               {mode === "verify" && (
@@ -404,17 +442,21 @@ const LoginPage = () => {
               {/* Login/Register Fields */}
               {mode !== "verify" && (
                 <>
-                  <motion.div className="relative" variants={inputItemVariants} whileFocus={{ scale: 1.01 }}>
+                  <motion.div
+                    className="relative"
+                    variants={inputItemVariants}
+                    whileFocus={{ scale: 1.01 }}
+                  >
                     <input
                       type="text"
                       name="username"
                       value={form.username}
                       onChange={handleChange}
                       required
-                      className="peer w-full px-4 pt-5 pb-2 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-200 focus:border-sky-300 transition placeholder-transparent"
-                      placeholder="Username / Medical ID"
+                      className={inputClasses}
+                      placeholder=" "
                     />
-                    <label className="pointer-events-none absolute left-4 top-3 text-sm text-slate-500 transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:top-2 peer-focus:text-xs peer-focus:text-sky-600">
+                    <label className={labelClasses}>
                       <span className="inline-flex items-center gap-2">
                         <User className="h-4 w-4 text-slate-400" />
                         Username / Medical ID
@@ -423,17 +465,21 @@ const LoginPage = () => {
                   </motion.div>
 
                   {mode === "register" && (
-                    <motion.div className="relative" variants={inputItemVariants} whileFocus={{ scale: 1.01 }}>
+                    <motion.div
+                      className="relative"
+                      variants={inputItemVariants}
+                      whileFocus={{ scale: 1.01 }}
+                    >
                       <input
                         type="email"
                         name="email"
                         value={form.email}
                         onChange={handleChange}
                         required
-                        className="peer w-full px-4 pt-5 pb-2 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-200 focus:border-sky-300 transition placeholder-transparent"
-                        placeholder="Email Address"
+                        className={inputClasses}
+                        placeholder=" "
                       />
-                      <label className="pointer-events-none absolute left-4 top-3 text-sm text-slate-500 transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:top-2 peer-focus:text-xs peer-focus:text-sky-600">
+                      <label className={labelClasses}>
                         <span className="inline-flex items-center gap-2">
                           <Mail className="h-4 w-4 text-slate-400" />
                           Email Address
@@ -442,17 +488,22 @@ const LoginPage = () => {
                     </motion.div>
                   )}
 
-                  <motion.div className="relative" variants={inputItemVariants} whileFocus={{ scale: 1.01 }}>
+                  {/* Password Field */}
+                  <motion.div
+                    className="relative"
+                    variants={inputItemVariants}
+                    whileFocus={{ scale: 1.01 }}
+                  >
                     <input
                       type="password"
                       name="password"
                       value={form.password}
                       onChange={handleChange}
                       required
-                      className="peer w-full px-4 pt-5 pb-2 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-200 focus:border-sky-300 transition placeholder-transparent"
-                      placeholder="Password"
+                      className={inputClasses} // Applied updated classes for padding/alignment
+                      placeholder=" "
                     />
-                    <label className="pointer-events-none absolute left-4 top-3 text-sm text-slate-500 transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:top-2 peer-focus:text-xs peer-focus:text-sky-600">
+                    <label className={labelClasses}>
                       <span className="inline-flex items-center gap-2">
                         <Lock className="h-4 w-4 text-slate-400" />
                         Password
@@ -460,28 +511,79 @@ const LoginPage = () => {
                     </label>
                   </motion.div>
 
+                  {/* Confirm Password Field (Only in Register Mode) */}
                   {mode === "register" && (
-                    <motion.div className="grid grid-cols-1 sm:grid-cols-2 gap-4" variants={inputItemVariants}>
-                      <motion.input
-                        type="text"
-                        name="firstName"
-                        placeholder="First Name"
-                        value={form.firstName}
+                    <motion.div
+                      className="relative"
+                      variants={inputItemVariants}
+                      whileFocus={{ scale: 1.01 }}
+                    >
+                      <input
+                        type="password"
+                        name="confirmPassword"
+                        value={form.confirmPassword}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/25 focus:border-transparent transition text-slate-700"
-                        whileFocus={{ scale: 1.01 }}
+                        className={inputClasses}
+                        placeholder=" "
                       />
-                      <motion.input
-                        type="text"
-                        name="lastName"
-                        placeholder="Last Name"
-                        value={form.lastName}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/25 focus:border-transparent transition text-slate-700"
+                      <label className={labelClasses}>
+                        <span className="inline-flex items-center gap-2">
+                          <Lock className="h-4 w-4 text-slate-400" />
+                          Confirm Password
+                        </span>
+                      </label>
+                    </motion.div>
+                  )}
+
+                  {mode === "register" && (
+                    <motion.div
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                      variants={inputItemVariants}
+                    >
+                      {/* First Name */}
+                      <motion.div
+                        className="relative"
                         whileFocus={{ scale: 1.01 }}
-                      />
+                      >
+                        <input
+                          type="text"
+                          name="firstName"
+                          value={form.firstName}
+                          onChange={handleChange}
+                          required
+                          className={inputClasses}
+                          placeholder="First Name"
+                        />
+                        <label className={labelClasses}>
+                          <span className="inline-flex items-center gap-2">
+                            <User className="h-4 w-4 text-slate-400" />
+                            First Name
+                          </span>
+                        </label>
+                      </motion.div>
+
+                      {/* Last Name */}
+                      <motion.div
+                        className="relative"
+                        whileFocus={{ scale: 1.01 }}
+                      >
+                        <input
+                          type="text"
+                          name="lastName"
+                          value={form.lastName}
+                          onChange={handleChange}
+                          required
+                          className={inputClasses}
+                          placeholder="Last Name"
+                        />
+                        <label className={labelClasses}>
+                          <span className="inline-flex items-center gap-2">
+                            <User className="h-4 w-4 text-slate-400" />
+                            Last Name
+                          </span>
+                        </label>
+                      </motion.div>
                     </motion.div>
                   )}
                 </>
@@ -491,9 +593,15 @@ const LoginPage = () => {
               <motion.button
                 type="submit"
                 className="w-full bg-[#1D4ED8] text-white font-semibold py-4 rounded-2xl hover:bg-[#1B46C2] focus:ring-4 focus:ring-[#93C5FD]/70 transition flex items-center justify-center gap-2 cursor-pointer text-lg shadow-sm"
-                variants={inputItemVariants} // Animate with the rest of the form
-                whileHover={{ scale: 1.015, boxShadow: "0 10px 20px rgba(29, 78, 216, 0.4)" }} // Lift and shadow
-                whileTap={{ scale: 0.98, boxShadow: "0 5px 15px rgba(29, 78, 216, 0.2)" }} // Press down effect
+                variants={inputItemVariants}
+                whileHover={{
+                  scale: 1.015,
+                  boxShadow: "0 10px 20px rgba(29, 78, 216, 0.4)",
+                }}
+                whileTap={{
+                  scale: 0.98,
+                  boxShadow: "0 5px 15px rgba(29, 78, 216, 0.2)",
+                }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
                 {mode === "login"
@@ -509,7 +617,7 @@ const LoginPage = () => {
                   type="button"
                   onClick={() => setMode("login")}
                   className="w-full mt-2 text-slate-500 hover:text-slate-700 text-sm font-medium flex items-center justify-center gap-2 transition cursor-pointer"
-                  variants={inputItemVariants} // Animate with the rest of the form
+                  variants={inputItemVariants}
                   whileHover={{ scale: 1.01, color: "#1E293B" }}
                   whileTap={{ scale: 0.99 }}
                 >
@@ -518,7 +626,12 @@ const LoginPage = () => {
               )}
             </motion.form>
 
-            <motion.p className="text-center text-slate-400 text-xs mt-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.0 }}>
+            <motion.p
+              className="text-center text-slate-400 text-xs mt-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.0 }}
+            >
               Multi-factor authentication enforced for staff and admin access.
             </motion.p>
           </motion.div>

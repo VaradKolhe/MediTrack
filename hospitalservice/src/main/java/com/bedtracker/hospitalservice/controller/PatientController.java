@@ -4,7 +4,6 @@ import com.bedtracker.hospitalservice.dto.ApiResponse;
 import com.bedtracker.hospitalservice.dto.PatientRegisterRequest;
 import com.bedtracker.hospitalservice.dto.PatientResponse;
 import com.bedtracker.hospitalservice.dto.PatientUpdateRequest;
-import com.bedtracker.hospitalservice.entity.Patient;
 import com.bedtracker.hospitalservice.service.PatientService;
 import com.bedtracker.hospitalservice.util.SecurityUtil;
 import jakarta.validation.Valid;
@@ -40,7 +39,7 @@ public class PatientController {
     
     @GetMapping
     public ResponseEntity<ApiResponse<List<PatientResponse>>> getAllPatients() {
-        
+
         Long hospitalId = SecurityUtil.getHospitalId();
         log.info("Fetching all patients for hospital: {}", hospitalId);
         

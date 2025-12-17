@@ -50,9 +50,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String role = jwtUtil.extractRole(token);
             Long hospitalId = jwtUtil.extractHospitalId(token);
             Long receptionistId = jwtUtil.extractReceptionistId(token);
+            Long userId = jwtUtil.extractUserId(token);
 
             JwtAuthenticationToken auth =
-                    new JwtAuthenticationToken(username, role, hospitalId, receptionistId);
+                    new JwtAuthenticationToken(username, role, hospitalId, receptionistId, userId);
 
             auth.setAuthenticated(true);
             SecurityContextHolder.getContext().setAuthentication(auth);
