@@ -1,5 +1,7 @@
 package com.meditrack.adminservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +23,7 @@ public class Room {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hospital_id", nullable = false)
+    @JsonBackReference
     private Hospital hospital;
 
     @Column(name = "room_number", nullable = false, length = 50)
@@ -30,6 +33,7 @@ public class Room {
     private Integer totalBeds;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Patient> patients;
 
 }

@@ -137,8 +137,9 @@ public class RoomService {
         // We do NOT increment hospital stats, as they are already counted.
 
         patient.setRoom(newRoom);
+        patient.setSymptoms(request.getSymptoms());
         patientRepository.save(patient);
-
+        hospitalRepository.incrementOccupancy(hospitalId);
         return RoomResponse.fromEntity(newRoom, currentOccupancy.intValue() + 1);
     }
 
@@ -156,6 +157,7 @@ public class RoomService {
         patient.setStatus(Patient.PatientStatus.DISCHARGED);
         patient.setExitDate(LocalDate.now());
         patient.setRoom(null);
+        patient.setSymptoms(null);
         patientRepository.save(patient);
 
         // ATOMICITY FIX: Atomic Decrement
