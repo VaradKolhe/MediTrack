@@ -146,7 +146,7 @@ export default function Header({ isTransparent = false }) {
                 >
                   <div className="flex flex-col items-end mr-1">
                     <span className="text-xs text-teal-600 font-semibold tracking-wide">
-                      {user.role === "ADMIN" ? "Admin" : "Welcome"}
+                      {user.role === "ADMIN" ? "Welcome Admin" : "Welcome"}
                     </span>
                     <span className="text-sm font-bold text-slate-800 leading-none">
                       {getUsersname()}

@@ -17,14 +17,15 @@ public class RoomResponse {
     private Integer occupiedBeds; // Calculated field
     private Integer availableBeds; // Calculated field
     
-    public static RoomResponse fromEntity(Room room, Integer occupiedBeds) {
+    public static RoomResponse fromEntity(Room room) {
+        int occupiedBeds = room.getPatients().size();
         RoomResponse response = new RoomResponse();
         response.setRoomId(room.getId());
         response.setHospitalId(room.getHospital().getId());
         response.setRoomNumber(room.getRoomNumber());
         response.setTotalBeds(room.getTotalBeds());
-        response.setOccupiedBeds(occupiedBeds != null ? occupiedBeds : 0);
-        response.setAvailableBeds(room.getTotalBeds() - (occupiedBeds != null ? occupiedBeds : 0));
+        response.setOccupiedBeds(occupiedBeds);
+        response.setAvailableBeds(room.getTotalBeds() - occupiedBeds);
         return response;
     }
 }

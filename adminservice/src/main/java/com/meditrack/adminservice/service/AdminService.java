@@ -3,9 +3,11 @@ package com.meditrack.adminservice.service;
 import com.meditrack.adminservice.dto.*;
 import com.meditrack.adminservice.entity.Hospital;
 import com.meditrack.adminservice.entity.Patient;
+import com.meditrack.adminservice.entity.Review;
 import com.meditrack.adminservice.entity.Room;
 import com.meditrack.adminservice.exception.*;
 import com.meditrack.adminservice.repository.HospitalRepository;
+import com.meditrack.adminservice.repository.ReviewRepository;
 import com.meditrack.adminservice.repository.RoomRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +41,7 @@ public class AdminService {
     private final RestTemplate restTemplate;
     private final HospitalRepository hospitalRepository;
     private final RoomRepository roomRepository;
+    private final ReviewRepository reviewRepository;
 
     // --- Helper Methods to Propagate Token ---
 
@@ -269,6 +272,29 @@ public class AdminService {
         }
     }
 
+    public List<ReviewResponse> getReviewsByHospital(Long hospitalId) {
+        try {
+            if (hospitalId == null) {
+                throw new ValidationException("Hospital ID cannot be null");
+            }
+
+            log.debug("Fetching reviews for hospital: {}", hospitalId);
+            if (!hospitalRepository.existsById(hospitalId)) {
+                throw new ResourceNotFoundException("Hospital", hospitalId);
+            }
+
+            List<Review> reviews = reviewRepository.findByHospitalIdOrderByCreatedAtDesc(hospitalId);
+            return reviews.stream()
+                    .map(ReviewResponse::fromEntity)
+                    .collect(Collectors.toList());
+        } catch (ResourceNotFoundException | ValidationException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            log.error("Error fetching reviews for hospital {}: {}", hospitalId, ex.getMessage(), ex);
+            throw new AdminServiceException("Failed to fetch reviews for hospital", ex);
+        }
+    }
+
     // --- Rooms (local JPA) ---
 
     @Transactional
@@ -304,7 +330,7 @@ public class AdminService {
             recalculateHospitalTotalBeds(hospital);
             
             log.info("Room created successfully with ID: {}", saved.getId());
-            return RoomResponse.fromEntity(saved, 0);
+            return RoomResponse.fromEntity(saved);
         } catch (ResourceNotFoundException | ValidationException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -317,7 +343,7 @@ public class AdminService {
         try {
             log.debug("Fetching all rooms");
             return roomRepository.findAll().stream()
-                    .map(room -> RoomResponse.fromEntity(room, 0))
+                    .map(RoomResponse::fromEntity)
                     .collect(Collectors.toList());
         } catch (Exception ex) {
             log.error("Error fetching all rooms: {}", ex.getMessage(), ex);
@@ -339,7 +365,7 @@ public class AdminService {
             
             List<Room> rooms = roomRepository.findByHospital_Id(hospitalId);
             return rooms.stream()
-                    .map(room -> RoomResponse.fromEntity(room, 0))
+                    .map(RoomResponse::fromEntity)
                     .collect(Collectors.toList());
         } catch (ResourceNotFoundException | ValidationException ex) {
             throw ex;
@@ -358,7 +384,7 @@ public class AdminService {
             log.debug("Fetching room with ID: {}", id);
             Room room = roomRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Room", id));
-            return RoomResponse.fromEntity(room, 0);
+            return RoomResponse.fromEntity(room);
         } catch (ResourceNotFoundException | ValidationException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -411,7 +437,7 @@ public class AdminService {
             }
 
             log.info("Room updated successfully with ID: {}", saved.getId());
-            return RoomResponse.fromEntity(saved, 0);
+            return RoomResponse.fromEntity(saved);
         } catch (ResourceNotFoundException | ValidationException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -607,4 +633,5 @@ public class AdminService {
             throw new AdminServiceException("Failed to delete receptionist", ex);
         }
     }
+
 }
