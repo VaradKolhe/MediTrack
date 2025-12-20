@@ -38,12 +38,15 @@ export const receptionistApi = {
     });
     return res?.data?.data;
   },
+
   async getAllPatients() {
     const res = await instance.get("/patients");
     return unwrap(res);
   },
+
   async getHospital()  {
     const res = await instance.get("/hospitals");
     return unwrap(res);
   }
+
 };

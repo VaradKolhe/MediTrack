@@ -76,89 +76,106 @@ export default function AdminDashboard() {
       activeKey={activeSection}
       onSelect={setActiveSection}
     >
-      <div className="bg-gradient-to-b from-white via-slate-50 to-white rounded-3xl border border-slate-200 shadow-[0_16px_40px_rgba(15,23,42,0.08)] p-6">
-        <div className="flex flex-wrap items-end justify-between gap-4 pb-4 border-b border-slate-200">
-          <div>
-            <p className="text-sm uppercase tracking-[0.25em] text-slate-500">
-              Admin dashboard
-            </p>
-            <h2 className="text-2xl font-bold text-slate-900">
-              {sections.find((s) => s.key === activeSection)?.label}
-            </h2>
-            <p className="text-slate-500 mt-1">
-              Manage network data with a unified, light, and responsive layout.
-            </p>
+      <div className="space-y-6">
+        {/* Header Section with Badge */}
+        <div className="mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-500/10 to-cyan-500/10 border border-teal-200 rounded-full mb-3">
+            <span className="text-xs font-bold text-teal-700 uppercase tracking-wider">
+              Admin Dashboard
+            </span>
           </div>
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">
+            {sections.find((s) => s.key === activeSection)?.label}
+          </h1>
+          <p className="text-slate-600 text-base">
+            Manage network data with a unified, light, and responsive layout.
+          </p>
+        </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 items-end sm:items-center">
-            {/* 3. New Button to Go to User Page */}
-            <button
-              onClick={handleGoToUserPage}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-full text-sm font-semibold hover:bg-slate-800 transition shadow-lg shadow-slate-200"
-            >
-              <Globe size={16} />
-              View Public Site
-              <ArrowRight size={14} className="opacity-70" />
-            </button>
+        {/* Action Bar with Tabs */}
+        <div className="flex flex-wrap items-center gap-3 pb-6 border-b border-slate-200">
+          {/* View Public Site Button */}
+          <button
+            onClick={handleGoToUserPage}
+            className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
+          >
+            <Globe size={16} />
+            View Public Site
+            <ArrowRight size={14} className="opacity-70" />
+          </button>
 
-            {/* Separator */}
-            <div className="hidden sm:block w-px h-8 bg-slate-200 mx-2"></div>
+          {/* Separator */}
+          <div className="hidden sm:block w-px h-8 bg-slate-300 mx-1"></div>
 
-            <div className="flex flex-wrap gap-2">
-              {sections.map((s) => {
-                const Icon = s.icon;
-                const active = s.key === activeSection;
-                return (
-                  <button
-                    key={s.key}
-                    onClick={() => setActiveSection(s.key)}
-                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold border transition ${
-                      active
-                        ? "bg-gradient-to-r from-sky-500/10 to-cyan-500/10 text-sky-700 border-sky-200 shadow-sm"
-                        : "bg-white text-slate-600 border-slate-200 hover:border-sky-100 hover:bg-slate-50"
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    {s.label}
-                  </button>
-                );
-              })}
-            </div>
+          {/* Section Tabs */}
+          <div className="flex flex-wrap gap-2">
+            {sections.map((s) => {
+              const Icon = s.icon;
+              const active = s.key === activeSection;
+              return (
+                <button
+                  key={s.key}
+                  onClick={() => setActiveSection(s.key)}
+                  className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold border-2 transition-all duration-300 ${
+                    active
+                      ? "bg-gradient-to-r from-teal-500 to-cyan-500 text-white border-transparent shadow-lg shadow-teal-500/25"
+                      : "bg-white text-slate-600 border-slate-200 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700"
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {s.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        <div className="pt-6">
+        {/* Content Area */}
+        <div>
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-24 text-slate-500 gap-4">
-              <Loader2 className="w-10 h-10 animate-spin text-sky-500" />
-              <p className="text-sm">Fetching the latest hospital data...</p>
+            <div className="flex flex-col items-center justify-center py-32 text-slate-500 gap-4">
+              <div className="relative">
+                <Loader2 className="w-12 h-12 animate-spin text-teal-500" />
+                <div className="absolute inset-0 w-12 h-12 rounded-full bg-teal-500/20 animate-ping"></div>
+              </div>
+              <p className="text-sm font-medium">
+                Fetching the latest hospital data...
+              </p>
             </div>
           ) : (
-            <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 sm:p-6">
-              <div className="sticky top-0 z-10 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 bg-white border-b border-slate-200 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-sky-500 to-cyan-500 flex items-center justify-center text-white shadow-md">
-                    <LayoutDashboard className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.25em] text-slate-500">
-                      Active view
-                    </p>
-                    <p className="font-semibold text-slate-900">
-                      {sections.find((s) => s.key === activeSection)?.label}
-                    </p>
-                  </div>
+            <div>
+              {/* Active View Badge */}
+              <div className="flex items-center gap-3 mb-6 bg-gradient-to-r from-teal-50 to-cyan-50 border border-teal-100 rounded-2xl p-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-teal-500/30">
+                  {(() => {
+                    const ActiveIcon = sections.find(
+                      (s) => s.key === activeSection
+                    )?.icon;
+                    return ActiveIcon ? (
+                      <ActiveIcon className="w-6 h-6" />
+                    ) : null;
+                  })()}
                 </div>
-              </div>
-              <div className="pt-4 space-y-4">
-                <div className="rounded-2xl bg-gradient-to-r from-slate-50 to-white border border-slate-200 p-4 shadow-inner">
-                  <p className="text-sm text-slate-600">
-                    Data-driven cards and tables support sticky headers and
-                    hover affordances for clarity on all views.
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-teal-600 font-bold">
+                    Active View
+                  </p>
+                  <p className="font-bold text-slate-900 text-lg">
+                    {sections.find((s) => s.key === activeSection)?.label}
                   </p>
                 </div>
-                {renderContent()}
               </div>
+
+              {/* Info Card */}
+              <div className="rounded-2xl bg-gradient-to-r from-slate-50 via-white to-slate-50 border border-slate-200 p-5 mb-6 shadow-sm">
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  💡 Data-driven cards and tables support sticky headers and
+                  hover affordances for clarity on all views.
+                </p>
+              </div>
+
+              {/* Render Content */}
+              {renderContent()}
             </div>
           )}
         </div>

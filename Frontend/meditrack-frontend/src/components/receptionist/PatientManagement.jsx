@@ -37,6 +37,8 @@ export default function PatientManagement() {
       setPatients(patientsData || []);
       setRooms(roomsData || []);
       setHospitalStats(hospitalData || null);
+      console.log(hospitalData);
+      
     } catch (error) {
       console.error("Error fetching management data:", error);
       toast.error("Failed to load dashboard data");

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -13,13 +13,72 @@ import {
   Clock,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useAuth } from "../hooks/useAuth";
 import RandomPulseLine from "../components/RandomPulseLine";
+
+// --- OPTIMIZED PARTICLES COMPONENT (Moved Outside) ---
+const FloatingParticles = React.memo(() => {
+  const particles = useMemo(() => {
+    return Array.from({ length: 40 }).map((_, i) => {
+      const left = Math.random() * 100;
+      // We don't need 'top' here because animation handles Y-axis,
+      // but we use negative delay to simulate random vertical positions.
+      const size = Math.random() < 0.3 ? 4 : 8;
+      const duration = 15 + Math.random() * 20; // Between 15s and 35s
+
+      // CRITICAL FIX: The delay must be a random value between 0 and the duration.
+      // Making it negative starts the animation "in the past", putting the
+      // particle in the middle of the screen immediately.
+      const delay = Math.random() * duration;
+
+      const opacity = 0.5 + Math.random() * 0.3;
+      const colors = ["bg-teal-300", "bg-blue-300", "bg-sky-300"];
+      const color = colors[i % 3];
+
+      return { left, size, duration, delay, opacity, color };
+    });
+  }, []);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden h-full w-full bg-slate-50/50">
+      <style>
+        {`
+          @keyframes floatUp {
+            0% { transform: translateY(110vh) scale(0.8); opacity: 0; }
+            10% { opacity: var(--target-opacity); }
+            90% { opacity: var(--target-opacity); }
+            100% { transform: translateY(-10vh) scale(1.1); opacity: 0; }
+          }
+        `}
+      </style>
+      {particles.map((p, i) => (
+        <div
+          key={`particle-${i}`}
+          className={`absolute rounded-full ${p.color} blur-[2px]`}
+          style={{
+            left: `${p.left}%`,
+            width: `${p.size}px`,
+            height: `${p.size}px`,
+            "--target-opacity": p.opacity,
+            // Optimized animation usage
+            animationName: "floatUp",
+            animationDuration: `${p.duration}s`,
+            animationTimingFunction: "linear",
+            animationIterationCount: "infinite",
+            // Negative delay makes it appear instantly at random height
+            animationDelay: `-${p.delay}s`,
+          }}
+        />
+      ))}
+    </div>
+  );
+});
 
 // Simple counter hook
 const useCounter = (end, duration) => {
-  const [count, setCount] = React.useState(0);
+  const [count, setCount] = useState(0);
 
-  React.useEffect(() => {
+  useEffect(() => {
     let startTime;
     let animationFrame;
 
@@ -139,71 +198,11 @@ const capabilityCards = [
 
 export default function OpeningPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const hospitalsCount = useCounter(120, 2000);
   const bedsCount = useCounter(18400, 2000);
   const regionsCount = useCounter(42, 2000);
-
-  const FloatingParticles = () => {
-    const particles = useMemo(() => {
-      return Array.from({ length: 50 }).map((_, i) => {
-        // Random positions
-        const left =
-          Math.abs((Math.sin(i * 12.9898 + 78.233) * 43758.5453) % 1) * 100;
-        const top =
-          Math.abs((Math.cos(i * 45.123 + 9.123) * 12345.6789) % 1) * 100;
-
-        const size = Math.abs((Math.cos(i) * 10) % 3) < 1 ? 4 : 6;
-
-        const duration = 25 + Math.abs(Math.sin(i * 3) * 20);
-        const delay = Math.abs(Math.cos(i * 5) * 20);
-
-        // FIX 2: Increased opacity slightly so you can actually see them for testing
-        // Was 0.05 + ..., changed to 0.2 base for visibility
-        const opacity = 0.2 + Math.abs(Math.sin(i * 10) * 0.3);
-
-        const colors = ["bg-teal-400", "bg-cyan-400", "bg-blue-400"];
-        const color = colors[i % 3];
-
-        return { left, top, size, duration, delay, opacity, color };
-      });
-    }, []);
-
-    return (
-      // FIX 3: Ensure parent has 'relative' and a defined height in your usage
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 h-full w-full">
-        <style>
-          {`
-          @keyframes gentleFall {
-            0% { transform: translateY(0px) translateX(0px); opacity: 0; }
-            20% { opacity: var(--target-opacity); }
-            50% { transform: translateY(10vh) translateX(10px); } 
-            80% { opacity: var(--target-opacity); }
-            100% { transform: translateY(20vh) translateX(-10px); opacity: 0; }
-          }
-        `}
-        </style>
-        {particles.map((p, i) => (
-          <div
-            key={`particle-${i}`}
-            className={`fixed rounded-full ${p.color} blur-[1px]`}
-            style={{
-              left: `${p.left}%`,
-              top: `${p.top}%`,
-              width: `${p.size}px`,
-              height: `${p.size}px`,
-              // Set initial opacity to 0 so it follows animation
-              opacity: 0,
-              // CSS Variables allow the keyframe to read the specific opacity for this particle
-              "--target-opacity": p.opacity,
-              animation: `gentleFall ${p.duration}s linear infinite`,
-              animationDelay: `-${p.delay}s`,
-            }}
-          />
-        ))}
-      </div>
-    );
-  };
 
   return (
     <main
@@ -346,16 +345,18 @@ export default function OpeningPage() {
                 </span>
               </motion.button>
 
-              <motion.button
-                type="button"
-                onClick={() => navigate("/login")}
-                aria-label="Sign in"
-                className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-4 text-base font-semibold text-slate-700 border-2 border-slate-200 hover:border-teal-300 hover:bg-teal-50 transition-all duration-50 shadow-md"
-                whileHover={{ scale: 1.05, y: -3 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                Sign in
-              </motion.button>
+              {!user && (
+                <motion.button
+                  type="button"
+                  onClick={() => navigate("/login")}
+                  aria-label="Sign in"
+                  className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-4 text-base font-semibold text-slate-700 border-2 border-slate-200 hover:border-teal-300 hover:bg-teal-50 transition-all duration-50 shadow-md"
+                  whileHover={{ scale: 1.05, y: -3 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Sign in
+                </motion.button>
+              )}
             </motion.div>
 
             {/* Trust badges */}
