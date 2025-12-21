@@ -25,6 +25,7 @@ export default function Header({ isTransparent = false }) {
 
   // Check if user is Admin and NOT on admin pages
   const isAdmin = user?.role === "ADMIN";
+  const isReceptionist = user?.role === "RECEPTIONIST";
   const isOnAdminPage = location.pathname.startsWith("/admin");
 
   const handleLogout = () => {
@@ -79,27 +80,52 @@ export default function Header({ isTransparent = false }) {
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between py-4">
           {/* LOGO */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 via-cyan-500 to-teal-600 flex items-center justify-center text-white shadow-lg shadow-teal-500/30 group-hover:scale-105 group-hover:shadow-xl group-hover:shadow-teal-500/40 transition-all duration-300 overflow-hidden">
-              <img
-                src="/icon.png"
-                alt="MediTrack Logo"
-                className="w-full h-full object-cover"
-              />
+          {isReceptionist ? (
+            // 1. Non-clickable View (Receptionist)
+            <div className="flex items-center gap-3 cursor-default select-none">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 via-cyan-500 to-teal-600 flex items-center justify-center text-white shadow-lg shadow-teal-500/30 overflow-hidden">
+                <img
+                  src="/icon.png"
+                  alt="MediTrack Logo"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-slate-900 font-bold text-xl leading-none tracking-tight">
+                  MediTrack
+                </span>
+                <span className="text-[10px] uppercase tracking-[0.25em] text-teal-600 font-bold mt-1">
+                  Real-Time Care
+                </span>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <span className="text-slate-900 font-bold text-xl leading-none tracking-tight">
-                MediTrack
-              </span>
-              <span className="text-[10px] uppercase tracking-[0.25em] text-teal-600 font-bold mt-1">
-                Real-Time Care
-              </span>
-            </div>
-          </Link>
+          ) : (
+            // 2. Clickable Link (Everyone Else)
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 via-cyan-500 to-teal-600 flex items-center justify-center text-white shadow-lg shadow-teal-500/30 group-hover:scale-105 group-hover:shadow-xl group-hover:shadow-teal-500/40 transition-all duration-300 overflow-hidden">
+                <img
+                  src="/icon.png"
+                  alt="MediTrack Logo"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-slate-900 font-bold text-xl leading-none tracking-tight">
+                  MediTrack
+                </span>
+                <span className="text-[10px] uppercase tracking-[0.25em] text-teal-600 font-bold mt-1">
+                  Real-Time Care
+                </span>
+              </div>
+            </Link>
+          )}
 
           {/* DESKTOP NAV */}
           <nav className="hidden md:flex items-center gap-2 bg-slate-50/80 backdrop-blur-sm p-2 rounded-2xl border border-slate-200/60 shadow-sm">
             {navLinks.map((l) => {
+              // Hide nav links for receptionist on Desktop too if desired
+              if (isReceptionist) return null;
+
               const isActive = location.pathname === l.to;
               return (
                 <Link
@@ -111,7 +137,8 @@ export default function Header({ isTransparent = false }) {
                       ? "bg-gradient-to-r from-teal-100 to-cyan-300 text-white shadow-lg shadow-teal-50"
                       : "text-slate-600 hover:bg-cyan-100/60 hover:text-teal-700"
                   }
-                  `}>
+                  `}
+                >
                   {l.label}
                 </Link>
               );
@@ -119,19 +146,24 @@ export default function Header({ isTransparent = false }) {
 
             {/* ADMIN DASHBOARD LINK (Desktop) */}
             {isAdmin && (
-              <Link
-                to="/admin"
-                className={`relative px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ease-out flex items-center justify-center gap-2
+              <>
+                {/* Separator */}
+                <div className="hidden sm:block w-px h-8 bg-slate-300 mx-1"></div>
+                
+                <Link
+                  to="/admin"
+                  className={`relative px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ease-out flex items-center justify-center gap-2
                 ${
                   isOnAdminPage
-                    ? "bg-gradient-to-r from-amber-50 to-orange-100 text-white shadow-lg shadow-amber-50"
+                    ? "bg-gradient-to-r from-amber-100 to-orange-100 text-white shadow-lg shadow-amber-50"
                     : "text-amber-600 hover:bg-amber-50/80 hover:text-amber-700"
                 }
                 `}
-              >
-                <LayoutDashboard size={16} />
-                Admin Panel
-              </Link>
+                >
+                  <LayoutDashboard size={16} />
+                  Admin Panel
+                </Link>
+              </>
             )}
           </nav>
 
@@ -226,6 +258,10 @@ export default function Header({ isTransparent = false }) {
             <nav className="flex flex-col p-4 gap-2">
               {navLinks.map((link) => {
                 const isActive = location.pathname === link.to;
+
+                // CORRECTED LOGIC: Check first, return null if true
+                if (isReceptionist) return null;
+
                 return (
                   <Link
                     key={link.to}

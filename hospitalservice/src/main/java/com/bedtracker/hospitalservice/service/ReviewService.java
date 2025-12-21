@@ -5,6 +5,7 @@ import com.bedtracker.hospitalservice.dto.ReviewResponse;
 import com.bedtracker.hospitalservice.dto.UserResponse;
 import com.bedtracker.hospitalservice.entity.Hospital;
 import com.bedtracker.hospitalservice.entity.Review;
+import com.bedtracker.hospitalservice.exception.BadRequestException;
 import com.bedtracker.hospitalservice.exception.ResourceAlreadyExistsException;
 import com.bedtracker.hospitalservice.exception.ResourceNotFoundException;
 import com.bedtracker.hospitalservice.repository.HospitalRepository;
@@ -129,7 +130,7 @@ public class ReviewService {
     }
 
     @Transactional
-    private void updateHospitalRating(Hospital hospital) {
+    void updateHospitalRating(Hospital hospital) {
         if (hospital == null || hospital.getId() == null) {
             log.warn("Attempted to update rating for null hospital");
             return;
@@ -153,6 +154,24 @@ public class ReviewService {
         hospitalRepository.save(hospital);
         log.debug("Updated hospital {} rating: {} ({} reviews)", 
                 hospital.getId(), hospital.getAverageRating(), hospital.getTotalReviews());
+    }
+
+    public void deleteReview(Long hospitalId, Long reviewId) {
+        // 1. Check if the hospital exists
+        Hospital hospital = hospitalRepository.findById(hospitalId)
+                .orElseThrow(() -> new ResourceNotFoundException("Hospital not found"));
+
+        // 2. Check if the review exists
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ResourceNotFoundException("Review not found"));
+
+        // 3. Validation: Ensure the review belongs to this specific hospital
+        if (!review.getHospital().getId().equals(hospital.getId())) {
+            throw new BadRequestException("Review does not belong to this hospital");
+        }
+
+        // 4. Delete the review
+        reviewRepository.delete(review);
     }
 }
 

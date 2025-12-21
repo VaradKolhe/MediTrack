@@ -116,7 +116,7 @@ export default function AdminDashboard() {
                 <button
                   key={s.key}
                   onClick={() => setActiveSection(s.key)}
-                  className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold border-2 transition-all duration-300 ${
+                  className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold border-2 transition-all duration-150 ease-in-out ${
                     active
                       ? "bg-gradient-to-r from-teal-500 to-cyan-500 text-white border-transparent shadow-lg shadow-teal-500/25"
                       : "bg-white text-slate-600 border-slate-200 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700"

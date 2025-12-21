@@ -4,7 +4,7 @@ import {
   Pencil,
   Trash2,
   Loader2,
-  ShieldCheck,
+  Plus,
   Search,
 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -227,84 +227,192 @@ export default function ReceptionistsManager({
         </div>
       </motion.div>
 
-      {/* Right Column: Form (Animated Entrance) */}
+      {/* ========== RECEPTIONIST FORM (Add/Edit) ========== */}
       <motion.div
-        className="bg-white border border-slate-100 rounded-3xl shadow-xl shadow-slate-100/50 p-6 h-fit sticky top-6"
+        className="bg-white border-2 border-indigo-200 rounded-2xl shadow-lg shadow-indigo-100/50 p-6 h-fit sticky top-6 relative overflow-hidden"
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="flex items-center justify-between mb-6 border-b pb-3 border-slate-100">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-slate-500">
-              {editingRec ? "Update" : "Add New"}
-            </p>
-            <h3 className="text-xl font-bold">
-              {editingRec ? "Edit Receptionist" : "New Receptionist"}
-            </h3>
+        {/* Decorative gradient */}
+        <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-indigo-200/40 to-purple-200/40 rounded-bl-full -mr-10 -mt-10" />
+
+        <div className="relative mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <span
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider ${
+                editingRec
+                  ? "bg-gradient-to-r from-orange-100 to-orange-200 text-orange-700 border border-orange-300"
+                  : "bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-700 border border-emerald-300"
+              }`}
+            >
+              <div
+                className={`w-1.5 h-1.5 rounded-full ${
+                  editingRec ? "bg-orange-500" : "bg-emerald-500"
+                } animate-pulse`}
+              />
+              {editingRec ? "Update Mode" : "Creation Mode"}
+            </span>
           </div>
-          <ShieldCheck className="w-6 h-6 text-indigo-400" />
+          <h3 className="text-2xl font-black text-slate-900 mb-1">
+            {editingRec ? "Edit Receptionist" : "New Receptionist"}
+          </h3>
+          <p className="text-xs text-slate-600">
+            Manage receptionist account and hospital assignment
+          </p>
         </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          {["username", "email", "firstName", "lastName", "phoneNumber"].map(
-            (key) => (
+        <div className="space-y-4 relative">
+          {/* Username */}
+          <div>
+            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+              Username
+            </label>
+            <input
+              type="text"
+              className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all text-slate-700 font-medium"
+              placeholder="Enter username"
+              value={form.username}
+              onChange={(e) => setForm({ ...form, username: e.target.value })}
+              required
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all text-slate-700 font-medium"
+              placeholder="Enter email address"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              required
+            />
+          </div>
+
+          {/* Name Fields */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                First Name
+              </label>
               <input
-                key={key}
-                type={key === "email" ? "email" : "text"}
-                className={`w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 ${primaryRing} transition`}
-                placeholder={
-                  key.charAt(0).toUpperCase() +
-                  key.slice(1).replace(/([A-Z])/g, " $1")
+                type="text"
+                className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all text-slate-700 font-medium"
+                placeholder="First name"
+                value={form.firstName}
+                onChange={(e) =>
+                  setForm({ ...form, firstName: e.target.value })
                 }
-                value={form[key]}
-                onChange={(e) => setForm({ ...form, [key]: e.target.value })}
                 required
               />
-            )
-          )}
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                Last Name
+              </label>
+              <input
+                type="text"
+                className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all text-slate-700 font-medium"
+                placeholder="Last name"
+                value={form.lastName}
+                onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                required
+              />
+            </div>
+          </div>
 
-          <input
-            type="password"
-            className={`w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 ${primaryRing} transition`}
-            placeholder={
-              editingRec ? "New Password (Leave blank to keep old)" : "Password"
-            }
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            required={!editingRec}
-          />
+          {/* Phone */}
+          <div>
+            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+              Phone Number
+            </label>
+            <input
+              type="text"
+              className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all text-slate-700 font-medium"
+              placeholder="Enter phone number"
+              value={form.phoneNumber}
+              onChange={(e) =>
+                setForm({ ...form, phoneNumber: e.target.value })
+              }
+              required
+            />
+          </div>
 
-          <select
-            className={`w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm appearance-none focus:outline-none focus:ring-2 ${primaryRing} transition`}
-            value={form.hospitalId}
-            onChange={(e) => setForm({ ...form, hospitalId: e.target.value })}
-            required
-          >
-            <option value="">-- Assign Hospital --</option>
-            {hospitals.map((h) => (
-              <option key={h.id} value={h.id}>
-                {h.name}
-              </option>
-            ))}
-          </select>
+          {/* Password */}
+          <div>
+            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+              Password
+            </label>
+            <input
+              type="password"
+              className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all text-slate-700 font-medium"
+              placeholder={
+                editingRec
+                  ? "New password (leave blank to keep old)"
+                  : "Enter password"
+              }
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              required={!editingRec}
+            />
+          </div>
 
-          <div className="flex items-center gap-3 pt-3">
+          {/* Hospital Assignment */}
+          <div>
+            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+              Assign Hospital
+            </label>
+            <select
+              className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm bg-slate-50 appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all text-slate-700 font-medium cursor-pointer"
+              value={form.hospitalId}
+              onChange={(e) => setForm({ ...form, hospitalId: e.target.value })}
+              required
+            >
+              <option value="">Select hospital...</option>
+              {hospitals.map((h) => (
+                <option key={h.id} value={h.id}>
+                  {h.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-3 pt-4">
             <motion.button
-              type="submit"
+              type="button"
+              onClick={handleSubmit}
               disabled={isSubmitting}
-              className={`flex-1 ${primaryColor} text-white py-3 rounded-xl text-sm font-semibold transition disabled:opacity-50 flex justify-center items-center gap-2 shadow-md hover:shadow-lg`}
+              className={`flex-1 ${
+                editingRec
+                  ? "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+                  : "bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
+              } text-white py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-70 flex justify-center items-center gap-2 shadow-lg`}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-              {editingRec ? "Update Staff" : "Add Staff"}
+              {isSubmitting ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : editingRec ? (
+                <>
+                  <Pencil className="w-4 h-4" />
+                  Update Staff
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4" />
+                  Add Staff
+                </>
+              )}
             </motion.button>
             {editingRec && (
               <motion.button
                 type="button"
                 onClick={resetForm}
-                className="px-4 py-3 border border-slate-200 rounded-xl text-sm font-medium hover:bg-slate-100 transition"
+                className="px-5 py-3.5 border-2 border-slate-200 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all text-slate-700"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -312,7 +420,7 @@ export default function ReceptionistsManager({
               </motion.button>
             )}
           </div>
-        </form>
+        </div>
       </motion.div>
     </div>
   );

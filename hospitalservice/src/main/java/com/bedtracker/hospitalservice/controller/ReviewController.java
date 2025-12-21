@@ -27,6 +27,7 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping("/reviews/{hospitalId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviews(
             @PathVariable Long hospitalId) {
         try {
@@ -79,5 +80,20 @@ public class ReviewController {
                     .body(ApiResponse.error("Failed to create review"));
         }
     }
+
+    @DeleteMapping("/{hospitalId}/reviews/{reviewId}")
+    @PreAuthorize("ADMIN")
+    public ResponseEntity<ApiResponse<?>> deleteReview(
+            @PathVariable Long hospitalId, @PathVariable Long reviewId
+    ) {
+        reviewService.deleteReview(hospitalId, reviewId);
+
+        // Return successful response
+        return ResponseEntity.ok(
+                new ApiResponse<>("Review deleted successfully", true, null)
+        );
+    }
+
+
 }
 

@@ -130,6 +130,7 @@ public class RoomService {
             // CASE A: Readmission (Discharged -> Admitted)
             // If they were discharged, we must increment hospital stats
             hospitalRepository.incrementOccupancy(hospitalId);
+            patient.setSymptoms(request.getSymptoms());
             patient.setStatus(Patient.PatientStatus.ADMITTED);
             patient.setExitDate(null);
         }
@@ -137,9 +138,7 @@ public class RoomService {
         // We do NOT increment hospital stats, as they are already counted.
 
         patient.setRoom(newRoom);
-        patient.setSymptoms(request.getSymptoms());
         patientRepository.save(patient);
-        hospitalRepository.incrementOccupancy(hospitalId);
         return RoomResponse.fromEntity(newRoom, currentOccupancy.intValue() + 1);
     }
 

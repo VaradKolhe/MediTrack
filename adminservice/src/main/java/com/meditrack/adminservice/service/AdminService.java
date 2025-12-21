@@ -163,6 +163,7 @@ public class AdminService {
                     .state(request.getState())
                     .latitude(request.getLatitude())
                     .longitude(request.getLongitude())
+                    .occupiedBeds(0)
                     .totalBeds(0)
                     .averageRating(0.0)
                     .totalReviews(0)

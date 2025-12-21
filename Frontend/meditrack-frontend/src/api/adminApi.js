@@ -49,4 +49,11 @@ export const adminApi = {
   async deleteReceptionist(id) {
     await instance.delete(`/admin/receptionists/${id}`);
   },
+  async getHospitalReviews(id) {
+    const res = await instance.get(`/admin/hospitals/${id}/reviews`);
+    return unwrap(res);
+  },
+  async deleteReview(hospitalId, reviewId) {
+    await instance.delete(`/admin/hospitals/${hospitalId}/reviews/${reviewId}`);
+  }
 };

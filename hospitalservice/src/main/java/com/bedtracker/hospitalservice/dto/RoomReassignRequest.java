@@ -2,6 +2,7 @@ package com.bedtracker.hospitalservice.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,6 @@ public class RoomReassignRequest {
     @NotNull(message = "New Room is required")
     private Long newRoomId;
 
-    @NotBlank(message = "Symptoms cannot be blank")
+    @Size(max = 1000, message = "Symptoms must not exceed 1000 characters")
     private String symptoms;
 }
-

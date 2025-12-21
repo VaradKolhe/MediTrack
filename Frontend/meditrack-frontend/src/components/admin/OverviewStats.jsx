@@ -135,22 +135,22 @@ export default function OverviewStats({ data, hospitalLookup }) {
               className={`absolute inset-0 opacity-40 pointer-events-none
     ${
       stat.label === "Hospitals"
-        ? "bg-gradient-to-br from-violet-50 to-transparent"
+        ? "bg-gradient-to-br from-violet-200 to-transparent"
         : ""
     }
     ${
       stat.label === "Total Beds"
-        ? "bg-gradient-to-br from-teal-50 to-transparent"
+        ? "bg-gradient-to-br from-teal-100 to-transparent"
         : ""
     }
     ${
       stat.label === "Occupied Beds"
-        ? "bg-gradient-to-br from-rose-50 to-transparent"
+        ? "bg-gradient-to-br from-rose-100 to-transparent"
         : ""
     }
     ${
       stat.label === "Receptionists"
-        ? "bg-gradient-to-br from-emerald-50 to-transparent"
+        ? "bg-gradient-to-br from-emerald-100 to-transparent"
         : ""
     }
   `}

@@ -4,7 +4,15 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RoomRequest {
 
     @NotNull(message = "Hospital ID is required")
@@ -18,37 +26,5 @@ public class RoomRequest {
     @Min(value = 1, message = "Total beds must be at least 1")
     private Integer totalBeds;
 
-    public RoomRequest() {
-    }
-
-    public RoomRequest(Long hospitalId, String roomNumber, Integer totalBeds) {
-        this.hospitalId = hospitalId;
-        this.roomNumber = roomNumber;
-        this.totalBeds = totalBeds;
-    }
-
-    public Long getHospitalId() {
-        return hospitalId;
-    }
-
-    public void setHospitalId(Long hospitalId) {
-        this.hospitalId = hospitalId;
-    }
-
-    public String getRoomNumber() {
-        return roomNumber;
-    }
-
-    public void setRoomNumber(String roomNumber) {
-        this.roomNumber = roomNumber;
-    }
-
-    public Integer getTotalBeds() {
-        return totalBeds;
-    }
-
-    public void setTotalBeds(Integer totalBeds) {
-        this.totalBeds = totalBeds;
-    }
 }
 
