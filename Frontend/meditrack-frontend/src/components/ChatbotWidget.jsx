@@ -71,7 +71,7 @@ export default function ChatbotWidget() {
       {!isOpen && (
         <button
           onClick={openChat}
-          className={`fixed bottom-8 right-8 bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-500 text-white rounded-full p-6 shadow-2xl 
+          className={`fixed bottom-15 left-8 bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-500 text-white rounded-full p-6 shadow-2xl 
                       hover:shadow-cyan-500/50 hover:scale-110 active:scale-95 transition-all duration-300 z-[1000] cursor-pointer
                       border-4 border-white/40 group
                       ${
@@ -100,8 +100,8 @@ export default function ChatbotWidget() {
 
       {/* Chat window */}
       <div
-        className={`fixed bottom-8 right-8 w-[420px] h-[650px] shadow-2xl rounded-3xl border-3 border-teal-200/60
-                    flex flex-col z-[1000] transform origin-bottom-right transition-all duration-300 bg-white/70 backdrop-blur-xl overflow-hidden
+        className={`fixed bottom-15 left-8 w-[420px] h-[650px] shadow-2xl rounded-3xl border-3 border-teal-200/60
+                    flex flex-col z-[1000] transform origin-bottom-left transition-all duration-300 bg-white/70 backdrop-blur-xl overflow-hidden
                     ${
                       isOpen
                         ? "scale-100 opacity-100"

@@ -157,21 +157,13 @@ export default function AdminDashboard() {
                   })()}
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-wider text-teal-600 font-bold">
+                  <p className="text-xs uppercase tracking-wider text-teal-600 font-boldF">
                     Active View
                   </p>
                   <p className="font-bold text-slate-900 text-lg">
                     {sections.find((s) => s.key === activeSection)?.label}
                   </p>
                 </div>
-              </div>
-
-              {/* Info Card */}
-              <div className="rounded-2xl bg-gradient-to-r from-slate-50 via-white to-slate-50 border border-slate-200 p-5 mb-6 shadow-sm">
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  💡 Data-driven cards and tables support sticky headers and
-                  hover affordances for clarity on all views.
-                </p>
               </div>
 
               {/* Render Content */}

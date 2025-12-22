@@ -18,7 +18,6 @@ const initialForm = {
   firstName: "",
   lastName: "",
   hospitalId: "",
-  phoneNumber: "",
 };
 
 const primaryColor = "bg-indigo-600 hover:bg-indigo-700";
@@ -57,7 +56,6 @@ export default function ReceptionistsManager({
       firstName: rec.firstName,
       lastName: rec.lastName,
       hospitalId: rec.hospitalId,
-      phoneNumber: rec.phoneNumber,
     });
   };
 
@@ -323,23 +321,6 @@ export default function ReceptionistsManager({
                 required
               />
             </div>
-          </div>
-
-          {/* Phone */}
-          <div>
-            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
-              Phone Number
-            </label>
-            <input
-              type="text"
-              className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all text-slate-700 font-medium"
-              placeholder="Enter phone number"
-              value={form.phoneNumber}
-              onChange={(e) =>
-                setForm({ ...form, phoneNumber: e.target.value })
-              }
-              required
-            />
           </div>
 
           {/* Password */}
