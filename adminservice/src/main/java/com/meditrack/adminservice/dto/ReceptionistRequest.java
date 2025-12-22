@@ -24,8 +24,6 @@ public class ReceptionistRequest {
     @Size(max = 120)
     private String email;
 
-    @NotBlank
-    @Size(min = 6, max = 120)
     private String password;
 
     @NotBlank

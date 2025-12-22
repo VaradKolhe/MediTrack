@@ -110,7 +110,7 @@ public class UserController {
 
     @PutMapping("/receptionists/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> updateReceptionist(@PathVariable Long id, @RequestBody ReceptionistUpdateRequest request) {
+    public ResponseEntity<?> updateReceptionist(@PathVariable Long id, @RequestBody ReceptionistRequest request) {
         try {
             return ResponseEntity.ok(userService.updateReceptionist(id, request));
         } catch (RuntimeException e) {

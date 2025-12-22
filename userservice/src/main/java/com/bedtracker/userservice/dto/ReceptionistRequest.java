@@ -9,5 +9,5 @@ public class ReceptionistRequest {
     private String username;
     private String email;
     private String password;
-    private Long hospitalId; // Added
+    private Long hospitalId;
 }

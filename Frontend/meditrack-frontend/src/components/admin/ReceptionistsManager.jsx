@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  Users2,
-  Pencil,
-  Trash2,
-  Loader2,
-  Plus,
-  Search,
-} from "lucide-react";
+import { Users2, Pencil, Trash2, Loader2, Plus, Search } from "lucide-react";
 import toast from "react-hot-toast";
 import { adminApi } from "../../api/adminApi";
 import { motion } from "framer-motion";
@@ -19,9 +12,6 @@ const initialForm = {
   lastName: "",
   hospitalId: "",
 };
-
-const primaryColor = "bg-indigo-600 hover:bg-indigo-700";
-const primaryRing = "focus:ring-indigo-300";
 
 const rowVariants = {
   hidden: { opacity: 0, y: 10 },
@@ -60,8 +50,9 @@ export default function ReceptionistsManager({
   };
 
   const handleDelete = async (rec) => {
-    if (!confirm(`Delete receptionist ${rec.firstName} ${rec.lastName}?`))
+    if (!confirm(`Delete receptionist ${rec.firstName} ${rec.lastName}?`)) {
       return;
+    }
     try {
       await adminApi.deleteReceptionist(rec.id);
       toast.success("Receptionist deleted");
@@ -75,22 +66,28 @@ export default function ReceptionistsManager({
     e.preventDefault();
     setIsSubmitting(true);
 
+    // 1. Create base payload
     const payload = {
       ...form,
       hospitalId: Number(form.hospitalId),
     };
+    // 2. If editing and password is empty, remove it from payload
+    if (editingRec && !payload.password) {
+      delete payload.password;
+    }
 
     try {
       if (editingRec) {
         await adminApi.updateReceptionist(editingRec.id, payload);
-        toast.success("Receptionist updated");
+        toast.success("Receptionist updated successfully");
       } else {
         await adminApi.createReceptionist(payload);
-        toast.success("Receptionist created");
+        toast.success("Receptionist account created");
       }
       resetForm();
       onRefresh();
     } catch (error) {
+      console.error(error);
       toast.error(error.response?.data?.message || "Unable to save.");
     } finally {
       setIsSubmitting(false);
