@@ -84,16 +84,13 @@ public class ReviewController {
     @DeleteMapping("/{hospitalId}/reviews/{reviewId}")
     @PreAuthorize("ADMIN")
     public ResponseEntity<ApiResponse<?>> deleteReview(
-            @PathVariable Long hospitalId, @PathVariable Long reviewId
+            @PathVariable Long hospitalId,
+            @PathVariable Long reviewId
     ) {
         reviewService.deleteReview(hospitalId, reviewId);
 
         // Return successful response
-        return ResponseEntity.ok(
-                new ApiResponse<>("Review deleted successfully", true, null)
-        );
+        return ResponseEntity.ok(ApiResponse.success("Review deleted successfully"));
     }
 
-
 }
-

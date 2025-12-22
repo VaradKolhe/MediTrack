@@ -18,7 +18,7 @@ public class RoomResponse {
     private Integer availableBeds; // Calculated field
     
     public static RoomResponse fromEntity(Room room) {
-        int occupiedBeds = room.getPatients().size();
+        int occupiedBeds = room.getPatients() == null ? 0 : room.getPatients().size();
         RoomResponse response = new RoomResponse();
         response.setRoomId(room.getId());
         response.setHospitalId(room.getHospital().getId());

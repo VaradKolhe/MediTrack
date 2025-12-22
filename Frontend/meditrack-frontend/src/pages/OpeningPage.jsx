@@ -534,6 +534,22 @@ export default function OpeningPage() {
             ))}
           </div>
 
+          <motion.div
+            className="text-center mt-20 mb-12 z-10 relative"
+            variants={cardItemVariants}
+          >
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+              Our{" "}
+              <span className="bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                Impact
+              </span>{" "}
+              at a Glance
+            </h2>
+            <p className="text-slate-600 max-w-xl mx-auto">
+              See how MediTrack is transforming healthcare operations and
+              patient care.
+            </p>
+          </motion.div>
           <div className="max-w-6xl mx-auto relative z-10">
             <motion.div
               className="bg-white/90 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-xl p-8 md:p-12"

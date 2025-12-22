@@ -11,7 +11,9 @@ import {
   MessageSquare,
   Send,
   User,
+  Lock, // Added Lock icon
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const HospitalModal = ({ hospital, onClose }) => {
   const [activeTab, setActiveTab] = useState("overview"); // 'overview' | 'reviews'
@@ -26,19 +28,22 @@ const HospitalModal = ({ hospital, onClose }) => {
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // --- 1. FETCH REVIEWS ON LOAD ---
+  // Auth State (Derived)
+  const isLoggedIn = !!localStorage.getItem("token");
+  const navigate = useNavigate();
+
+  // --- 1. FETCH REVIEWS (Restricted) ---
   useEffect(() => {
-    if (hospital?.id) {
+    // Only fetch if hospital exists AND user is logged in
+    if (hospital?.id && isLoggedIn) {
       fetchReviews();
     }
-  }, [hospital]);
+  }, [hospital, isLoggedIn]);
 
   const fetchReviews = async () => {
     setIsLoadingReviews(true);
     try {
-      const response = await axios.get(
-        `hospitals/reviews/${hospital.id}`
-      );
+      const response = await axios.get(`hospitals/reviews/${hospital.id}`);
       if (response.data && response.data.success) {
         setReviews(response.data.data);
       }
@@ -57,7 +62,7 @@ const HospitalModal = ({ hospital, onClose }) => {
     setIsSubmitting(true);
 
     try {
-      const token = localStorage.getItem("token"); // Assuming you store JWT here
+      const token = localStorage.getItem("token");
       if (!token) {
         alert("You must be logged in to post a review.");
         setIsSubmitting(false);
@@ -80,16 +85,18 @@ const HospitalModal = ({ hospital, onClose }) => {
       );
 
       if (response.data && response.data.success) {
-        // Add new review to top of list immediately
         setReviews([response.data.data, ...reviews]);
-
-        // Reset form
         setComment("");
         setRating(0);
       }
     } catch (error) {
-      console.error("Error posting review:", error);
-      alert(error.response?.data?.message || "Failed to post review");
+      // Handle the specific 409 Conflict we discussed earlier
+      if (error.response && error.response.status === 409) {
+        alert("You have already submitted a review for this hospital.");
+      } else {
+        console.error("Error posting review:", error);
+        alert(error.response?.data?.message || "Failed to post review");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -108,9 +115,6 @@ const HospitalModal = ({ hospital, onClose }) => {
     if (rate < 80) return "bg-yellow-500";
     return "bg-red-500";
   };
-
-  // Check if user is logged in for UI purposes
-  const isLoggedIn = !!localStorage.getItem("token");
 
   return (
     <div
@@ -162,13 +166,17 @@ const HospitalModal = ({ hospital, onClose }) => {
           </button>
           <button
             onClick={() => setActiveTab("reviews")}
-            className={`py-4 text-sm font-bold border-b-2 transition-colors ${
+            className={`py-4 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${
               activeTab === "reviews"
                 ? "border-blue-600 text-blue-600"
                 : "border-transparent text-slate-500 hover:text-slate-700"
             }`}
           >
-            Reviews ({reviews.length})
+            Reviews
+            {/* Show lock icon if not logged in */}
+            {!isLoggedIn && <Lock size={12} className="opacity-70" />}
+            {/* Show count if logged in */}
+            {isLoggedIn && <span>({reviews.length})</span>}
           </button>
         </div>
 
@@ -184,7 +192,6 @@ const HospitalModal = ({ hospital, onClose }) => {
                     <Star size={20} fill="currentColor" />
                   </div>
                   <p className="text-2xl font-bold text-slate-800">
-                    {/* Calculate dynamic average based on fetched reviews if needed, or use static */}
                     {hospital.averageRating?.toFixed(1) || "0.0"}
                   </p>
                   <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
@@ -287,139 +294,155 @@ const HospitalModal = ({ hospital, onClose }) => {
               </div>
             </div>
           ) : (
-            // --- REVIEWS TAB CONTENT ---
+            // --- REVIEWS TAB CONTENT (CONDITIONAL) ---
             <div className="space-y-8 animate-in slide-in-from-right-4 duration-300">
-              {/* WRITE REVIEW SECTION */}
-              {isLoggedIn ? (
-                <div className="bg-blue-50/50 rounded-2xl p-5 border border-blue-100">
-                  <h3 className="text-sm font-bold text-blue-800 uppercase tracking-wide mb-3 flex items-center gap-2">
-                    <MessageSquare size={16} /> Write a Review
+              {!isLoggedIn ? (
+                // --- LOCKED STATE FOR GUESTS ---
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="bg-slate-100 p-4 rounded-full mb-4">
+                    <Lock className="text-slate-400" size={32} />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-800 mb-2">
+                    Reviews are Protected
                   </h3>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-slate-600 mr-2">
-                        Your Rating:
-                      </span>
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          type="button"
-                          onClick={() => setRating(star)}
-                          onMouseEnter={() => setHoverRating(star)}
-                          onMouseLeave={() => setHoverRating(0)}
-                          className="focus:outline-none transition-transform hover:scale-110"
-                        >
-                          <Star
-                            size={24}
-                            className={
-                              star <= (hoverRating || rating)
-                                ? "text-amber-400 fill-amber-400"
-                                : "text-slate-300"
-                            }
-                          />
-                        </button>
-                      ))}
-                    </div>
+                  <p className="text-slate-500 max-w-sm mb-6">
+                    To maintain the quality and privacy of our patient feedback,
+                    you must be logged in to view or write reviews.
+                  </p>                
+                  <button
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-semibold transition shadow-lg shadow-blue-200"
+                    onClick={() => navigate("/login")}
+                  >
+                    Log In to Access
+                  </button>
 
-                    <textarea
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                      placeholder="Share your experience with this hospital..."
-                      className="w-full p-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-sm outline-none resize-none bg-white"
-                      rows={3}
-                      maxLength={2000}
-                      required
-                    />
-
-                    <div className="flex justify-end">
-                      <button
-                        type="submit"
-                        disabled={
-                          rating === 0 || !comment.trim() || isSubmitting
-                        }
-                        className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white px-5 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2"
-                      >
-                        <Send size={16} />
-                        {isSubmitting ? "Submitting..." : "Post Review"}
-                      </button>
-                    </div>
-                  </form>
                 </div>
               ) : (
-                <div className="bg-slate-50 p-4 rounded-xl text-center border border-slate-100">
-                  <p className="text-slate-500 text-sm">
-                    Please log in to write a review.
-                  </p>
-                </div>
-              )}
-
-              {/* REVIEW LIST */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-bold text-slate-800">
-                  Recent Reviews
-                </h3>
-
-                {isLoadingReviews ? (
-                  <p className="text-center text-slate-500 py-4">
-                    Loading reviews...
-                  </p>
-                ) : reviews.length > 0 ? (
-                  reviews.map((review) => (
-                    <div
-                      key={review.id}
-                      className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm"
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
-                            <User size={14} />
-                          </div>
-                          <div>
-                            {/* MATCHED TO RESPONSE DTO: fullname */}
-                            <p className="text-sm font-bold text-slate-800">
-                              {review.fullname || "Anonymous User"}
-                            </p>
-                            {/* MATCHED TO RESPONSE DTO: createdAt */}
-                            <p className="text-xs text-slate-400">
-                              {review.createdAt
-                                ? new Date(
-                                    review.createdAt
-                                  ).toLocaleDateString()
-                                : "Recently"}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex gap-0.5">
-                          {[...Array(5)].map((_, i) => (
+                // --- AUTHENTICATED CONTENT ---
+                <>
+                  {/* WRITE REVIEW SECTION */}
+                  <div className="bg-blue-50/50 rounded-2xl p-5 border border-blue-100">
+                    <h3 className="text-sm font-bold text-blue-800 uppercase tracking-wide mb-3 flex items-center gap-2">
+                      <MessageSquare size={16} /> Write a Review
+                    </h3>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-slate-600 mr-2">
+                          Your Rating:
+                        </span>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setRating(star)}
+                            onMouseEnter={() => setHoverRating(star)}
+                            onMouseLeave={() => setHoverRating(0)}
+                            className="focus:outline-none transition-transform hover:scale-110"
+                          >
                             <Star
-                              key={i}
-                              size={14}
+                              size={24}
                               className={
-                                i < review.rating
+                                star <= (hoverRating || rating)
                                   ? "text-amber-400 fill-amber-400"
-                                  : "text-slate-200"
+                                  : "text-slate-300"
                               }
                             />
-                          ))}
-                        </div>
+                          </button>
+                        ))}
                       </div>
-                      <p className="text-slate-600 text-sm leading-relaxed">
-                        {review.comment}
-                      </p>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-8 text-slate-400">
-                    <MessageSquare
-                      className="mx-auto mb-2 opacity-50"
-                      size={32}
-                    />
-                    <p>
-                      No reviews yet. Be the first to share your experience!
-                    </p>
+
+                      <textarea
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        placeholder="Share your experience with this hospital..."
+                        className="w-full p-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-sm outline-none resize-none bg-white"
+                        rows={3}
+                        maxLength={2000}
+                        required
+                      />
+
+                      <div className="flex justify-end">
+                        <button
+                          type="submit"
+                          disabled={
+                            rating === 0 || !comment.trim() || isSubmitting
+                          }
+                          className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white px-5 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2"
+                        >
+                          <Send size={16} />
+                          {isSubmitting ? "Submitting..." : "Post Review"}
+                        </button>
+                      </div>
+                    </form>
                   </div>
-                )}
-              </div>
+
+                  {/* REVIEW LIST */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-bold text-slate-800">
+                      Recent Reviews
+                    </h3>
+
+                    {isLoadingReviews ? (
+                      <p className="text-center text-slate-500 py-4">
+                        Loading reviews...
+                      </p>
+                    ) : reviews.length > 0 ? (
+                      reviews.map((review) => (
+                        <div
+                          key={review.id}
+                          className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm"
+                        >
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
+                                <User size={14} />
+                              </div>
+                              <div>
+                                <p className="text-sm font-bold text-slate-800">
+                                  {review.fullname || "Anonymous User"}
+                                </p>
+                                <p className="text-xs text-slate-400">
+                                  {review.createdAt
+                                    ? new Date(
+                                        review.createdAt
+                                      ).toLocaleDateString()
+                                    : "Recently"}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex gap-0.5">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  size={14}
+                                  className={
+                                    i < review.rating
+                                      ? "text-amber-400 fill-amber-400"
+                                      : "text-slate-200"
+                                  }
+                                />
+                              ))}
+                            </div>
+                          </div>
+                          <p className="text-slate-600 text-sm leading-relaxed">
+                            {review.comment}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-slate-400">
+                        <MessageSquare
+                          className="mx-auto mb-2 opacity-50"
+                          size={32}
+                        />
+                        <p>
+                          No reviews yet. Be the first to share your experience!
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>

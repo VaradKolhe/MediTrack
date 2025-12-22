@@ -69,7 +69,7 @@ const LoginPage = () => {
   const [form, setForm] = useState({
     username: "",
     password: "",
-    confirmPassword: "", // Added confirmPassword to state
+    confirmPassword: "",
     email: "",
     firstName: "",
     lastName: "",
@@ -105,12 +105,14 @@ const LoginPage = () => {
 
     const authPromise = (async () => {
       try {
+        // --- 1. LOGIN MODE ---
         if (mode === "login") {
           const res = await instance.post(`/api/auth/login`, {
             username: form.username,
             password: form.password,
           });
 
+          // Handle Receptionist Hospital Decoding
           let hospitalId = null;
           if (res.data.role === "RECEPTIONIST" && res.data.token) {
             try {
@@ -121,6 +123,7 @@ const LoginPage = () => {
             }
           }
 
+          // Normalize Role
           const role =
             typeof res.data.role === "string"
               ? res.data.role
@@ -137,11 +140,15 @@ const LoginPage = () => {
           };
 
           login(res.data.token, userData);
+
+          // SUCCESS: Now it is safe to clear password
+          setForm((prev) => ({ ...prev, password: "", confirmPassword: "" }));
           return role;
         }
 
+        // --- 2. REGISTER MODE ---
         if (mode === "register") {
-          // Send only the required fields to backend (exclude confirmPassword)
+          // Send required fields (password is kept in state for next step)
           await instance.post(`/api/auth/register`, {
             username: form.username,
             email: form.email,
@@ -151,20 +158,25 @@ const LoginPage = () => {
           });
 
           setMode("verify");
+          // NOTE: Do NOT clear password here. It is needed for auto-login in verify step.
           return "REGISTER_SUCCESS";
         }
 
+        // --- 3. VERIFY MODE ---
         if (mode === "verify") {
+          // Verify OTP
           await instance.post(`/api/auth/verify`, {
             email: form.email,
             verificationCode: form.otp,
           });
 
+          // Auto-Login using the password persisted in state
           const loginRes = await instance.post(`/api/auth/login`, {
             username: form.username,
-            password: form.password,
+            password: form.password, // This now has the value!
           });
 
+          // Handle Receptionist Hospital Decoding (Same logic as login)
           let hospitalId = null;
           if (loginRes.data.role === "RECEPTIONIST" && loginRes.data.token) {
             try {
@@ -191,18 +203,19 @@ const LoginPage = () => {
           };
 
           login(loginRes.data.token, userData);
+
+          // SUCCESS: Now it is safe to clear password
+          setForm((prev) => ({ ...prev, password: "", confirmPassword: "" }));
           return role;
         }
       } catch (err) {
+        // ERROR: Clear passwords to force re-entry if something failed
+        setForm((prev) => ({ ...prev, password: "", confirmPassword: "" }));
+
         const message =
           err.response?.data?.message ||
           "Something went wrong during the process.";
         throw new Error(message);
-      } finally {
-        // --- CLEAR PASSWORD FIELDS ---
-        // As requested: clear passwords to empty string, keep other fields
-        // This runs whether success or failure (though on success verify mode usually takes over)
-        setForm((prev) => ({ ...prev, password: "", confirmPassword: "" }));
       }
     })();
 
@@ -225,7 +238,7 @@ const LoginPage = () => {
         } else {
           navigate("/home");
         }
-        
+
         return "Login successful! Redirecting...";
       },
       error: (error) => error.message,

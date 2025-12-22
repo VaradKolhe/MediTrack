@@ -156,6 +156,7 @@ public class ReviewService {
                 hospital.getId(), hospital.getAverageRating(), hospital.getTotalReviews());
     }
 
+    @Transactional
     public void deleteReview(Long hospitalId, Long reviewId) {
         // 1. Check if the hospital exists
         Hospital hospital = hospitalRepository.findById(hospitalId)
@@ -166,12 +167,15 @@ public class ReviewService {
                 .orElseThrow(() -> new ResourceNotFoundException("Review not found"));
 
         // 3. Validation: Ensure the review belongs to this specific hospital
-        if (!review.getHospital().getId().equals(hospital.getId())) {
+        if (!review.getHospitalId().equals(hospitalId)) {
             throw new BadRequestException("Review does not belong to this hospital");
         }
 
         // 4. Delete the review
         reviewRepository.delete(review);
+
+        // 5. Recalculate hospital average rating and total reviews
+        updateHospitalRating(hospital);
     }
 }
 

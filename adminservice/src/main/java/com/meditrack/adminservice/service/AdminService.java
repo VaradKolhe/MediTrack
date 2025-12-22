@@ -5,20 +5,19 @@ import com.meditrack.adminservice.entity.Hospital;
 import com.meditrack.adminservice.entity.Patient;
 import com.meditrack.adminservice.entity.Review;
 import com.meditrack.adminservice.entity.Room;
-import com.meditrack.adminservice.exception.*;
+import com.meditrack.adminservice.exception.AdminServiceException;
+import com.meditrack.adminservice.exception.ExternalServiceException;
+import com.meditrack.adminservice.exception.ResourceNotFoundException;
+import com.meditrack.adminservice.exception.ValidationException;
 import com.meditrack.adminservice.repository.HospitalRepository;
 import com.meditrack.adminservice.repository.ReviewRepository;
 import com.meditrack.adminservice.repository.RoomRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
@@ -34,9 +33,10 @@ import java.util.stream.Collectors;
 public class AdminService {
 
     private static final Logger log = LoggerFactory.getLogger(AdminService.class);
-    
+
     // Using Service Discovery name
     private static final String USER_SERVICE_BASE_URL = "http://userservice";
+    private static final String HOSPITAL_SERVICE_BASE_URL = "http://hospitalservice";
 
     private final RestTemplate restTemplate;
     private final HospitalRepository hospitalRepository;
@@ -66,8 +66,6 @@ public class AdminService {
             HttpEntity<?> entity = body != null ? new HttpEntity<>(body, getHeaders()) : new HttpEntity<>(getHeaders());
             ResponseEntity<T> response = restTemplate.exchange(baseUrl + path, method, entity, responseType);
 
-            // FIX: Removed "&& response.getBody() != null"
-            // It is perfectly valid for a successful response (especially DELETE) to have a null body.
             if (response.getStatusCode().is2xxSuccessful()) {
                 return response.getBody();
             } else {
@@ -124,6 +122,14 @@ public class AdminService {
         return exchange(USER_SERVICE_BASE_URL, path, method, body, responseType, "user service");
     }
 
+    private <T> T callHospital(String path, HttpMethod method, Object body, Class<T> responseType) {
+        return exchange(HOSPITAL_SERVICE_BASE_URL, path, method, body, responseType, "hospital service");
+    }
+
+    private <T> T callHospital(String path, HttpMethod method, Object body, ParameterizedTypeReference<T> responseType) {
+        return exchange(HOSPITAL_SERVICE_BASE_URL, path, method, body, responseType, "hospital service");
+    }
+
     // --- Helper for Bed Calculation ---
     private void recalculateHospitalTotalBeds(Hospital hospital) {
         try {
@@ -134,8 +140,8 @@ public class AdminService {
             List<Room> rooms = roomRepository.findByHospital_Id(hospital.getId());
             // Sum all beds from rooms belonging to this hospital
             int totalBeds = rooms.stream()
-                .mapToInt(room -> room.getTotalBeds() != null ? room.getTotalBeds() : 0)
-                .sum();
+                    .mapToInt(room -> room.getTotalBeds() != null ? room.getTotalBeds() : 0)
+                    .sum();
             hospital.setTotalBeds(totalBeds);
             hospitalRepository.save(hospital);
             log.debug("Recalculated total beds for hospital {}: {}", hospital.getId(), totalBeds);
@@ -150,11 +156,11 @@ public class AdminService {
     public HospitalResponse createHospital(HospitalRequest request) {
         try {
             log.info("Creating hospital: {}", request.getName());
-            
+
             if (request == null) {
                 throw new ValidationException("Hospital request cannot be null");
             }
-            
+
             Hospital hospital = Hospital.builder()
                     .name(request.getName())
                     .contactNumber(request.getContactNumber())
@@ -168,7 +174,7 @@ public class AdminService {
                     .averageRating(0.0)
                     .totalReviews(0)
                     .build();
-            
+
             Hospital saved = hospitalRepository.save(hospital);
             log.info("Hospital created successfully with ID: {}", saved.getId());
             return HospitalResponse.fromEntity(saved);
@@ -210,69 +216,6 @@ public class AdminService {
         }
     }
 
-    @Transactional
-    public HospitalResponse updateHospital(Long id, HospitalRequest request) {
-        try {
-            if (id == null) {
-                throw new ValidationException("Hospital ID cannot be null");
-            }
-            if (request == null) {
-                throw new ValidationException("Hospital request cannot be null");
-            }
-            
-            log.info("Updating hospital with ID: {}", id);
-            Hospital hospital = hospitalRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Hospital", id));
-            
-            hospital.setName(request.getName());
-            hospital.setContactNumber(request.getContactNumber());
-            hospital.setAddress(request.getAddress());
-            hospital.setCity(request.getCity());
-            hospital.setState(request.getState());
-            hospital.setLatitude(request.getLatitude());
-            hospital.setLongitude(request.getLongitude());
-            // Keep existing totalBeds as it's calculated from rooms
-            // Keep existing averageRating and totalReviews as they're calculated from reviews
-            
-            Hospital saved = hospitalRepository.save(hospital);
-            log.info("Hospital updated successfully with ID: {}", saved.getId());
-            return HospitalResponse.fromEntity(saved);
-        } catch (ResourceNotFoundException | ValidationException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            log.error("Error updating hospital {}: {}", id, ex.getMessage(), ex);
-            throw new AdminServiceException("Failed to update hospital", ex);
-        }
-    }
-
-    @Transactional
-    public void deleteHospital(Long id) {
-        try {
-            if (id == null) {
-                throw new ValidationException("Hospital ID cannot be null");
-            }
-            
-            log.info("Deleting hospital with ID: {}", id);
-
-            Hospital hospital = hospitalRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Hospital", id));
-
-            // Check if hospital has rooms
-            List<Room> rooms = hospital.getRooms();
-            if (!rooms.isEmpty()) {
-                throw new ValidationException("Cannot delete hospital  " + hospital.getName() + " because it has " + rooms.size() + " room(s). Please delete rooms first.");
-            }
-            
-            hospitalRepository.deleteById(id);
-            log.info("Hospital deleted successfully with ID: {}", id);
-        } catch (ResourceNotFoundException | ValidationException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            log.error("Error deleting hospital {}: {}", id, ex.getMessage(), ex);
-            throw new AdminServiceException("Failed to delete hospital", ex);
-        }
-    }
-
     public List<ReviewResponse> getReviewsByHospital(Long hospitalId) {
         try {
             if (hospitalId == null) {
@@ -296,6 +239,88 @@ public class AdminService {
         }
     }
 
+    public void deleteReview(Long hospitalId, Long reviewId) {
+        try {
+            if (hospitalId == null) {
+                throw new ValidationException("Hospital ID cannot be null");
+            }
+            if (reviewId == null) {
+                throw new ValidationException("Review ID cannot be null");
+            }
+            log.info("Deleting review {} for hospital {}", reviewId, hospitalId);
+            // Call hospital service to delete review
+            callHospital("/hospitals/" + hospitalId + "/reviews/" + reviewId, HttpMethod.DELETE, null, Void.class);
+        } catch (ExternalServiceException | ValidationException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            log.error("Error deleting review {} for hospital {}: {}", reviewId, hospitalId, ex.getMessage(), ex);
+            throw new AdminServiceException("Failed to delete review", ex);
+        }
+    }
+
+    @Transactional
+    public HospitalResponse updateHospital(Long id, HospitalRequest request) {
+        try {
+            if (id == null) {
+                throw new ValidationException("Hospital ID cannot be null");
+            }
+            if (request == null) {
+                throw new ValidationException("Hospital request cannot be null");
+            }
+
+            log.info("Updating hospital with ID: {}", id);
+            Hospital hospital = hospitalRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Hospital", id));
+
+            hospital.setName(request.getName());
+            hospital.setContactNumber(request.getContactNumber());
+            hospital.setAddress(request.getAddress());
+            hospital.setCity(request.getCity());
+            hospital.setState(request.getState());
+            hospital.setLatitude(request.getLatitude());
+            hospital.setLongitude(request.getLongitude());
+            // Keep existing totalBeds as it's calculated from rooms
+            // Keep existing averageRating and totalReviews as they're calculated from reviews
+
+            Hospital saved = hospitalRepository.save(hospital);
+            log.info("Hospital updated successfully with ID: {}", saved.getId());
+            return HospitalResponse.fromEntity(saved);
+        } catch (ResourceNotFoundException | ValidationException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            log.error("Error updating hospital {}: {}", id, ex.getMessage(), ex);
+            throw new AdminServiceException("Failed to update hospital", ex);
+        }
+    }
+
+    @Transactional
+    public void deleteHospital(Long id) {
+        try {
+            if (id == null) {
+                throw new ValidationException("Hospital ID cannot be null");
+            }
+
+            log.info("Deleting hospital with ID: {}", id);
+
+            Hospital hospital = hospitalRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Hospital", id));
+
+            // Check if hospital has rooms
+            List<Room> rooms = hospital.getRooms();
+            if (!rooms.isEmpty()) {
+                throw new ValidationException("Cannot delete hospital  " + hospital.getName() + " because it has " + rooms.size() + " room(s). Please delete rooms first.");
+            }
+
+            hospitalRepository.deleteById(id);
+            log.info("Hospital deleted successfully with ID: {}", id);
+        } catch (ResourceNotFoundException | ValidationException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            log.error("Error deleting hospital {}: {}", id, ex.getMessage(), ex);
+            throw new AdminServiceException("Failed to delete hospital", ex);
+        }
+    }
+
     // --- Rooms (local JPA) ---
 
     @Transactional
@@ -313,9 +338,9 @@ public class AdminService {
             if (request.getTotalBeds() == null || request.getTotalBeds() <= 0) {
                 throw new ValidationException("Total beds must be greater than 0");
             }
-            
+
             log.info("Creating room: {} for hospital: {}", request.getRoomNumber(), request.getHospitalId());
-            
+
             Hospital hospital = hospitalRepository.findById(request.getHospitalId())
                     .orElseThrow(() -> new ResourceNotFoundException("Hospital", request.getHospitalId()));
 
@@ -326,10 +351,10 @@ public class AdminService {
                     .build();
 
             Room saved = roomRepository.save(room);
-            
+
             // Recalculate hospital beds in real-time
             recalculateHospitalTotalBeds(hospital);
-            
+
             log.info("Room created successfully with ID: {}", saved.getId());
             return RoomResponse.fromEntity(saved);
         } catch (ResourceNotFoundException | ValidationException ex) {
@@ -358,12 +383,12 @@ public class AdminService {
             if (hospitalId == null) {
                 throw new ValidationException("Hospital ID cannot be null");
             }
-            
+
             log.debug("Fetching rooms for hospital: {}", hospitalId);
             if (!hospitalRepository.existsById(hospitalId)) {
                 throw new ResourceNotFoundException("Hospital", hospitalId);
             }
-            
+
             List<Room> rooms = roomRepository.findByHospital_Id(hospitalId);
             return rooms.stream()
                     .map(RoomResponse::fromEntity)
@@ -381,7 +406,7 @@ public class AdminService {
             if (id == null) {
                 throw new ValidationException("Room ID cannot be null");
             }
-            
+
             log.debug("Fetching room with ID: {}", id);
             Room room = roomRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Room", id));
@@ -409,7 +434,7 @@ public class AdminService {
             if (request.getTotalBeds() == null || request.getTotalBeds() <= 0) {
                 throw new ValidationException("Total beds must be greater than 0");
             }
-            
+
             log.info("Updating room with ID: {}", id);
             Room room = roomRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Room", id));
@@ -453,13 +478,13 @@ public class AdminService {
             if (id == null) {
                 throw new ValidationException("Room ID cannot be null");
             }
-            
+
             log.info("Deleting room with ID: {}", id);
             Room room = roomRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Room", id));
 
             List<Patient> patients = room.getPatients();
-            if(!patients.isEmpty()) {
+            if (!patients.isEmpty()) {
                 throw new ValidationException("Cannot delete Room  " + room.getRoomNumber() + " because it has " + patients.size() + " patient(s).");
             }
 
@@ -469,7 +494,7 @@ public class AdminService {
 
             // Update hospital count after deletion
             recalculateHospitalTotalBeds(hospital);
-            
+
             log.info("Room deleted successfully with ID: {}", id);
         } catch (ResourceNotFoundException | ValidationException ex) {
             throw ex;
@@ -498,8 +523,9 @@ public class AdminService {
     public List<UserResponse> getAllUsers() {
         try {
             log.debug("Fetching all users");
-            List<UserResponse> users = callUser("/api/users", HttpMethod.GET, null, 
-                new ParameterizedTypeReference<List<UserResponse>>() {});
+            List<UserResponse> users = callUser("/api/users", HttpMethod.GET, null,
+                    new ParameterizedTypeReference<List<UserResponse>>() {
+                    });
             return users != null ? users : List.of();
         } catch (ExternalServiceException ex) {
             throw ex;
@@ -576,8 +602,9 @@ public class AdminService {
     public List<ReceptionistResponse> getAllReceptionists() {
         try {
             log.debug("Fetching all receptionists");
-            List<ReceptionistResponse> receptionists = callUser("/api/users/receptionists", HttpMethod.GET, null, 
-                new ParameterizedTypeReference<List<ReceptionistResponse>>() {});
+            List<ReceptionistResponse> receptionists = callUser("/api/users/receptionists", HttpMethod.GET, null,
+                    new ParameterizedTypeReference<List<ReceptionistResponse>>() {
+                    });
             return receptionists != null ? receptionists : List.of();
         } catch (ExternalServiceException ex) {
             throw ex;

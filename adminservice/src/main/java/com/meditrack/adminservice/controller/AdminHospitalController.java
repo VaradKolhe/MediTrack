@@ -3,6 +3,7 @@ package com.meditrack.adminservice.controller;
 import com.meditrack.adminservice.dto.ApiResponse;
 import com.meditrack.adminservice.dto.HospitalRequest;
 import com.meditrack.adminservice.dto.HospitalResponse;
+import com.meditrack.adminservice.dto.ReviewResponse;
 import com.meditrack.adminservice.service.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/admin/hospitals")
@@ -85,6 +88,34 @@ public class AdminHospitalController {
             throw ex;
         }
     }
+
+    @GetMapping("/{id}/reviews")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getReviews(@PathVariable Long id) {
+        try {
+            log.debug("Admin fetching reviews for hospital with ID: {}", id);
+            List<ReviewResponse> response = adminService.getReviewsByHospital(id);
+            return ResponseEntity.ok(ApiResponse.success("Reviews fetched successfully", response));
+        } catch (Exception ex) {
+            log.error("Error in get reviews endpoint for hospital ID {}: {}", id, ex.getMessage(), ex);
+            throw ex;
+        }
+    }
+
+    @DeleteMapping("/{hospitalId}/reviews/{reviewId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deleteReview(@PathVariable Long hospitalId, @PathVariable Long reviewId) {
+        try {
+            log.info("Admin deleting review {} for hospital {}", reviewId, hospitalId);
+            adminService.deleteReview(hospitalId, reviewId);
+            log.info("Review {} for hospital {} deleted successfully", reviewId, hospitalId);
+            return ResponseEntity.ok(ApiResponse.success("Review deleted successfully", null));
+        } catch (Exception ex) {
+            log.error("Error in delete review endpoint for review {} and hospital {}: {}", reviewId, hospitalId, ex.getMessage(), ex);
+            throw ex;
+        }
+    }
+
 }
 
 

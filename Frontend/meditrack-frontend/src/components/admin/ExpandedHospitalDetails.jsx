@@ -1,17 +1,14 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
-  Pencil,
   Trash2,
   Loader2,
-  Building2,
-  MapPin,
-  Phone,
   BedDouble,
   Users,
   Star,
   MessageSquare,
-  User,
   Activity,
+  MapPin, // Imported MapPin for the button
+  ExternalLink, // Imported for the map link icon
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { adminApi } from "../../api/adminApi";
@@ -22,7 +19,11 @@ export const ExpandedHospitalDetails = ({ hospital }) => {
   const [reviews, setReviews] = useState([]);
   const [loadingReviews, setLoadingReviews] = useState(false);
 
-  // Fetch reviews when tab changes to 'reviews'
+  // --- 1. NEW: Calculate dynamic rating (or use hospital.rating if available) ---
+  // If your backend provides averageRating, use hospital.averageRating
+  const averageRating = hospital.averageRating || 0;
+  const totalReviews = hospital.totalReviews || 0;
+
   useEffect(() => {
     if (activeTab === "reviews") {
       fetchReviews();
@@ -32,12 +33,11 @@ export const ExpandedHospitalDetails = ({ hospital }) => {
   const fetchReviews = async () => {
     setLoadingReviews(true);
     try {
-      // Calling future endpoint inside adminApi
       const response = await adminApi.getHospitalReviews(hospital.id);
-      setReviews(response.data || []);
+      setReviews(response || []);
     } catch (error) {
       console.error("Failed to load reviews", error);
-      setReviews([]); // Fail gracefully
+      setReviews([]);
     } finally {
       setLoadingReviews(false);
     }
@@ -45,7 +45,9 @@ export const ExpandedHospitalDetails = ({ hospital }) => {
 
   const handleDeleteReview = async (reviewId) => {
     if (
-      !confirm("Are you sure you want to remove this review? This cannot be undone.")
+      !confirm(
+        "Are you sure you want to remove this review? This cannot be undone."
+      )
     )
       return;
     try {
@@ -62,12 +64,24 @@ export const ExpandedHospitalDetails = ({ hospital }) => {
       ? Math.round((hospital.occupiedBeds / hospital.totalBeds) * 100)
       : 0;
 
+  // --- 2. NEW: Map Redirect Function ---
+  const handleLocateOnMap = () => {
+    if (hospital.latitude && hospital.longitude) {
+      window.open(
+        `https://www.google.com/maps?q=${hospital.latitude},${hospital.longitude}`,
+        "_blank"
+      );
+    } else {
+      toast.error("Location coordinates not available");
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="border-t border-slate-100 mt-4 pt-2"
+      className="border-t border-slate-100" // Increased top padding slightly
     >
       {/* Internal Tabs */}
       <div className="flex gap-6 border-b border-slate-100 mb-4">
@@ -97,6 +111,27 @@ export const ExpandedHospitalDetails = ({ hospital }) => {
         >
           Reviews
         </button>
+      </div>
+
+      <div className="flex items-center gap-2 mb-4 px-1">
+        <div className="flex text-amber-400">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <Star
+              key={star}
+              size={16}
+              fill={star <= Math.round(averageRating) ? "currentColor" : "none"}
+              className={
+                star <= Math.round(averageRating) ? "" : "text-slate-200"
+              }
+            />
+          ))}
+        </div>
+        <span className="text-sm font-bold text-slate-700">
+          {averageRating.toFixed(1)}
+        </span>
+        <span className="text-xs text-slate-400 font-medium">
+          ({totalReviews} reviews)
+        </span>
       </div>
 
       <div className="min-h-[200px]">
@@ -154,29 +189,37 @@ export const ExpandedHospitalDetails = ({ hospital }) => {
               </div>
             </div>
 
-            {/* Coordinates */}
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center gap-3 text-xs text-slate-500">
-              <Activity size={14} className="text-slate-400" />
-              <span className="font-mono">
-                Lat: {hospital.latitude?.toFixed(4)}
-              </span>
-              <span className="w-px h-3 bg-slate-300"></span>
-              <span className="font-mono">
-                Lng: {hospital.longitude?.toFixed(4)}
-              </span>
-            </div>
+            {/* Locate on Map Button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLocateOnMap();
+              }}
+              className="w-full group bg-slate-50 hover:bg-teal-50 p-3 rounded-xl border border-slate-200 hover:border-teal-200 flex items-center justify-between transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white rounded-lg shadow-sm group-hover:text-teal-600 text-slate-400 transition-colors">
+                  <MapPin size={18} />
+                </div>
+                <div className="text-left">
+                  <p className="text-xs font-bold text-slate-700 group-hover:text-teal-700">
+                    Locate on Map
+                  </p>
+                  <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                    {hospital.latitude?.toFixed(4)},{" "}
+                    {hospital.longitude?.toFixed(4)}
+                  </p>
+                </div>
+              </div>
+              <ExternalLink
+                size={14}
+                className="text-slate-300 group-hover:text-teal-500"
+              />
+            </button>
           </div>
         ) : (
+          // ... (Reviews Tab Content remains unchanged)
           <div className="animate-in fade-in slide-in-from-top-1 duration-200">
-            <div className="flex justify-between items-center mb-3">
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                User Feedback
-              </h4>
-              <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded border border-slate-200">
-                Admin View
-              </span>
-            </div>
-
             {loadingReviews ? (
               <div className="py-8 text-center text-slate-400 flex flex-col items-center">
                 <Loader2 className="w-5 h-5 animate-spin mb-2" />
