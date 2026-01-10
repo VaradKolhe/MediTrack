@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="324c7950-3293-46c2-8c6b-8f7fc8936f47" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.dockerignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DOCKER-README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DOCKER-SUMMARY.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/EurekaServer/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/EurekaServer/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/EurekaServer/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/EurekaServer/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/EurekaServer/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/EurekaServer/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/EurekaServer/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/EurekaServer/src/main/java/com/bedtracker/EurekaServer/EurekaServerApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/EurekaServer/src/main/resources/application-docker.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/EurekaServer/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/EurekaServer/src/test/java/com/bedtracker/EurekaServer/EurekaServerApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/components/RandomPulseLine.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/components/RandomPulseLine.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/pages/OpeningPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/meditrack-frontend/src/pages/OpeningPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/AdminServiceApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/aop/LoggingAspect.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/config/AppConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/controller/AdminHospitalController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/controller/AdminReceptionistController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/controller/AdminRoomController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/controller/AdminUserController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/dto/ApiResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/dto/HospitalRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/dto/HospitalResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/dto/ReceptionistRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/dto/ReceptionistResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/dto/ReviewRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/dto/ReviewResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/dto/RoomRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/dto/RoomResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/dto/UserRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/dto/UserResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/entity/Hospital.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/entity/Patient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/entity/Review.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/entity/Room.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/exception/AdminServiceException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/exception/ExternalServiceException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/exception/GlobalExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/exception/ResourceNotFoundException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/exception/ValidationException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/filter/JwtAuthenticationFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/repository/HospitalRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/repository/ReviewRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/repository/RoomRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/security/JwtAuthenticationToken.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/service/AdminService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/java/com/meditrack/adminservice/util/JwtUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/resources/application-docker.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/adminservice/src/test/java/com/bedtracer/adminservice/AdminserviceApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build-docker.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.prod.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-manage.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker/mysql/init/01-init-databases.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker/nginx/nginx.conf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/env.example" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/HospitalserviceApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/controller/HospitalController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/controller/PatientController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/controller/PublicHospitalController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/controller/ReviewController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/controller/RoomController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/dto/ApiResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/dto/HospitalRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/dto/HospitalResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/dto/OccupancyResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/dto/PatientRegisterRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/dto/PatientResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/dto/PatientUpdateRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/dto/ReviewRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/dto/ReviewResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/dto/RoomAssignRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/dto/RoomReassignRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/dto/RoomResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/dto/UserResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/entity/Hospital.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/entity/Patient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/entity/Review.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/entity/Room.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/exception/BadRequestException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/exception/ForbiddenException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/exception/GlobalExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/exception/ResourceAlreadyExistsException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/exception/ResourceNotFoundException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/exception/UnauthorizedException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/filter/JwtAuthenticationFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/repository/HospitalRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/repository/PatientRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/repository/ReviewRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/repository/RoomRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/security/JwtAuthenticationToken.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/service/HospitalService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/service/PatientService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/service/ReviewService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/service/RoomService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/util/JwtUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/java/com/bedtracker/hospitalservice/util/SecurityUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/resources/application-docker.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospitalservice/src/test/java/com/bedtracker/hospitalservice/HospitalserviceApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/ARCHITECTURE.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/UserserviceApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/config/AppConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/config/AsyncConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/controller/AuthController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/controller/UserController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/dto/AuthRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/dto/AuthResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/dto/LoginRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/dto/ReceptionistRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/dto/ReceptionistResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/dto/TokenValidationResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/dto/UserRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/dto/UserResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/dto/VerifyRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/entity/Role.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/entity/User.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/exception/GlobalExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/filter/JwtAuthenticationFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/repository/UserRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/security/CustomUserDetails.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/service/AuthService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/service/EmailService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/service/UserService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/java/com/bedtracker/userservice/util/JwtUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/resources/application-docker.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userservice/src/test/java/com/bedtracker/userservice/UserserviceApplicationTests.java" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;VaradKolhe&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/VaradKolhe/MediTrack&quot;,
+    &quot;accountId&quot;: &quot;cc9a2b81-37ef-4d5a-8fb3-ed7d209e5686&quot;
+  }
+}</component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="36NozHjx534FGUyZnogQLBALAsi" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;Spring Boot.AdminServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.ChatbotServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.EurekaServer.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.EurekaServerApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.HospitalserviceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.UserserviceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.user.executor&quot;: &quot;Run&quot;,
+    &quot;deletionFromPopupRequiresConfirmation&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Varad&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;run.configurations.included.in.services&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="com.bedtracker.hospitalservice.filter.util" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\lenovo\OneDrive\Desktop\Projects\MediTrack\Backend" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="configurationTypes">
+      <set>
+        <option value="KtorApplicationConfigurationType" />
+        <option value="MicronautRunConfigurationType" />
+        <option value="QuarkusRunConfigurationType" />
+        <option value="SpringBootApplicationConfigurationType" />
+      </set>
+    </option>
+    <option name="configurationStatuses">
+      <map>
+        <entry key="SpringBootApplicationConfigurationType">
+          <value>
+            <map>
+              <entry key="AdminServiceApplication" value="STOPPED" />
+              <entry key="EurekaServer" value="STOPPED" />
+              <entry key="HospitalserviceApplication" value="STOPPED" />
+              <entry key="UserserviceApplication" value="STOPPED" />
+            </map>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="RunManager" selected="Spring Boot.UserserviceApplication">
+    <configuration name="AdminServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../../../../../Program Files/Java/jdk-24" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <module name="adminservice" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.meditrack.adminservice.AdminServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="EurekaServer" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../../../../../Program Files/Java/jdk-24" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <module name="EurekaServer" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.bedtracker.EurekaServer.EurekaServerApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="HospitalserviceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="hospitalservice" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.bedtracker.hospitalservice.HospitalserviceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserserviceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="userservice" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.bedtracker.userservice.UserserviceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Spring Boot.EurekaServer" />
+      <item itemvalue="Spring Boot.AdminServiceApplication" />
+      <item itemvalue="Spring Boot.HospitalserviceApplication" />
+      <item itemvalue="Spring Boot.UserserviceApplication" />
+    </list>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.26199.169" />
+        <option value="bundled-js-predefined-d6986cc7102b-9c94529fcfe0-JavaScript-IU-252.26199.169" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="324c7950-3293-46c2-8c6b-8f7fc8936f47" name="Changes" comment="" />
+      <created>1764856652017</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1764856652017</updated>
+      <workItem from="1764856653666" duration="12849000" />
+      <workItem from="1764887392266" duration="6480000" />
+      <workItem from="1764918991241" duration="277000" />
+      <workItem from="1764919282638" duration="8195000" />
+      <workItem from="1764929900022" duration="7428000" />
+      <workItem from="1765819887436" duration="4326000" />
+      <workItem from="1765868377441" duration="20535000" />
+      <workItem from="1765940822187" duration="15464000" />
+      <workItem from="1766035229544" duration="20000" />
+      <workItem from="1766134442118" duration="45525000" />
+      <workItem from="1766353881326" duration="9573000" />
+      <workItem from="1766387705713" duration="1320000" />
+      <workItem from="1768018395940" duration="719000" />
+      <workItem from="1768038365973" duration="96000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

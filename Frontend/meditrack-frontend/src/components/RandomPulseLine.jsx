@@ -8,7 +8,7 @@ const RandomPulseLine = ({
 }) => {
   // --- CONFIGURATION ---
   const viewBoxWidth = 1200;
-  const lineLength = 300; 
+  const lineLength = 350; 
   const minGap = 250;
   const unitWidth = 30;
 
