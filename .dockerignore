@@ -1,0 +1,22 @@
+# --- System & IDE Files ---
+.git
+.gitignore
+.idea
+.vscode
+.DS_Store
+
+# --- Frontend Junk ---
+# IMPORTANT: Never copy local node_modules to Docker
+**/node_modules
+**/npm-debug.log
+**/dist
+**/build
+
+# --- Backend Junk ---
+# IMPORTANT: We want to build fresh JARs, not copy old local ones
+**/target
+**/*.jar
+**/mvnw
+**/mvnw.cmd
+**/.mvn
+**/HELP.md
