@@ -1,31 +1,55 @@
 # ==========================================
 # 1. OS & Dependencies Layer
 # ==========================================
+FROM ubuntu:24.04
 
-# Start with a clean Ubuntu System
-FROM ubuntu:22.04
-
-# Prevent "What is your Timezone?" prompts during installation
+# Prevent interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 1. Update Ubuntu and install 'curl' (needed to download Node)
-RUN apt-get update && apt-get install -y curl gnupg
+# Step 1: Fix Network Mirrors & Update
+# We swap to the US mirror to prevent "403 Forbidden" errors
+RUN apt-get update
 
-# 2. Install Java 21, Maven, and MySQL Server
-RUN apt-get install -y \
-    openjdk-21-jdk \
-    maven \
-    mysql-server \
-    supervisor
+# Step 2: Install Basic Tools (Curl, GPG)
+RUN apt-get install -y  curl gnupg
 
-# 3. Install Node.js 20
-# (We add the NodeSource repository first because Ubuntu's default Node is very old)
+# Step 3: Install Java 21 (The heavy download)
+RUN apt-get install -y  openjdk-21-jdk
+
+# Step 4: Install Maven
+RUN apt-get install -y  maven
+
+# Step 5: Install MySQL Server
+RUN apt-get install -y  mysql-server
+
+# Step 6: Install Supervisor
+RUN apt-get install -y  supervisor
+
+# Step 7: Clean up (Optional, but good practice)
+RUN rm -rf /var/lib/apt/lists/*
+
+# Step 8: Install Node.js 20
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
-# 4. Clean up unnecessary download files to keep the image smaller
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# Step 9: Create Supervisor log directory
+RUN mkdir -p /var/log/supervisor
 
+# ==========================================
+# --- Configure MySQL User ---
+# ==========================================
+
+# 1. Fix permissions so MySQL can write to its folders
+RUN usermod -d /var/lib/mysql/ mysql
+
+# 2. The "Safe Mode" Fix
+# We start MySQL with '--skip-grant-tables' so it asks for NO password.
+# Then we FLUSH privileges (to load the user table), change the password, and create the DB.
+# Finally, we shut it down cleanly with the new password.
+RUN mysqld_safe --skip-grant-tables & \
+    sleep 10 && \
+    mysql -u root -e "FLUSH PRIVILEGES; ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root'; CREATE DATABASE IF NOT EXISTS MediTrackDB;" && \
+    mysqladmin -u root -proot shutdown
 
 # ==========================================
 # 2. Build Phase - Backend
