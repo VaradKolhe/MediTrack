@@ -33,6 +33,20 @@ export default function ReceptionistDashboard() {
   const [patientsLoading, setPatientsLoading] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState(null);
   const [actionLoading, setActionLoading] = useState({});
+  const [hospital, setHospital] = useState(null);
+
+  // ... inside loadRooms or a new useEffect
+  useEffect(() => {
+    const fetchHospital = async () => {
+      try {
+        const data = await receptionistApi.getHospital();
+        setHospital(data);
+      } catch (e) {
+        console.error("Could not fetch hospital details");
+      }
+    };
+    fetchHospital();
+  }, []);
 
   // Auth Check
   useEffect(() => {
@@ -164,26 +178,19 @@ export default function ReceptionistDashboard() {
 
   return (
     <DashboardLayout
-      title="Reception Portal"
-      subtitle={
-        activeView === "overview"
-          ? "Fast-track admission Overview"
-          : "Manage All Patients"
-      }
       sidebarItems={sections}
       // 5. Connect Layout props to our activeView state
       activeKey={activeView}
       onSelect={setActiveView}
-      user={user}
-      onLogout={() => {
-        logout();
-        navigate("/login", { replace: true });
-      }}
     >
       {/* 6. Conditional Rendering based on activeView */}
       {activeView === "overview" ? (
         <div className="space-y-6">
-          <ReceptionistStats user={user} summary={summary} />
+          <ReceptionistStats
+            user={user}
+            summary={summary}
+            hospital={hospital}
+          />
 
           <AdmissionForm
             availableRooms={availableRooms}

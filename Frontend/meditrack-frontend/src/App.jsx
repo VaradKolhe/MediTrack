@@ -9,7 +9,6 @@ import ReceptionistDashboard from "./pages/receptionist/ReceptionistDashboard";
 import PublicLayout from "./layouts/PublicLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MapPage from "./components/map/MapPage";
-import FloatingAdminButton from "./components/FloatingAdminButton";
 import { Toaster } from "react-hot-toast";
 
 export default function App() {
@@ -19,7 +18,6 @@ export default function App() {
       <ChatbotWidget />
 
       <BrowserRouter>
-        <FloatingAdminButton />
 
         <Routes>
           {/* Public Pages */}

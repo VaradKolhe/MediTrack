@@ -31,19 +31,23 @@ export const receptionistApi = {
     return res?.data?.data;
   },
 
-  async reassignPatient(patientId, newRoomId) {
+  async reassignPatient(patientId, newRoomId, symptoms) {
     const res = await instance.put("/rooms/reassign", {
       patientId,
       newRoomId,
+      symptoms
     });
     return res?.data?.data;
   },
+
   async getAllPatients() {
     const res = await instance.get("/patients");
     return unwrap(res);
   },
+
   async getHospital()  {
     const res = await instance.get("/hospitals");
     return unwrap(res);
   }
+
 };
