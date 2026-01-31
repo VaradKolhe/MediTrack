@@ -1,4 +1,3 @@
-import axios from "axios";
 import { adminApiInstance as instance } from "./axiosConfig";
 
 const unwrap = (response) => response?.data?.data ?? [];

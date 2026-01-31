@@ -10,7 +10,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
-import { userApiInstance as instance } from "../api/axiosConfig";
+import { userApi } from "../api/userApi";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -97,7 +97,6 @@ const LoginPage = () => {
     if (mode === "register") {
       if (form.password !== form.confirmPassword) {
         toast.error("Passwords do not match!");
-        // Clear passwords immediately if mismatch
         setForm((prev) => ({ ...prev, password: "", confirmPassword: "" }));
         return;
       }
@@ -107,16 +106,17 @@ const LoginPage = () => {
       try {
         // --- 1. LOGIN MODE ---
         if (mode === "login") {
-          const res = await instance.post(`/api/auth/login`, {
+          // UPDATED: Using API method
+          const data = await userApi.login({
             username: form.username,
             password: form.password,
           });
 
           // Handle Receptionist Hospital Decoding
           let hospitalId = null;
-          if (res.data.role === "RECEPTIONIST" && res.data.token) {
+          if (data.role === "RECEPTIONIST" && data.token) {
             try {
-              const decoded = jwtDecode(res.data.token);
+              const decoded = jwtDecode(data.token);
               hospitalId = decoded.hospitalId || null;
             } catch (e) {
               console.warn("Failed to decode receptionist token", e);
@@ -125,31 +125,30 @@ const LoginPage = () => {
 
           // Normalize Role
           const role =
-            typeof res.data.role === "string"
-              ? res.data.role
-              : res.data.role?.name || res.data.role || "USER";
+            typeof data.role === "string"
+              ? data.role
+              : data.role?.name || data.role || "USER";
 
           const userData = {
-            id: res.data.id,
-            username: res.data.username,
-            email: res.data.email,
-            firstName: res.data.firstName,
-            lastName: res.data.lastName,
+            id: data.id,
+            username: data.username,
+            email: data.email,
+            firstName: data.firstName,
+            lastName: data.lastName,
             role: role,
             hospitalId: hospitalId,
           };
 
-          login(res.data.token, userData);
+          login(data.token, userData);
 
-          // SUCCESS: Now it is safe to clear password
           setForm((prev) => ({ ...prev, password: "", confirmPassword: "" }));
           return role;
         }
 
         // --- 2. REGISTER MODE ---
         if (mode === "register") {
-          // Send required fields (password is kept in state for next step)
-          await instance.post(`/api/auth/register`, {
+          // UPDATED: Using API method
+          await userApi.register({
             username: form.username,
             email: form.email,
             password: form.password,
@@ -158,29 +157,29 @@ const LoginPage = () => {
           });
 
           setMode("verify");
-          // NOTE: Do NOT clear password here. It is needed for auto-login in verify step.
+          // NOTE: Do NOT clear password here.
           return "REGISTER_SUCCESS";
         }
 
         // --- 3. VERIFY MODE ---
         if (mode === "verify") {
-          // Verify OTP
-          await instance.post(`/api/auth/verify`, {
+          // UPDATED: Using API method for Verification
+          await userApi.verify({
             email: form.email,
             verificationCode: form.otp,
           });
 
-          // Auto-Login using the password persisted in state
-          const loginRes = await instance.post(`/api/auth/login`, {
+          // UPDATED: Using API method for Auto-Login
+          const loginData = await userApi.login({
             username: form.username,
-            password: form.password, // This now has the value!
+            password: form.password,
           });
 
           // Handle Receptionist Hospital Decoding (Same logic as login)
           let hospitalId = null;
-          if (loginRes.data.role === "RECEPTIONIST" && loginRes.data.token) {
+          if (loginData.role === "RECEPTIONIST" && loginData.token) {
             try {
-              const decoded = jwtDecode(loginRes.data.token);
+              const decoded = jwtDecode(loginData.token);
               hospitalId = decoded.hospitalId || null;
             } catch (e) {
               console.warn("Failed to decode receptionist token", e);
@@ -188,30 +187,30 @@ const LoginPage = () => {
           }
 
           const role =
-            typeof loginRes.data.role === "string"
-              ? loginRes.data.role
-              : loginRes.data.role?.name || loginRes.data.role || "USER";
+            typeof loginData.role === "string"
+              ? loginData.role
+              : loginData.role?.name || loginData.role || "USER";
 
           const userData = {
-            id: loginRes.data.id,
-            username: loginRes.data.username,
-            email: loginRes.data.email,
-            firstName: loginRes.data.firstName,
-            lastName: loginRes.data.lastName,
+            id: loginData.id,
+            username: loginData.username,
+            email: loginData.email,
+            firstName: loginData.firstName,
+            lastName: loginData.lastName,
             role: role,
             hospitalId: hospitalId,
           };
 
-          login(loginRes.data.token, userData);
+          login(loginData.token, userData);
 
-          // SUCCESS: Now it is safe to clear password
           setForm((prev) => ({ ...prev, password: "", confirmPassword: "" }));
           return role;
         }
       } catch (err) {
-        // ERROR: Clear passwords to force re-entry if something failed
+        // ERROR HANDLING
         setForm((prev) => ({ ...prev, password: "", confirmPassword: "" }));
 
+        // Handle axios error structure
         const message =
           err.response?.data?.message ||
           "Something went wrong during the process.";
@@ -224,8 +223,8 @@ const LoginPage = () => {
         mode === "login"
           ? "Logging you in securely..."
           : mode === "register"
-          ? "Creating new account..."
-          : "Verifying OTP...",
+            ? "Creating new account..."
+            : "Verifying OTP...",
       success: (result) => {
         if (result === "REGISTER_SUCCESS") {
           return "Account created! Please check your email for the OTP.";
@@ -620,8 +619,8 @@ const LoginPage = () => {
                 {mode === "login"
                   ? "Secure Login"
                   : mode === "register"
-                  ? "Create Account"
-                  : "Verify Code"}
+                    ? "Create Account"
+                    : "Verify Code"}
               </motion.button>
 
               {/* Back to Login Button */}

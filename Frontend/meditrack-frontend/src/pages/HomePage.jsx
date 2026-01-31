@@ -7,7 +7,7 @@ import {
   RefreshCw,
   Search,
 } from "lucide-react";
-import { hospitalApiInstance as instancehospital } from "../api/axiosConfig";
+import { receptionistApi } from "../api/receptionistApi";
 import HospitalCard from "../components/HospitalCard";
 import HospitalModal from "../components/HospitalModal";
 import { motion } from "framer-motion";
@@ -111,7 +111,6 @@ const HomePage = () => {
   const [isRefetching, setIsRefetching] = useState(false);
   const navigate = useNavigate();
 
-  // --- 1. DEFINE THE REUSABLE FUNCTION (Move this outside useEffect) ---
   const fetchHospitals = useCallback(async (isBackground = false) => {
     // Determine which loading state to use
     if (isBackground) {
@@ -121,11 +120,12 @@ const HomePage = () => {
     }
 
     try {
-      const res = await instancehospital.get("/public/hospitals");
-      const data = res.data.data ?? [];
+      // UPDATED: Use the API method instead of direct axios call
+      // This automatically handles the .data.data unwrapping
+      const data = await receptionistApi.getPublicHospitals();
 
       setHospitals(data);
-      setLastSynced(new Date()); // Update the time ONLY on success
+      setLastSynced(new Date()); 
     } catch (err) {
       console.error(err);
       toast.error("Failed to sync network");

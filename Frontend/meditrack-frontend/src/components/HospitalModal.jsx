@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { hospitalApiInstance as axios } from "../api/axiosConfig";
+import { receptionistApi } from "../api/receptionistApi";
 import {
   X,
   MapPin,
@@ -43,10 +43,8 @@ const HospitalModal = ({ hospital, onClose }) => {
   const fetchReviews = async () => {
     setIsLoadingReviews(true);
     try {
-      const response = await axios.get(`hospitals/reviews/${hospital.id}`);
-      if (response.data && response.data.success) {
-        setReviews(response.data.data);
-      }
+      const data = await receptionistApi.getHospitalReviews(hospital.id);
+      setReviews(data);
     } catch (error) {
       console.error("Error fetching reviews:", error);
     } finally {
@@ -54,7 +52,6 @@ const HospitalModal = ({ hospital, onClose }) => {
     }
   };
 
-  // --- 2. SUBMIT REVIEW ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (rating === 0) return;
@@ -69,28 +66,18 @@ const HospitalModal = ({ hospital, onClose }) => {
         return;
       }
 
-      const payload = {
-        rating: rating,
-        comment: comment,
-      };
+      // UPDATED: Using the API method
+      const response = await receptionistApi.addHospitalReview(hospital.id, {
+        rating,
+        comment,
+      });
 
-      const response = await axios.post(
-        `hospitals/${hospital.id}/reviews`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.data && response.data.success) {
-        setReviews([response.data.data, ...reviews]);
+      if (response && response.success) {
+        setReviews([response.data, ...reviews]);
         setComment("");
         setRating(0);
       }
     } catch (error) {
-      // Handle the specific 409 Conflict we discussed earlier
       if (error.response && error.response.status === 409) {
         alert("You have already submitted a review for this hospital.");
       } else {
@@ -247,7 +234,7 @@ const HospitalModal = ({ hospital, onClose }) => {
                 <div className="h-4 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner">
                   <div
                     className={`h-full ${getOccupancyColor(
-                      occupancyRate
+                      occupancyRate,
                     )} transition-all duration-1000 ease-out`}
                     style={{ width: `${occupancyRate}%` }}
                   />
@@ -308,14 +295,13 @@ const HospitalModal = ({ hospital, onClose }) => {
                   <p className="text-slate-500 max-w-sm mb-6">
                     To maintain the quality and privacy of our patient feedback,
                     you must be logged in to view or write reviews.
-                  </p>                
+                  </p>
                   <button
                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-semibold transition shadow-lg shadow-blue-200"
                     onClick={() => navigate("/login")}
                   >
                     Log In to Access
                   </button>
-
                 </div>
               ) : (
                 // --- AUTHENTICATED CONTENT ---
@@ -404,7 +390,7 @@ const HospitalModal = ({ hospital, onClose }) => {
                                 <p className="text-xs text-slate-400">
                                   {review.createdAt
                                     ? new Date(
-                                        review.createdAt
+                                        review.createdAt,
                                       ).toLocaleDateString()
                                     : "Recently"}
                                 </p>

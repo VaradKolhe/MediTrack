@@ -64,6 +64,12 @@ export default function ReceptionistsManager({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!form.hospitalId) {
+      toast.error("Please select a hospital");
+      return; // Stop execution here
+    }
+
     setIsSubmitting(true);
 
     // 1. Create base payload

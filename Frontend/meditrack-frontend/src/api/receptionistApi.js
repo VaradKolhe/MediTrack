@@ -45,9 +45,26 @@ export const receptionistApi = {
     return unwrap(res);
   },
 
-  async getHospital()  {
+  async getHospital() {
     const res = await instance.get("/hospitals");
     return unwrap(res);
-  }
+  },
 
+  async getHospitalReviews(hospitalId) {
+    const res = await instance.get(`hospitals/reviews/${hospitalId}`);
+    return unwrap(res); 
+  },
+
+  async addHospitalReview(hospitalId, { rating, comment }) {
+    const res = await instance.post(`hospitals/${hospitalId}/reviews`, {
+      rating,
+      comment,
+    });
+    return res?.data;
+  },
+
+  async getPublicHospitals() {
+    const res = await instance.get("/public/hospitals");
+    return unwrap(res);
+  }
 };
