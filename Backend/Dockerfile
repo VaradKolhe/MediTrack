@@ -38,6 +38,10 @@ COPY --from=builder /build/hospitalservice/target/*.jar /app/hospital.jar
 
 # 3. Copy Supervisor Config
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+RUN rm -rf /etc/nginx/conf.d/default.conf
+RUN rm -rf /etc/nginx/http.d/default.conf
+
 COPY nginx.conf /etc/nginx/http.d/default.conf
 
 # 4. Expose Ports
