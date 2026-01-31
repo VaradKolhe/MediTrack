@@ -3,9 +3,6 @@ import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "./AuthContextValue";
 import { userApiInstance } from "../api/axiosConfig";
 
-// Ensure this matches your backend URL constant
-const USER_SERVICE = "http://localhost:8081";
-
 // Helper to decode JWT token
 const decodeToken = (token) => {
   try {
@@ -77,15 +74,11 @@ export const AuthProvider = ({ children }) => {
               logout();
             }
           } else {
-            // Valid token but missing user data -> Invalid state
             logout();
           }
         } else {
-          // REGULAR USER LOGIC -> Verify with Backend
           try {
-            const res = await userApiInstance.get(
-              `${USER_SERVICE}/api/users/me`
-            );
+            const res = await userApiInstance.get(`/api/auth/me`);
             setUser(res.data);
             localStorage.setItem("user", JSON.stringify(res.data));
           } catch (error) {

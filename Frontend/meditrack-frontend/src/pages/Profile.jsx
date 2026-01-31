@@ -68,8 +68,7 @@ export default function Profile() {
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
-      const response = await instance.get(`/api/auth/me`);
-      const data = response.data;
+      const data = await userApi.getMe();
 
       setProfileData(data);
       setFormData({

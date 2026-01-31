@@ -1,8 +1,10 @@
 import axios from "axios";
 
-export const USER_SERVICE = "http://localhost:8082";
-export const HOSPITAL_SERVICE = "http://localhost:8081";
-export const ADMIN_SERVICE = "http://localhost:8083";
+const backendDNS = import.meta.env.VITE_BACKEND_DNS || "localhost";
+export const HOSPITAL_SERVICE = `http://${backendDNS}/svc/hospital`;
+export const USER_SERVICE = `http://${backendDNS}/svc/user`;
+export const ADMIN_SERVICE = `http://${backendDNS}/svc/admin`;
+console.log(backendDNS);
 
 // Helper to create instances with the same interceptor logic
 const createInstance = (url) => {

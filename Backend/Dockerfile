@@ -21,12 +21,13 @@ RUN mvn clean package -DskipTests -f EurekaServer/pom.xml && \
 FROM eclipse-temurin:21-jre-alpine
 
 # Install Supervisor and Bash (Required for your supervisord.conf)
-RUN apk add --no-cache supervisor bash
+RUN apk add --no-cache supervisor bash nginx
 
 WORKDIR /app
 
 # 1. Create Log Directory
 RUN mkdir -p /var/log/supervisor
+RUN mkdir -p /run/nginx
 
 # 2. Copy the compiled JARs from the Builder Stage
 # We rename them to simple names (e.g., eureka.jar) to make the supervisor config easier
@@ -37,9 +38,10 @@ COPY --from=builder /build/hospitalservice/target/*.jar /app/hospital.jar
 
 # 3. Copy Supervisor Config
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY nginx.conf /etc/nginx/http.d/default.conf
 
 # 4. Expose Ports
-EXPOSE 8761 8081 8082 8083
+EXPOSE 80
 
 # 5. Start Supervisor
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

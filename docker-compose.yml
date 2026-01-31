@@ -1,0 +1,49 @@
+services:
+  db:
+    build: ./Database
+    container_name: meditrack-db
+    restart: unless-stopped
+    networks:
+      - meditrack-net
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - meditrack_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+
+  backend-image:
+    build: ./Backend
+    container_name: meditrack-backend
+    restart: unless-stopped
+    depends_on:
+      - db
+    networks:
+      - meditrack-net
+    ports:
+      - "${BACKEND_EUREKA_PORT}:8761"
+      - "${BACKEND_HOSPITAL_PORT}:8081"
+      - "${BACKEND_USER_PORT}:8082"
+      - "${BACKEND_ADMIN_PORT}:8083"
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+
+  frontend-image:
+    build: ./Frontend/meditrack-frontend
+    container_name: meditrack-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend-image
+    networks:
+      - meditrack-net
+    ports:
+      - "${FRONTEND_PORT}:5173"
+
+networks:
+  meditrack-net:
+    driver: bridge
+
+volumes:
+  meditrack_data:
+    name: meditrack_data
